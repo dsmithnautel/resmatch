@@ -19,20 +19,6 @@ class MasterVersion(BaseModel):
     created_at: datetime = Field(default_factory=datetime.utcnow)
     notes: Optional[str] = None
     
-    # LaTeX template storage for format preservation
-    latex_template: Optional[str] = Field(
-        None,
-        description="LaTeX source with placeholders for atomic units"
-    )
-    placeholder_map: Optional[dict] = Field(
-        None,
-        description="Maps placeholders to atomic unit IDs"
-    )
-    has_latex_source: bool = Field(
-        False,
-        description="True if user provided original .tex file"
-    )
-    
     class Config:
         json_schema_extra = {
             "example": {
