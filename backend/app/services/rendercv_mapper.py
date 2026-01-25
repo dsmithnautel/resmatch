@@ -5,7 +5,6 @@ Target Theme: sb2nov (Jake's Resume)
 
 from typing import List, Dict, Any, Optional
 from collections import defaultdict
-from datetime import datetime
 import re
 
 from app.models import ScoredUnit
