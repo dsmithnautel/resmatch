@@ -32,8 +32,8 @@ import {
 
 // Progress steps for the pipeline
 const steps = [
-  { num: 1, label: "Resume Vault", icon: FileText },
-  { num: 2, label: "Job Description", icon: Target },
+  { num: 1, label: "Upload Resume", icon: FileText },
+  { num: 2, label: "Add Job", icon: Target },
   { num: 3, label: "Review Matches", icon: Sparkles },
   { num: 4, label: "Export PDF", icon: Download },
 ];
@@ -105,8 +105,8 @@ function ProgressIndicator({ currentStep }: { currentStep: number }) {
   );
 }
 
-// Tooltip component for "What is an atomic unit?"
-function AtomicUnitTooltip() {
+// Tooltip component for "How does this work?"
+function HowItWorksTooltip() {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -118,7 +118,7 @@ function AtomicUnitTooltip() {
         className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
       >
         <HelpCircle className="w-4 h-4" />
-        What is an atomic unit?
+        How does this work?
       </button>
       <AnimatePresence>
         {isOpen && (
@@ -129,10 +129,10 @@ function AtomicUnitTooltip() {
             className="absolute left-0 top-full mt-2 w-72 p-3 bg-popover border rounded-lg shadow-lg z-10"
           >
             <p className="text-sm text-popover-foreground">
-              An atomic unit is a single bullet point from your resume that
-              represents one verifiable piece of experience. Each unit is
-              tracked back to its exact source location (page, line) so we never
-              invent or embellish your experience.
+              We extract each bullet point from your resume and track exactly
+              where it came from (page and line number). This means we never
+              invent or embellish your experience. Every bullet in your
+              tailored resume is verified from your original.
             </p>
           </motion.div>
         )}
@@ -141,8 +141,8 @@ function AtomicUnitTooltip() {
   );
 }
 
-// Enhanced Atomic Unit Card with provenance
-function AtomicUnitCard({
+// Experience Bullet Card with source tracking
+function BulletCard({
   unit,
   index,
 }: {
@@ -189,7 +189,7 @@ function AtomicUnitCard({
 
       <p className="text-foreground mb-3">{unit.text}</p>
 
-      {/* Provenance info */}
+      {/* Source tracking */}
       <div className="flex items-center justify-between">
         <button className="inline-flex items-center gap-1.5 text-xs text-primary hover:underline">
           <Link2 className="w-3 h-3" />
@@ -269,11 +269,11 @@ export default function VaultPage() {
           className="text-center mb-8"
         >
           <h1 className="text-3xl font-bold text-foreground mb-2">
-            Resume Vault
+            Upload Your Resume
           </h1>
           <p className="text-muted-foreground max-w-lg mx-auto">
-            Upload your master resume to extract verified atomic units of
-            experience.
+            We&apos;ll extract each bullet point and track its exact source,
+            so your tailored resume only contains verified experience.
           </p>
         </motion.div>
 
@@ -287,12 +287,12 @@ export default function VaultPage() {
             <Card className="max-w-2xl mx-auto">
               <CardHeader>
                 <div className="flex items-center justify-between">
-                  <CardTitle>Upload Your Resume</CardTitle>
-                  <AtomicUnitTooltip />
+                  <CardTitle>Select Your Resume</CardTitle>
+                  <HowItWorksTooltip />
                 </div>
                 <CardDescription>
-                  We&apos;ll extract every bullet point as a verified atomic
-                  unit — no rewriting, no embellishment.
+                  We&apos;ll extract every bullet point and remember exactly
+                  where it came from. No rewriting, no embellishment.
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -338,8 +338,8 @@ export default function VaultPage() {
                       Resume Processed Successfully
                     </h3>
                     <p className="text-green-700 dark:text-green-300 text-sm">
-                      {result.atomic_units.length} verified atomic units
-                      extracted from your resume
+                      {result.atomic_units.length} experience bullets extracted
+                      and verified
                     </p>
                   </div>
                 </div>
@@ -393,19 +393,19 @@ export default function VaultPage() {
                 <div className="flex items-center justify-between">
                   <div>
                     <CardTitle className="text-lg">
-                      Extracted Atomic Units
+                      Your Experience Bullets
                     </CardTitle>
                     <CardDescription>
                       Each bullet is linked to its exact source in your resume
                     </CardDescription>
                   </div>
-                  <AtomicUnitTooltip />
+                  <HowItWorksTooltip />
                 </div>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3 max-h-[500px] overflow-y-auto pr-2">
                   {result.atomic_units.map((unit, index) => (
-                    <AtomicUnitCard key={unit.id} unit={unit} index={index} />
+                    <BulletCard key={unit.id} unit={unit} index={index} />
                   ))}
                 </div>
               </CardContent>

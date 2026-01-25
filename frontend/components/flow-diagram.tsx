@@ -158,7 +158,7 @@ export function FlowDiagram({ activeStep }: FlowDiagramProps) {
           <FlowNode
             icon={<Sparkles className="w-5 h-5" />}
             label="Extract Bullets"
-            chip="12 verified units"
+            chip="12 bullets found"
             isActive={resumeRailActive}
             isCompleted={resumeRailCompleted}
             delay={0.3}

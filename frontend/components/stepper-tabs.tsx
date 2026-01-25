@@ -13,16 +13,16 @@ interface Step {
 const steps: Step[] = [
   {
     num: 1,
-    title: "Upload your master resume",
+    title: "Upload your resume",
     description:
-      "Upload your PDF. We extract bullets as verified atomic units — no rewriting, no embellishment.",
+      "Upload your PDF. We extract each bullet and track exactly where it came from. No rewriting, no embellishment.",
     icon: <FileText className="w-5 h-5" />,
   },
   {
     num: 2,
     title: "Paste the job description",
     description:
-      "Paste the job posting. We extract requirements and keywords to match against your verified bullets.",
+      "Paste the job posting. We extract requirements and keywords to match against your experience.",
     icon: <Target className="w-5 h-5" />,
   },
   {
@@ -36,7 +36,7 @@ const steps: Step[] = [
     num: 4,
     title: "Export your tailored PDF",
     description:
-      "Download a clean, one-page resume with source links. Every bullet traceable to your original.",
+      "Download a clean, one-page resume. Every bullet is traceable back to your original.",
     icon: <Download className="w-5 h-5" />,
   },
 ];

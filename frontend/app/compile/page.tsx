@@ -56,7 +56,7 @@ function CompilePageContent() {
       const result = await compileResume(masterVersion, parsedJD.jd_id);
       setCompileResult(result);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to compile resume");
+      setError(err instanceof Error ? err.message : "Failed to tailor resume");
     } finally {
       setIsCompiling(false);
     }
@@ -69,7 +69,7 @@ function CompilePageContent() {
         <Card className="max-w-2xl mx-auto text-center">
           <CardContent className="pt-6">
             <div className="text-green-600 text-6xl mb-4">✓</div>
-            <h2 className="text-2xl font-bold mb-2">Resume Compiled!</h2>
+            <h2 className="text-2xl font-bold mb-2">Resume Tailored!</h2>
             <p className="text-gray-600 dark:text-gray-300 mb-6">
               Selected {compileResult.selected_units.length} bullets with{" "}
               {Math.round(compileResult.coverage.coverage_score * 100)}% requirement coverage.
@@ -91,10 +91,10 @@ function CompilePageContent() {
       {/* Header */}
       <div className="mb-8">
         <Link href="/vault" className="text-blue-600 hover:underline text-sm mb-2 inline-block">
-          &larr; Back to Vault
+          &larr; Back to Upload
         </Link>
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-          Compile Resume
+          Add Job Description
         </h1>
         <p className="text-gray-600 dark:text-gray-300 mt-2">
           Paste a job description to tailor your resume.
@@ -109,7 +109,7 @@ function CompilePageContent() {
           <CardContent className="pt-6">
             <div className="flex items-center gap-2 text-yellow-700 dark:text-yellow-300">
               <AlertCircle className="w-5 h-5" />
-              <span>No master resume selected.</span>
+              <span>No resume uploaded.</span>
               <Link href="/vault" className="underline">Upload one first.</Link>
             </div>
           </CardContent>
@@ -266,11 +266,11 @@ function CompilePageContent() {
               {isCompiling ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin" />
-                  Compiling...
+                  Tailoring...
                 </>
               ) : (
                 <>
-                  Compile Resume
+                  Tailor My Resume
                   <ArrowRight className="w-4 h-4" />
                 </>
               )}

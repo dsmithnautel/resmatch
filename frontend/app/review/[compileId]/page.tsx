@@ -65,7 +65,7 @@ export default function ReviewPage() {
       {/* Header */}
       <div className="mb-8">
         <Link href="/compile" className="text-blue-600 hover:underline text-sm mb-2 inline-block">
-          &larr; Back to Compile
+          &larr; Back to Job Description
         </Link>
         <div className="flex items-center justify-between">
           <div>
@@ -80,7 +80,7 @@ export default function ReviewPage() {
             <Button variant="outline" asChild>
               <a href={`/api/provenance/${compileId}`} download>
                 <FileText className="w-4 h-4 mr-2" />
-                Provenance JSON
+                Source Data (JSON)
               </a>
             </Button>
             <Button asChild>
@@ -191,7 +191,7 @@ export default function ReviewPage() {
             <CardDescription>
               {selectedUnit
                 ? "See how this bullet matches the job requirements"
-                : "Select a bullet to see its provenance"}
+                : "Select a bullet to see why it was included"}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -259,11 +259,11 @@ export default function ReviewPage() {
                   )}
                 </div>
 
-                {/* Provenance */}
+                {/* Source Record */}
                 {provMap.has(selectedUnit.unit_id) && (
                   <div>
                     <h4 className="font-semibold text-gray-900 dark:text-white mb-2">
-                      Provenance Record
+                      Source Record
                     </h4>
                     <pre className="text-xs bg-gray-100 dark:bg-gray-800 p-3 rounded overflow-x-auto">
                       {JSON.stringify(provMap.get(selectedUnit.unit_id), null, 2)}

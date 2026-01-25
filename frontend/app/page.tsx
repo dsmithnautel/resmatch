@@ -20,12 +20,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Navigation } from "@/components/navigation";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
 import { FlowDiagram } from "@/components/flow-diagram";
 import { StepperTabs } from "@/components/stepper-tabs";
 
@@ -215,39 +209,6 @@ function FeatureCard({
   );
 }
 
-// FAQ Data
-const faqItems = [
-  {
-    question: "How does Resume.compile() ensure zero hallucinations?",
-    answer:
-      "We only use content that already exists in your uploaded resume. Every bullet point in your tailored resume can be traced back to an exact line in your original document. We never generate, invent, or embellish any experience.",
-  },
-  {
-    question: "What does 'provenance per bullet' mean?",
-    answer:
-      "Provenance means origin tracking. For every bullet we include in your tailored resume, you can click 'View source' to see exactly where it came from in your original resume—including the page number and line number.",
-  },
-  {
-    question: "Is my resume data stored or shared?",
-    answer:
-      "Your resume is processed in-memory and not stored permanently. We do not share your data with third parties. You can read our full privacy policy for details.",
-  },
-  {
-    question: "Do I need to create an account?",
-    answer:
-      "No. Resume.compile() works without sign-up. Just upload your resume, paste a job description, and export your tailored PDF immediately.",
-  },
-  {
-    question: "What file formats are supported?",
-    answer:
-      "We currently support PDF uploads for your master resume. The exported tailored resume is also delivered as a PDF optimized for ATS systems.",
-  },
-  {
-    question: "Is Resume.compile() really free?",
-    answer:
-      "Yes. Resume.compile() is free and open source. You can view the source code on GitHub and even self-host if you prefer.",
-  },
-];
 
 export default function Home() {
   const shouldReduceMotion = useReducedMotion();
@@ -343,7 +304,7 @@ export default function Home() {
               </div>
               <div className="flex items-center gap-2">
                 <Eye className="w-4 h-4 text-primary" />
-                <span>Full provenance tracking</span>
+                <span>Full source tracking</span>
               </div>
               <div className="flex items-center gap-2">
                 <Lock className="w-4 h-4 text-primary" />
@@ -363,7 +324,7 @@ export default function Home() {
             <AnimatedSection className="text-center mb-16">
               <h2 className="text-h2 text-foreground">How it works</h2>
               <p className="mt-3 text-body-sm text-muted-foreground max-w-2xl mx-auto">
-                Two inputs converge into one tailored resume — with full provenance
+                Two inputs converge into one tailored resume, every bullet traceable
               </p>
             </AnimatedSection>
 
@@ -383,7 +344,7 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Provenance Spotlight */}
+        {/* Source Tracking Spotlight */}
         <section className="py-section-lg px-6">
           <div className="container">
             <AnimatedSection className="text-center mb-16">
@@ -490,7 +451,7 @@ export default function Home() {
               {[
                 {
                   icon: <Link2 className="w-5 h-5" />,
-                  title: "Provenance per bullet",
+                  title: "Source links per bullet",
                   description:
                     "Every bullet links back to the exact line in your original resume. No guessing where content came from.",
                   highlight: true,
@@ -539,44 +500,26 @@ export default function Home() {
           </div>
         </section>
 
-        {/* FAQ Section */}
-        <section id="faq" className="py-section-lg px-6">
-          <div className="container max-w-3xl">
-            <AnimatedSection className="text-center mb-12">
-              <h2 className="text-h2 text-foreground">
-                Frequently asked questions
+        {/* Questions Section */}
+        <section className="py-section-md px-6">
+          <div className="container">
+            <AnimatedSection className="text-center">
+              <h2 className="text-h2 text-foreground mb-4">
+                Have questions?
               </h2>
-            </AnimatedSection>
-
-            <AnimatedSection delay={0.1}>
-              <Accordion type="single" collapsible className="w-full">
-                {faqItems.map((item, i) => (
-                  <AccordionItem key={i} value={`item-${i}`}>
-                    <AccordionTrigger className="text-left text-base">
-                      {item.question}
-                    </AccordionTrigger>
-                    <AccordionContent className="text-muted-foreground">
-                      {item.answer}
-                    </AccordionContent>
-                  </AccordionItem>
-                ))}
-              </Accordion>
-
-              {/* Still have questions */}
-              <div className="mt-8 pt-8 border-t text-center">
-                <p className="text-sm text-muted-foreground">
-                  Still have questions?{" "}
-                  <a
-                    href="https://github.com"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-primary hover:underline inline-flex items-center gap-1"
-                  >
-                    Ask on GitHub
-                    <ExternalLink className="w-3 h-3" />
-                  </a>
-                </p>
-              </div>
+              <p className="text-body-sm text-muted-foreground max-w-lg mx-auto mb-6">
+                Check out our FAQ and documentation on GitHub, or open an issue if you need help.
+              </p>
+              <a
+                href="https://github.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 text-primary hover:underline font-medium"
+              >
+                <Github className="w-5 h-5" />
+                View FAQ on GitHub
+                <ExternalLink className="w-4 h-4" />
+              </a>
             </AnimatedSection>
           </div>
         </section>
@@ -598,12 +541,14 @@ export default function Home() {
                     <ChevronRight className="w-4 h-4 ml-1" />
                   </Link>
                 </Button>
-                <Link
-                  href="#faq"
+                <a
+                  href="https://github.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="text-sm text-muted-foreground hover:text-foreground transition-colors"
                 >
-                  Read privacy details
-                </Link>
+                  Read privacy details on GitHub
+                </a>
               </div>
             </AnimatedSection>
           </div>
@@ -628,12 +573,14 @@ export default function Home() {
                 >
                   How it works
                 </Link>
-                <Link
-                  href="#faq"
+                <a
+                  href="https://github.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="hover:text-foreground transition-colors"
                 >
                   FAQ
-                </Link>
+                </a>
                 <a
                   href="https://github.com"
                   target="_blank"
@@ -647,7 +594,7 @@ export default function Home() {
 
               {/* Built for */}
               <div className="text-sm text-muted-foreground">
-                Built for SwampHacks XI
+                Built for SwampHacks XI 💙🧡🐊
               </div>
             </div>
           </div>

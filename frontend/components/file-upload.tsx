@@ -85,7 +85,7 @@ export function FileUpload({
               drop
             </p>
             <p className="text-xs text-gray-500 dark:text-gray-400">
-              PDF files only (your master resume)
+              PDF files only
             </p>
           </div>
           <input
