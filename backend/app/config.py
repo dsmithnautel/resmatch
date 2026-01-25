@@ -8,7 +8,7 @@ from functools import lru_cache
 
 def parse_cors_origins() -> list[str]:
     """Parse CORS_ORIGINS from environment, handling various formats."""
-    default = ["http://localhost:3000", "https://restailor.vercel.app"]
+    default = ["http://localhost:3000", "http://localhost:3001", "https://restailor.vercel.app"]
     
     raw = os.environ.get("CORS_ORIGINS", "")
     if not raw:

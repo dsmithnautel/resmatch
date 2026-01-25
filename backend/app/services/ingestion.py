@@ -13,14 +13,14 @@ from app.db.mongodb import get_database
 
 EXTRACTION_PROMPT = """
 You are a resume parser. Extract ALL content from this resume into atomic units.
-Each unit is ONE bullet point, skill group, education entry, or project.
+Each unit is ONE bullet point, skill group, education entry, project, award, etc.
 
 Return a JSON array. For EACH unit, include:
 {
-  "type": "bullet" | "skill_group" | "education" | "project" | "header",
-  "section": "experience" | "projects" | "education" | "skills" | "header",
-  "org": "company/school name (or null)",
-  "role": "job title or degree (or null)",
+  "type": "bullet" | "skill_group" | "education" | "project" | "header" | "award" | "certification" | "publication" | "language" | "interest",
+  "section": "experience" | "projects" | "education" | "skills" | "header" | "involvement" | "leadership" | "volunteer" | "awards" | "certifications" | "publications" | "languages" | "interests" | "other",
+  "org": "company/school/organization name (or null)",
+  "role": "job title, degree, or position (or null)",
   "dates": {"start": "YYYY-MM or null", "end": "YYYY-MM or present or null"},
   "text": "EXACT text from resume - DO NOT modify, summarize, or expand",
   "tags": {
@@ -30,6 +30,21 @@ Return a JSON array. For EACH unit, include:
   }
 }
 
+SECTION MAPPING:
+- Experience, Work History, Employment → section: "experience", type: "bullet"
+- Projects, Personal Projects → section: "projects", type: "project"
+- Education, Academic → section: "education", type: "education"
+- Skills, Technical Skills → section: "skills", type: "skill_group"
+- Involvement, Activities, Clubs, Organizations → section: "involvement", type: "bullet"
+- Leadership, Leadership Experience → section: "leadership", type: "bullet"
+- Volunteer, Community Service → section: "volunteer", type: "bullet"
+- Awards, Honors, Achievements → section: "awards", type: "award"
+- Certifications, Licenses → section: "certifications", type: "certification"
+- Publications, Papers, Research → section: "publications", type: "publication"
+- Languages → section: "languages", type: "language"
+- Interests, Hobbies → section: "interests", type: "interest"
+- Any other unrecognized section → section: "other", type: "bullet"
+
 CRITICAL RULES:
 1. Use ONLY text that appears VERBATIM in the resume
 2. Do NOT infer, expand, or add any information
@@ -37,7 +52,8 @@ CRITICAL RULES:
 4. If dates are unclear, use null
 5. Extract EVERY bullet point, even short ones
 6. For skills section, create one skill_group per category
-7. Include header info (name, contact) as type "header"
+7. Include header info (name, contact) as type "header", section "header"
+8. Recognize ALL sections, not just standard ones
 
 Resume text:
 """
@@ -90,13 +106,96 @@ async def ingest_pdf(pdf_content: bytes, filename: str) -> MasterResumeResponse:
     warnings = []
     counts = {}
     
+    # Map invalid types to valid AtomicUnitTypes
+    # Gemini sometimes confuses section names with type names
+    TYPE_MAPPING = {
+        # Standard types (valid as-is)
+        "bullet": "bullet",
+        "skill_group": "skill_group",
+        "education": "education",
+        "project": "project",
+        "header": "header",
+        "award": "award",
+        "certification": "certification",
+        "publication": "publication",
+        "language": "language",
+        "interest": "interest",
+        # Section names that should map to types
+        "experience": "bullet",
+        "projects": "project",
+        "skills": "skill_group",
+        "involvement": "bullet",
+        "leadership": "bullet",
+        "volunteer": "bullet",
+        "awards": "award",
+        "certifications": "certification",
+        "publications": "publication",
+        "languages": "language",
+        "interests": "interest",
+        # Common variations
+        "activities": "bullet",
+        "honors": "award",
+        "achievements": "award",
+        "papers": "publication",
+        "research": "publication",
+        "hobbies": "interest",
+    }
+    
+    # Map section name variations to standard SectionType values
+    SECTION_MAPPING = {
+        "experience": "experience",
+        "work": "experience",
+        "work experience": "experience",
+        "employment": "experience",
+        "projects": "projects",
+        "personal projects": "projects",
+        "education": "education",
+        "academic": "education",
+        "skills": "skills",
+        "technical skills": "skills",
+        "header": "header",
+        "involvement": "involvement",
+        "activities": "involvement",
+        "clubs": "involvement",
+        "organizations": "involvement",
+        "extracurricular": "involvement",
+        "leadership": "leadership",
+        "leadership experience": "leadership",
+        "volunteer": "volunteer",
+        "volunteering": "volunteer",
+        "community service": "volunteer",
+        "awards": "awards",
+        "honors": "awards",
+        "achievements": "awards",
+        "certifications": "certifications",
+        "licenses": "certifications",
+        "certificates": "certifications",
+        "publications": "publications",
+        "papers": "publications",
+        "research": "publications",
+        "languages": "languages",
+        "interests": "interests",
+        "hobbies": "interests",
+        "other": "other",
+    }
+    
     for i, raw in enumerate(raw_units):
         try:
+            # Normalize section - map variations to standard names
+            raw_section = raw.get("section", "experience").lower()
+            normalized_section = SECTION_MAPPING.get(raw_section, raw_section)
+            
+            # Fall back to 'other' if section is completely unknown
+            # This preserves unrecognized sections instead of losing context
+            valid_sections = [s.value for s in SectionType]
+            if normalized_section not in valid_sections:
+                normalized_section = "other"
+                warnings.append(f"Unit {i}: Unknown section '{raw_section}' mapped to 'other'")
+            
             # Generate unique ID
-            section = raw.get("section", "experience")
             org = raw.get("org", "unknown")
             org_slug = "".join(c for c in (org or "unknown")[:10].lower() if c.isalnum())
-            unit_id = f"{section[:3]}_{org_slug}_{i:03d}"
+            unit_id = f"{normalized_section[:3]}_{org_slug}_{i:03d}"
             
             # Parse dates
             dates = None
@@ -113,11 +212,15 @@ async def ingest_pdf(pdf_content: bytes, filename: str) -> MasterResumeResponse:
                 seniority=raw.get("tags", {}).get("seniority")
             )
             
+            # Normalize type - map invalid types to valid ones
+            raw_type = raw.get("type", "bullet").lower()
+            normalized_type = TYPE_MAPPING.get(raw_type, "bullet")
+            
             # Create atomic unit
             unit = AtomicUnit(
                 id=unit_id,
-                type=AtomicUnitType(raw.get("type", "bullet")),
-                section=SectionType(raw.get("section", "experience")),
+                type=AtomicUnitType(normalized_type),
+                section=SectionType(normalized_section),
                 org=raw.get("org"),
                 role=raw.get("role"),
                 dates=dates,

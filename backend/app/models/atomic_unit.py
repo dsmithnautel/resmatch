@@ -8,11 +8,16 @@ from pydantic import BaseModel, Field
 
 class AtomicUnitType(str, Enum):
     """Type of atomic unit."""
-    BULLET = "bullet"
-    SKILL_GROUP = "skill_group"
-    EDUCATION = "education"
-    PROJECT = "project"
-    HEADER = "header"
+    BULLET = "bullet"           # A bullet point (experience, involvement, etc.)
+    SKILL_GROUP = "skill_group" # A group of skills
+    EDUCATION = "education"     # An education entry
+    PROJECT = "project"         # A project entry
+    HEADER = "header"           # Header info (name, contact)
+    AWARD = "award"             # An award or honor
+    CERTIFICATION = "certification"  # A certification
+    PUBLICATION = "publication" # A publication
+    LANGUAGE = "language"       # A language entry
+    INTEREST = "interest"       # An interest/hobby
 
 
 class SectionType(str, Enum):
@@ -22,6 +27,17 @@ class SectionType(str, Enum):
     EDUCATION = "education"
     SKILLS = "skills"
     HEADER = "header"
+    # Additional sections (issue #28)
+    INVOLVEMENT = "involvement"     # Activities, clubs, organizations
+    LEADERSHIP = "leadership"       # Leadership roles
+    VOLUNTEER = "volunteer"         # Volunteer experience
+    AWARDS = "awards"               # Awards and honors
+    CERTIFICATIONS = "certifications"  # Professional certifications
+    PUBLICATIONS = "publications"   # Papers, articles, books
+    LANGUAGES = "languages"         # Language proficiencies
+    INTERESTS = "interests"         # Hobbies and interests
+    # Catch-all for unrecognized sections
+    OTHER = "other"                 # Any section not matching above
 
 
 class DateRange(BaseModel):
