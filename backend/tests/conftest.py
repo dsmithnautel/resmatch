@@ -1,0 +1,90 @@
+"""Pytest configuration and fixtures."""
+
+import os
+from unittest.mock import AsyncMock, patch
+
+import pytest
+from fastapi.testclient import TestClient
+
+# Set test environment
+os.environ["ENVIRONMENT"] = "test"
+os.environ["GEMINI_API_KEY"] = "test-key-for-testing"
+os.environ["MONGODB_URI"] = "mongodb://localhost:27017"
+os.environ["MONGODB_DATABASE"] = "resume_compile_test"
+
+
+@pytest.fixture
+def client():
+    """Create a test client for the FastAPI app."""
+    from app.main import app
+
+    with TestClient(app) as test_client:
+        yield test_client
+
+
+@pytest.fixture
+def mock_gemini():
+    """Mock Gemini API responses."""
+    with patch("app.services.gemini.generate_json") as mock:
+        mock.return_value = []
+        yield mock
+
+
+@pytest.fixture
+def mock_mongodb():
+    """Mock MongoDB operations."""
+    mock_db = AsyncMock()
+    mock_db.atomic_units = AsyncMock()
+    mock_db.master_versions = AsyncMock()
+    mock_db.job_descriptions = AsyncMock()
+    mock_db.compiles = AsyncMock()
+
+    with patch("app.db.mongodb.get_database", return_value=mock_db):
+        yield mock_db
+
+
+@pytest.fixture
+def sample_atomic_units():
+    """Sample atomic units for testing."""
+    return [
+        {
+            "id": "exp_google_001",
+            "type": "bullet",
+            "section": "experience",
+            "org": "Google",
+            "role": "Software Engineer",
+            "text": "Developed scalable backend services using Python and Go",
+            "tags": {
+                "skills": ["Python", "Go", "Backend"],
+                "domains": ["backend"],
+                "seniority": "mid",
+            },
+        },
+        {
+            "id": "exp_google_002",
+            "type": "bullet",
+            "section": "experience",
+            "org": "Google",
+            "role": "Software Engineer",
+            "text": "Reduced API latency by 40% through caching optimizations",
+            "tags": {
+                "skills": ["Performance", "Caching"],
+                "domains": ["backend"],
+                "seniority": "mid",
+            },
+        },
+    ]
+
+
+@pytest.fixture
+def sample_jd():
+    """Sample job description for testing."""
+    return {
+        "jd_id": "jd_test_001",
+        "role_title": "Senior Software Engineer",
+        "company": "TechCorp",
+        "must_haves": ["5+ years Python experience", "Experience with distributed systems"],
+        "nice_to_haves": ["Go experience", "Kubernetes knowledge"],
+        "responsibilities": ["Design and implement backend services", "Mentor junior engineers"],
+        "keywords": ["Python", "Go", "Distributed Systems", "Kubernetes"],
+    }

@@ -1,5 +1,5 @@
 # GitHub Actions CI Workflow
-# Runs linting and type checking on push/PR
+# Runs linting, type checking, and builds on push/PR
 
 name: CI
 
@@ -10,50 +10,105 @@ on:
     branches: [main]
 
 jobs:
-  backend-lint:
+  backend:
+    name: Backend (Python)
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: backend
-    
+
     steps:
-      - uses: actions/checkout@v4
-      
+      - uses: actions/checkout@v6
+
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: '3.11'
-      
+          cache: 'pip'
+          cache-dependency-path: backend/requirements.txt
+
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install ruff
+          pip install ruff mypy
           pip install -r requirements.txt
-      
+
       - name: Lint with ruff
         run: ruff check .
 
-  frontend-lint:
+      - name: Format check with ruff
+        run: ruff format --check .
+        continue-on-error: true  # Don't fail on format issues yet
+
+      - name: Type check with mypy
+        run: mypy app --ignore-missing-imports --no-error-summary
+        continue-on-error: true  # Enable gradually as types are added
+
+  frontend:
+    name: Frontend (Next.js)
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: frontend
-    
+
     steps:
-      - uses: actions/checkout@v4
-      
+      - uses: actions/checkout@v6
+
       - name: Set up Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
-          node-version: '18'
+          node-version: '20'
           cache: 'npm'
           cache-dependency-path: frontend/package-lock.json
-      
+
       - name: Install dependencies
-        run: npm ci || npm install
-      
+        run: npm ci
+
       - name: Lint
-        run: npm run lint || true
-      
+        run: npm run lint
+        continue-on-error: true  # Enable strictly once lint errors are fixed
+
       - name: Type check
-        run: npx tsc --noEmit || true
+        run: npx tsc --noEmit
+        continue-on-error: true  # Enable strictly once type errors are fixed
+
+      - name: Build
+        run: npm run build
+        env:
+          NEXT_PUBLIC_API_URL: https://restailor-8qrvl.ondigitalocean.app
+
+  # Backend tests
+  backend-tests:
+    name: Backend Tests
+    runs-on: ubuntu-latest
+    needs: backend
+    defaults:
+      run:
+        working-directory: backend
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+          cache-dependency-path: backend/requirements.txt
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+
+      - name: Run tests
+        run: pytest --cov=app --cov-report=xml -v
+        env:
+          GEMINI_API_KEY: test-key
+          MONGODB_URI: mongodb://localhost:27017
+          ENVIRONMENT: test
+
+      - name: Upload coverage
+        uses: codecov/codecov-action@v5
+        with:
+          file: backend/coverage.xml
+          fail_ci_if_error: false  # Don't fail if codecov is not configured

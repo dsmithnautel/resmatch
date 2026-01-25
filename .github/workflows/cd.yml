@@ -1,0 +1,44 @@
+# GitHub Actions CD Workflow
+# Deploys backend to DigitalOcean App Platform on main push
+# Note: Vercel auto-deploys frontend on push (configured in Vercel dashboard)
+
+name: CD
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:  # Allow manual trigger
+
+jobs:
+  deploy-backend:
+    name: Deploy Backend to DigitalOcean
+    runs-on: ubuntu-latest
+    # Only run on main branch, not PRs
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - uses: actions/checkout@v6
+
+      # Option 1: Use doctl CLI (recommended)
+      - name: Install doctl
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+
+      - name: Deploy to DigitalOcean App Platform
+        run: |
+          # Get app ID (replace with your actual app ID or use doctl to find it)
+          APP_ID=$(doctl apps list --format ID,Spec.Name --no-header | grep restailor | awk '{print $1}')
+
+          if [ -n "$APP_ID" ]; then
+            echo "Triggering deployment for app: $APP_ID"
+            doctl apps create-deployment $APP_ID --wait
+          else
+            echo "App not found. Make sure the app exists in DigitalOcean."
+            exit 1
+          fi
+        continue-on-error: true  # Don't fail if DO token not configured yet
+
+  # Note: Frontend deployment is handled automatically by Vercel
+  # Vercel watches the main branch and deploys on push
+  # No GitHub Action needed for frontend deployment
