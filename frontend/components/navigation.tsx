@@ -16,27 +16,6 @@ export function Navigation() {
             </span>
           </Link>
           
-          {/* Nav Links */}
-          <div className="hidden md:flex items-center gap-6">
-            <Link 
-              href="#how-it-works" 
-              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-            >
-              Product
-            </Link>
-            <Link 
-              href="#how-it-works" 
-              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-            >
-              How it works
-            </Link>
-            <Link 
-              href="#privacy" 
-              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-            >
-              Privacy
-            </Link>
-          </div>
         </div>
 
         <div className="flex items-center gap-4">

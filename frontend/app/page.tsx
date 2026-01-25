@@ -176,32 +176,66 @@ function ProofBullet({
   );
 }
 
-// Feature Card
-function FeatureCard({
+// Differentiator Card (top row - stronger emphasis)
+function DifferentiatorCard({
   icon,
   title,
   description,
-  highlight = false,
+  proof,
 }: {
   icon: React.ReactNode;
   title: string;
   description: string;
-  highlight?: boolean;
+  proof?: React.ReactNode;
 }) {
   return (
-    <Card
-      className={`transition-shadow hover:shadow-md ${
-        highlight ? "ring-2 ring-primary/20" : ""
-      }`}
-    >
+    <Card className="h-full transition-all duration-200 hover:shadow-lg hover:-translate-y-1 border-primary/20 bg-gradient-to-b from-primary/[0.03] to-transparent">
       <CardContent className="p-6">
-        <div className="flex items-start gap-4">
-          <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+        <div className="flex flex-col h-full">
+          <div className="flex items-start gap-4 mb-3">
+            <div className="flex-shrink-0 w-11 h-11 rounded-xl bg-primary/15 flex items-center justify-center text-primary transition-colors group-hover:bg-primary/20">
+              {icon}
+            </div>
+            <div className="flex-1 min-w-0">
+              <h3 className="font-semibold text-foreground text-base">{title}</h3>
+            </div>
+          </div>
+          <p className="text-sm text-muted-foreground leading-relaxed line-clamp-2">
+            {description}
+          </p>
+          {proof && (
+            <div className="mt-4 pt-3 border-t border-border/50">
+              {proof}
+            </div>
+          )}
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+// Feature Card (bottom row - quieter)
+function FeatureCard({
+  icon,
+  title,
+  description,
+}: {
+  icon: React.ReactNode;
+  title: string;
+  description: string;
+}) {
+  return (
+    <Card className="h-full transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 hover:border-border">
+      <CardContent className="p-5">
+        <div className="flex items-start gap-3">
+          <div className="flex-shrink-0 w-9 h-9 rounded-lg bg-muted flex items-center justify-center text-muted-foreground">
             {icon}
           </div>
-          <div>
-            <h3 className="font-semibold text-foreground">{title}</h3>
-            <p className="text-sm text-muted-foreground mt-1">{description}</p>
+          <div className="flex-1 min-w-0">
+            <h3 className="font-medium text-foreground text-sm">{title}</h3>
+            <p className="text-sm text-muted-foreground mt-1 leading-relaxed line-clamp-2">
+              {description}
+            </p>
           </div>
         </div>
       </CardContent>
@@ -434,93 +468,100 @@ export default function Home() {
         {/* Feature Grid */}
         <section className="py-section-lg px-6 bg-muted/20">
           <div className="container">
-            <AnimatedSection className="text-center mb-16">
+            <AnimatedSection className="text-center mb-10">
               <h2 className="text-h2 text-foreground">What makes it different</h2>
               <p className="mt-3 text-body-sm text-muted-foreground max-w-2xl mx-auto">
                 Built for trust and transparency, not just convenience
               </p>
             </AnimatedSection>
 
+            {/* Core Differentiators (Top Row) */}
             <motion.div
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true, margin: "-100px" }}
               variants={staggerContainer}
-              className="grid md:grid-cols-2 lg:grid-cols-3 gap-6"
+              className="grid md:grid-cols-3 gap-5 mb-5"
             >
-              {[
-                {
-                  icon: <Link2 className="w-5 h-5" />,
-                  title: "Source links per bullet",
-                  description:
-                    "Every bullet links back to the exact line in your original resume. No guessing where content came from.",
-                  highlight: true,
-                },
-                {
-                  icon: <Shield className="w-5 h-5" />,
-                  title: "Verified-only content",
-                  description:
-                    "We never generate or embellish. Every word in your output existed in your input.",
-                  highlight: false,
-                },
-                {
-                  icon: <Sparkles className="w-5 h-5" />,
-                  title: "Match explanations",
-                  description:
-                    "See why each bullet was selected and which job requirements it addresses.",
-                  highlight: false,
-                },
-                {
-                  icon: <FileText className="w-5 h-5" />,
-                  title: "One-page export",
-                  description:
-                    "Automatically optimized to fit the best content into a clean, ATS-friendly one-page format.",
-                  highlight: false,
-                },
-                {
-                  icon: <Lock className="w-5 h-5" />,
-                  title: "Privacy first",
-                  description:
-                    "Your resume is processed in-memory and not stored. No tracking, no data selling.",
-                  highlight: false,
-                },
-                {
-                  icon: <Github className="w-5 h-5" />,
-                  title: "Free and open source",
-                  description:
-                    "Fully transparent. Inspect the code, self-host, or contribute on GitHub.",
-                  highlight: false,
-                },
-              ].map((feature, i) => (
-                <motion.div key={feature.title} variants={fadeInUp}>
-                  <FeatureCard {...feature} />
-                </motion.div>
-              ))}
+              <motion.div variants={fadeInUp}>
+                <DifferentiatorCard
+                  icon={<Link2 className="w-5 h-5" />}
+                  title="Source links per bullet"
+                  description="Click any bullet to jump to the exact page and line in your PDF."
+                  proof={
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="text-xs px-2 py-1 rounded bg-muted text-muted-foreground">
+                        Page 1
+                      </span>
+                      <span className="text-xs px-2 py-1 rounded bg-muted text-muted-foreground">
+                        Line 12
+                      </span>
+                      <button className="text-xs text-primary hover:underline ml-auto">
+                        View source
+                      </button>
+                    </div>
+                  }
+                />
+              </motion.div>
+              <motion.div variants={fadeInUp}>
+                <DifferentiatorCard
+                  icon={<Shield className="w-5 h-5" />}
+                  title="Verified-only content"
+                  description="No rewriting. No embellishment. Output is built only from your resume."
+                />
+              </motion.div>
+              <motion.div variants={fadeInUp}>
+                <DifferentiatorCard
+                  icon={<Sparkles className="w-5 h-5" />}
+                  title="Match explanations"
+                  description="See which requirement each bullet covers and how it scored."
+                  proof={
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="text-xs px-2 py-1 rounded bg-primary/10 text-primary">
+                        microservices
+                      </span>
+                      <span className="text-xs px-2 py-1 rounded bg-primary/10 text-primary">
+                        CI/CD
+                      </span>
+                      <button className="text-xs text-primary hover:underline ml-auto">
+                        Why matched
+                      </button>
+                    </div>
+                  }
+                />
+              </motion.div>
             </motion.div>
-          </div>
-        </section>
 
-        {/* Questions Section */}
-        <section className="py-section-md px-6">
-          <div className="container">
-            <AnimatedSection className="text-center">
-              <h2 className="text-h2 text-foreground mb-4">
-                Have questions?
-              </h2>
-              <p className="text-body-sm text-muted-foreground max-w-lg mx-auto mb-6">
-                Check out our FAQ and documentation on GitHub, or open an issue if you need help.
-              </p>
-              <a
-                href="https://github.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 text-primary hover:underline font-medium"
-              >
-                <Github className="w-5 h-5" />
-                View FAQ on GitHub
-                <ExternalLink className="w-4 h-4" />
-              </a>
-            </AnimatedSection>
+            {/* Supporting Features (Bottom Row) */}
+            <motion.div
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: "-100px" }}
+              variants={staggerContainer}
+              className="grid md:grid-cols-3 gap-4"
+            >
+              <motion.div variants={fadeInUp}>
+                <FeatureCard
+                  icon={<FileText className="w-4 h-4" />}
+                  title="One-page export"
+                  description="Clean, ATS-friendly PDF ready to submit."
+                />
+              </motion.div>
+              <motion.div variants={fadeInUp}>
+                <FeatureCard
+                  icon={<Lock className="w-4 h-4" />}
+                  title="Privacy first"
+                  description="Processed in memory. Not stored. No tracking."
+                />
+              </motion.div>
+              <motion.div variants={fadeInUp}>
+                <FeatureCard
+                  icon={<Github className="w-4 h-4" />}
+                  title="Open source"
+                  description="Audit the code, self-host, or contribute on GitHub."
+                />
+              </motion.div>
+            </motion.div>
           </div>
         </section>
 
@@ -534,21 +575,13 @@ export default function Home() {
               <p className="mt-3 text-body-sm text-muted-foreground max-w-xl mx-auto">
                 No sign-up required. Your resume is not stored permanently.
               </p>
-              <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center items-center">
+              <div className="mt-8">
                 <Button size="lg" asChild>
                   <Link href="/vault">
                     Start free
                     <ChevronRight className="w-4 h-4 ml-1" />
                   </Link>
                 </Button>
-                <a
-                  href="https://github.com"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  Read privacy details on GitHub
-                </a>
               </div>
             </AnimatedSection>
           </div>
@@ -594,7 +627,7 @@ export default function Home() {
 
               {/* Built for */}
               <div className="text-sm text-muted-foreground">
-                Built for SwampHacks XI 💙🧡🐊
+                Built for SwampHacks XI | Made With Love in Gainesville 💙🧡🐊
               </div>
             </div>
           </div>
