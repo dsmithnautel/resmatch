@@ -10,9 +10,7 @@ import {
   CheckCircle,
   Link2,
   Shield,
-  Eye,
   Sparkles,
-  Lock,
   Github,
   ChevronRight,
   ExternalLink,
@@ -20,8 +18,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Navigation } from "@/components/navigation";
-import { FlowDiagram } from "@/components/flow-diagram";
-import { StepperTabs } from "@/components/stepper-tabs";
 
 // Animation variants
 const fadeInUp = {
@@ -113,9 +109,8 @@ function ProductPreview() {
 
           {/* Demo Bullet */}
           <motion.div
-            className={`p-3 rounded-lg border-2 transition-colors ${
-              step >= 1 ? "border-primary bg-primary/5" : "border-border"
-            }`}
+            className={`p-3 rounded-lg border-2 transition-colors ${step >= 1 ? "border-primary bg-primary/5" : "border-border"
+              }`}
           >
             <p className="text-sm">
               Led development of{" "}
@@ -246,7 +241,6 @@ function FeatureCard({
 
 export default function Home() {
   const shouldReduceMotion = useReducedMotion();
-  const [activeStep, setActiveStep] = useState(1);
 
   return (
     <>
@@ -267,16 +261,16 @@ export default function Home() {
                   variants={fadeInUp}
                   className="text-h1-mobile lg:text-h1 tracking-tight text-foreground"
                 >
-                  Tailor your resume with{" "}
-                  <span className="text-primary">zero hallucinations</span>
+                  Tailor your resume{" "}
+                  <span className="text-primary">for any job</span>
                 </motion.h1>
 
                 <motion.p
                   variants={fadeInUp}
                   className="mt-4 text-body text-muted-foreground max-w-xl mx-auto lg:mx-0"
                 >
-                  We only use bullets that already exist on your resume, and we
-                  show the exact source for every bullet.
+                  Upload your resume, paste a job description, and get a tailored
+                  version that highlights your most relevant experience.
                 </motion.p>
 
                 {/* CTAs */}
@@ -286,32 +280,32 @@ export default function Home() {
                 >
                   <Button size="lg" asChild>
                     <Link href="/vault">
-                      Start free
+                      Start tailoring
                       <ChevronRight className="w-4 h-4 ml-1" />
                     </Link>
                   </Button>
                   <Button variant="outline" size="lg" asChild>
-                    <Link href="#how-it-works">See how it works</Link>
+                    <Link href="#how-it-works">Try a demo</Link>
                   </Button>
                 </motion.div>
 
-                {/* Proof Bullets */}
+                {/* Trust Points */}
                 <motion.div
                   variants={fadeInUp}
-                  className="mt-10 grid grid-cols-1 sm:grid-cols-3 gap-4 justify-items-center lg:justify-items-start"
+                  className="mt-8 flex flex-wrap gap-4 justify-center lg:justify-start text-sm text-muted-foreground"
                 >
-                  <ProofBullet
-                    icon={<Link2 className="w-4 h-4" />}
-                    text="Source links per bullet"
-                  />
-                  <ProofBullet
-                    icon={<FileText className="w-4 h-4" />}
-                    text="ATS-friendly export"
-                  />
-                  <ProofBullet
-                    icon={<Shield className="w-4 h-4" />}
-                    text="No sign-up required"
-                  />
+                  <span className="flex items-center gap-1.5">
+                    <CheckCircle className="w-4 h-4 text-green-500" />
+                    Free to use
+                  </span>
+                  <span className="flex items-center gap-1.5">
+                    <CheckCircle className="w-4 h-4 text-green-500" />
+                    No sign-up required
+                  </span>
+                  <span className="flex items-center gap-1.5">
+                    <CheckCircle className="w-4 h-4 text-green-500" />
+                    Export as PDF
+                  </span>
                 </motion.div>
               </motion.div>
 
@@ -334,15 +328,15 @@ export default function Home() {
             <div className="flex flex-wrap justify-center gap-8 lg:gap-16 text-sm text-muted-foreground">
               <div className="flex items-center gap-2">
                 <CheckCircle className="w-4 h-4 text-green-500" />
-                <span>Verified-only content</span>
+                <span>Uses only your real experience</span>
               </div>
               <div className="flex items-center gap-2">
-                <Eye className="w-4 h-4 text-primary" />
-                <span>Full source tracking</span>
+                <Target className="w-4 h-4 text-primary" />
+                <span>Matches job requirements</span>
               </div>
               <div className="flex items-center gap-2">
-                <Lock className="w-4 h-4 text-primary" />
-                <span>Privacy first</span>
+                <Download className="w-4 h-4 text-primary" />
+                <span>Export-ready PDF</span>
               </div>
               <div className="flex items-center gap-2">
                 <Github className="w-4 h-4" />
@@ -352,237 +346,279 @@ export default function Home() {
           </div>
         </section>
 
-        {/* How It Works */}
-        <section id="how-it-works" className="py-section-lg px-6 bg-muted/20">
-          <div className="container">
-            <AnimatedSection className="text-center mb-16">
-              <h2 className="text-h2 text-foreground">How it works</h2>
-              <p className="mt-3 text-body-sm text-muted-foreground max-w-2xl mx-auto">
-                Two inputs converge into one tailored resume, every bullet traceable
-              </p>
-            </AnimatedSection>
-
-            <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-start">
-              {/* Interactive Steps */}
-              <AnimatedSection>
-                <StepperTabs activeStep={activeStep} onStepChange={setActiveStep} />
-              </AnimatedSection>
-
-              {/* Flow Diagram */}
-              <AnimatedSection delay={0.2}>
-                <div className="lg:sticky lg:top-24">
-                  <FlowDiagram activeStep={activeStep} />
-                </div>
-              </AnimatedSection>
-            </div>
-          </div>
-        </section>
-
-        {/* Source Tracking Spotlight */}
+        {/* Why Tailor - moved up to establish value first */}
         <section className="py-section-lg px-6">
           <div className="container">
-            <AnimatedSection className="text-center mb-16">
-              <h2 className="text-h2 text-foreground">
-                Every bullet has a source
-              </h2>
-              <p className="mt-3 text-body-sm text-muted-foreground max-w-2xl mx-auto">
-                Click any bullet to see exactly where it came from in your
-                original resume
-              </p>
-            </AnimatedSection>
-
-            <AnimatedSection delay={0.1}>
-              <div className="max-w-4xl mx-auto">
-                <div className="grid md:grid-cols-2 gap-6 items-center">
-                  {/* Resume Card */}
-                  <Card className="shadow-md">
-                    <CardContent className="p-5">
-                      <div className="flex items-center gap-2 mb-3">
-                        <FileText className="w-4 h-4 text-primary" />
-                        <span className="text-sm font-medium">Your Resume</span>
-                      </div>
-                      <div className="p-3 rounded bg-muted/50 border-l-4 border-primary">
-                        <p className="text-sm">
-                          Built and deployed{" "}
-                          <span className="bg-yellow-200 dark:bg-yellow-900/50 px-0.5">
-                            machine learning pipeline
-                          </span>{" "}
-                          processing 1M+ records daily with 99.9% uptime
-                        </p>
-                        <div className="mt-2 text-xs text-muted-foreground">
-                          Page 1, Line 12
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  {/* Connector */}
-                  <div className="hidden md:flex items-center justify-center absolute left-1/2 -translate-x-1/2">
-                    <div className="w-16 h-0.5 bg-gradient-to-r from-primary/50 to-primary" />
-                  </div>
-
-                  {/* Job Requirement Card */}
-                  <Card className="shadow-md">
-                    <CardContent className="p-5">
-                      <div className="flex items-center gap-2 mb-3">
-                        <Target className="w-4 h-4 text-primary" />
-                        <span className="text-sm font-medium">
-                          Job Requirement
-                        </span>
-                      </div>
-                      <div className="p-3 rounded bg-muted/50 border-l-4 border-green-500">
-                        <p className="text-sm">
-                          Experience with{" "}
-                          <span className="bg-yellow-200 dark:bg-yellow-900/50 px-0.5">
-                            ML/AI systems
-                          </span>{" "}
-                          and large-scale data processing
-                        </p>
-                        <div className="mt-2 flex items-center gap-2">
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-primary/10 text-primary text-xs font-medium">
-                            <CheckCircle className="w-3 h-3" />
-                            Matched
-                          </span>
-                          <span className="text-xs text-muted-foreground">
-                            Score: 0.89
-                          </span>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
-
-                {/* Source Link */}
-                <div className="mt-6 text-center">
-                  <button className="inline-flex items-center gap-2 text-sm text-primary hover:underline focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded px-2 py-1">
-                    <Link2 className="w-4 h-4" />
-                    View source (page 1, line 12)
-                    <ExternalLink className="w-3 h-3" />
-                  </button>
-                </div>
-              </div>
-            </AnimatedSection>
-          </div>
-        </section>
-
-        {/* Feature Grid */}
-        <section className="py-section-lg px-6 bg-muted/20">
-          <div className="container">
             <AnimatedSection className="text-center mb-10">
-              <h2 className="text-h2 text-foreground">What makes it different</h2>
+              <h2 className="text-h2 text-foreground">Why tailor your resume?</h2>
               <p className="mt-3 text-body-sm text-muted-foreground max-w-2xl mx-auto">
-                Built for trust and transparency, not just convenience
+                Generic resumes get overlooked. Tailored resumes get interviews.
               </p>
             </AnimatedSection>
 
-            {/* Core Differentiators (Top Row) */}
+            {/* Feature Cards */}
             <motion.div
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true, margin: "-100px" }}
               variants={staggerContainer}
-              className="grid md:grid-cols-3 gap-5 mb-5"
+              className="grid md:grid-cols-2 lg:grid-cols-4 gap-5"
             >
               <motion.div variants={fadeInUp}>
                 <DifferentiatorCard
-                  icon={<Link2 className="w-5 h-5" />}
-                  title="Source links per bullet"
-                  description="Click any bullet to jump to the exact page and line in your PDF."
-                  proof={
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className="text-xs px-2 py-1 rounded bg-muted text-muted-foreground">
-                        Page 1
-                      </span>
-                      <span className="text-xs px-2 py-1 rounded bg-muted text-muted-foreground">
-                        Line 12
-                      </span>
-                      <button className="text-xs text-primary hover:underline ml-auto">
-                        View source
-                      </button>
-                    </div>
-                  }
+                  icon={<Target className="w-5 h-5" />}
+                  title="Match job requirements"
+                  description="Highlight the experience that matters most for each specific role."
+                />
+              </motion.div>
+              <motion.div variants={fadeInUp}>
+                <DifferentiatorCard
+                  icon={<FileText className="w-5 h-5" />}
+                  title="Works with projects"
+                  description="No work experience? Projects and skills count just as much."
                 />
               </motion.div>
               <motion.div variants={fadeInUp}>
                 <DifferentiatorCard
                   icon={<Shield className="w-5 h-5" />}
-                  title="Verified-only content"
-                  description="No rewriting. No embellishment. Output is built only from your resume."
+                  title="Uses only real experience"
+                  description="We never make things up. Everything comes from your resume."
                 />
               </motion.div>
               <motion.div variants={fadeInUp}>
                 <DifferentiatorCard
                   icon={<Sparkles className="w-5 h-5" />}
-                  title="Match explanations"
-                  description="See which requirement each bullet covers and how it scored."
-                  proof={
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className="text-xs px-2 py-1 rounded bg-primary/10 text-primary">
-                        microservices
-                      </span>
-                      <span className="text-xs px-2 py-1 rounded bg-primary/10 text-primary">
-                        CI/CD
-                      </span>
-                      <button className="text-xs text-primary hover:underline ml-auto">
-                        Why matched
-                      </button>
-                    </div>
-                  }
-                />
-              </motion.div>
-            </motion.div>
-
-            {/* Supporting Features (Bottom Row) */}
-            <motion.div
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, margin: "-100px" }}
-              variants={staggerContainer}
-              className="grid md:grid-cols-3 gap-4"
-            >
-              <motion.div variants={fadeInUp}>
-                <FeatureCard
-                  icon={<FileText className="w-4 h-4" />}
-                  title="One-page export"
-                  description="Clean, ATS-friendly PDF ready to submit."
-                />
-              </motion.div>
-              <motion.div variants={fadeInUp}>
-                <FeatureCard
-                  icon={<Lock className="w-4 h-4" />}
-                  title="Privacy first"
-                  description="Processed in memory. Not stored. No tracking."
-                />
-              </motion.div>
-              <motion.div variants={fadeInUp}>
-                <FeatureCard
-                  icon={<Github className="w-4 h-4" />}
-                  title="Open source"
-                  description="Audit the code, self-host, or contribute on GitHub."
+                  title="Save hours of work"
+                  description="Create tailored versions in minutes, not hours."
                 />
               </motion.div>
             </motion.div>
           </div>
         </section>
 
+        {/* How It Works */}
+        <section id="how-it-works" className="py-section-md px-6 bg-muted/20">
+          <div className="container">
+            <AnimatedSection className="text-center mb-8">
+              <h2 className="text-h2 text-foreground">How it works</h2>
+              <p className="mt-2 text-body-sm text-muted-foreground max-w-2xl mx-auto">
+                Upload your resume, paste a job description, download your tailored version.
+              </p>
+            </AnimatedSection>
+
+            {/* Horizontal Steps */}
+            <AnimatedSection delay={0.1}>
+              <div className="max-w-3xl mx-auto">
+                <div className="flex flex-col md:flex-row items-start justify-center gap-2">
+                  {/* Step 1: Upload */}
+                  <div className="flex items-start">
+                    <div className="flex flex-col items-center text-center w-[140px]">
+                      <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-primary-foreground mb-2">
+                        <FileText className="w-5 h-5" />
+                      </div>
+                      <h3 className="font-semibold text-foreground text-sm h-10 flex items-center">Upload resume</h3>
+                      <p className="text-xs text-muted-foreground leading-tight">
+                        We extract your experience
+                      </p>
+                    </div>
+                    <ChevronRight className="hidden md:block w-5 h-5 text-muted-foreground/40 mt-3.5 mx-1 flex-shrink-0" />
+                  </div>
+
+                  {/* Step 2: Paste */}
+                  <div className="flex items-start">
+                    <div className="flex flex-col items-center text-center w-[140px]">
+                      <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-primary-foreground mb-2">
+                        <Target className="w-5 h-5" />
+                      </div>
+                      <h3 className="font-semibold text-foreground text-sm h-10 flex items-center">Paste job description</h3>
+                      <p className="text-xs text-muted-foreground leading-tight">
+                        Copy from any posting
+                      </p>
+                    </div>
+                    <ChevronRight className="hidden md:block w-5 h-5 text-muted-foreground/40 mt-3.5 mx-1 flex-shrink-0" />
+                  </div>
+
+                  {/* Step 3: Review */}
+                  <div className="flex items-start">
+                    <div className="flex flex-col items-center text-center w-[140px]">
+                      <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-primary-foreground mb-2">
+                        <Sparkles className="w-5 h-5" />
+                      </div>
+                      <h3 className="font-semibold text-foreground text-sm h-10 flex items-center">Review matches</h3>
+                      <p className="text-xs text-muted-foreground leading-tight">
+                        See what fits each role
+                      </p>
+                    </div>
+                    <ChevronRight className="hidden md:block w-5 h-5 text-muted-foreground/40 mt-3.5 mx-1 flex-shrink-0" />
+                  </div>
+
+                  {/* Step 4: Export */}
+                  <div className="flex items-start">
+                    <div className="flex flex-col items-center text-center w-[140px]">
+                      <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-primary-foreground mb-2">
+                        <Download className="w-5 h-5" />
+                      </div>
+                      <h3 className="font-semibold text-foreground text-sm h-10 flex items-center">Export PDF</h3>
+                      <p className="text-xs text-muted-foreground leading-tight">
+                        Download tailored resume
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </AnimatedSection>
+          </div>
+        </section>
+
+        {/* Examples Section */}
+        <section className="py-section-lg px-6">
+          <div className="container">
+            <AnimatedSection className="text-center mb-12">
+              <h2 className="text-h2 text-foreground">
+                See how it matches your experience
+              </h2>
+              <p className="mt-3 text-body-sm text-muted-foreground max-w-2xl mx-auto">
+                We find the best parts of your resume for each job requirement.
+              </p>
+            </AnimatedSection>
+
+            <motion.div
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: "-100px" }}
+              variants={staggerContainer}
+              className="max-w-5xl mx-auto"
+            >
+              <div className="grid md:grid-cols-3 gap-5">
+                {/* SWE Intern Example */}
+                <motion.div variants={fadeInUp} className="flex">
+                  <Card className="flex-1 transition-all duration-200 hover:shadow-lg hover:-translate-y-1 border-primary/20 bg-gradient-to-b from-primary/[0.03] to-transparent">
+                    <CardContent className="p-5 h-full flex flex-col">
+                      <div className="flex items-center gap-2 mb-4">
+                        <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                          <Target className="w-4 h-4 text-primary" />
+                        </div>
+                        <span className="text-sm font-semibold text-foreground">SWE Intern</span>
+                      </div>
+                      <div className="space-y-3 flex-1 flex flex-col">
+                        <div className="h-[70px]">
+                          <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Requirement</span>
+                          <p className="text-sm mt-1 text-foreground">&quot;Built and shipped web features&quot;</p>
+                        </div>
+                        <div className="p-3 rounded-lg bg-primary/5 border-l-2 border-primary h-[120px]">
+                          <span className="text-[10px] text-primary uppercase tracking-wider font-medium">Matched bullet</span>
+                          <p className="text-sm mt-1 text-foreground leading-relaxed">
+                            Implemented X feature in React; improved load time by 28% by memoizing heavy components.
+                          </p>
+                        </div>
+                        <div className="pt-2 mt-auto">
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-green-500/10 text-green-600 dark:text-green-400 text-xs font-medium">
+                            <CheckCircle className="w-3 h-3" />
+                            0.82 match
+                          </span>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+
+                {/* Data Analyst Example */}
+                <motion.div variants={fadeInUp} className="flex">
+                  <Card className="flex-1 transition-all duration-200 hover:shadow-lg hover:-translate-y-1 border-primary/20 bg-gradient-to-b from-primary/[0.03] to-transparent">
+                    <CardContent className="p-5 h-full flex flex-col">
+                      <div className="flex items-center gap-2 mb-4">
+                        <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                          <Target className="w-4 h-4 text-primary" />
+                        </div>
+                        <span className="text-sm font-semibold text-foreground">Data Analyst</span>
+                      </div>
+                      <div className="space-y-3 flex-1 flex flex-col">
+                        <div className="h-[70px]">
+                          <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Requirement</span>
+                          <p className="text-sm mt-1 text-foreground">&quot;SQL proficiency and dashboard experience&quot;</p>
+                        </div>
+                        <div className="p-3 rounded-lg bg-primary/5 border-l-2 border-primary h-[120px]">
+                          <span className="text-[10px] text-primary uppercase tracking-wider font-medium">Matched bullet</span>
+                          <p className="text-sm mt-1 text-foreground leading-relaxed">
+                            Built SQL queries analyzing 500K+ rows; created Tableau dashboard tracking weekly KPIs.
+                          </p>
+                        </div>
+                        <div className="pt-2 mt-auto">
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-green-500/10 text-green-600 dark:text-green-400 text-xs font-medium">
+                            <CheckCircle className="w-3 h-3" />
+                            0.87 match
+                          </span>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+
+                {/* PM Intern Example */}
+                <motion.div variants={fadeInUp} className="flex">
+                  <Card className="flex-1 transition-all duration-200 hover:shadow-lg hover:-translate-y-1 border-primary/20 bg-gradient-to-b from-primary/[0.03] to-transparent">
+                    <CardContent className="p-5 h-full flex flex-col">
+                      <div className="flex items-center gap-2 mb-4">
+                        <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                          <Target className="w-4 h-4 text-primary" />
+                        </div>
+                        <span className="text-sm font-semibold text-foreground">PM Intern</span>
+                      </div>
+                      <div className="space-y-3 flex-1 flex flex-col">
+                        <div className="h-[70px]">
+                          <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Requirement</span>
+                          <p className="text-sm mt-1 text-foreground">&quot;Gathered requirements from stakeholders&quot;</p>
+                        </div>
+                        <div className="p-3 rounded-lg bg-primary/5 border-l-2 border-primary h-[120px]">
+                          <span className="text-[10px] text-primary uppercase tracking-wider font-medium">Matched bullet</span>
+                          <p className="text-sm mt-1 text-foreground leading-relaxed">
+                            Led 3 user interviews to define MVP scope; documented requirements in PRD reviewed by 2 engineers.
+                          </p>
+                        </div>
+                        <div className="pt-2 mt-auto">
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-green-500/10 text-green-600 dark:text-green-400 text-xs font-medium">
+                            <CheckCircle className="w-3 h-3" />
+                            0.79 match
+                          </span>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              </div>
+
+              {/* Bottom Note */}
+              <motion.p
+                variants={fadeIn}
+                className="mt-10 text-center text-sm text-muted-foreground"
+              >
+                Examples are illustrative. Your output is generated only from your resume content.
+              </motion.p>
+            </motion.div>
+          </div>
+        </section>
+
         {/* Final CTA Band */}
-        <section id="privacy" className="py-section-md px-6 bg-gradient-to-br from-primary/5 to-primary/10">
+        <section className="py-section-md px-6 bg-gradient-to-br from-primary/5 to-primary/10">
           <div className="container text-center">
             <AnimatedSection>
               <h2 className="text-h2 text-foreground">
-                Ready to compile your perfect resume?
+                Ready to tailor your resume?
               </h2>
               <p className="mt-3 text-body-sm text-muted-foreground max-w-xl mx-auto">
-                No sign-up required. Your resume is not stored permanently.
+                Upload your resume, paste a job description, and get a tailored version in minutes.
               </p>
               <div className="mt-8">
                 <Button size="lg" asChild>
                   <Link href="/vault">
-                    Start free
+                    Get started free
                     <ChevronRight className="w-4 h-4 ml-1" />
                   </Link>
                 </Button>
               </div>
+              <p className="mt-6 text-sm text-muted-foreground">
+                No sign-up required
+              </p>
             </AnimatedSection>
           </div>
         </section>
