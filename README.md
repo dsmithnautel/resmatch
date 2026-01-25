@@ -154,9 +154,35 @@ restailor/
 └── docs/              # PRD and planning
 ```
 
+## Frequently Asked Questions (FAQ)
+
+### How does Resume.compile() ensure zero hallucinations?
+
+We only use content that already exists in your uploaded resume. Every bullet point in your tailored resume can be traced back to an exact line in your original document. We never generate, invent, or embellish any experience.
+
+### What does 'source tracking' mean?
+
+For every bullet we include in your tailored resume, you can click 'View source' to see exactly where it came from in your original resume, including the page number and line number. This proves nothing was invented.
+
+### Is my resume data stored or shared?
+
+Your resume is processed in-memory and not stored permanently. We do not share your data with third parties. You can read our full privacy policy for details.
+
+### Do I need to create an account?
+
+No. Resume.compile() works without sign-up. Just upload your resume, paste a job description, and export your tailored PDF immediately.
+
+### What file formats are supported?
+
+We currently support PDF uploads. The exported tailored resume is also delivered as a PDF optimized for ATS systems.
+
+### Is Resume.compile() really free?
+
+Yes. Resume.compile() is free and open source. You can view the source code on GitHub and even self-host if you prefer.
+
 ## Team
 
-Built with care for SwampHacks XI
+Built with love for SwampHacks XI 💙🧡🐊
 
 ## License
 
