@@ -1,21 +1,21 @@
 import os
+import re
 import shutil
 import subprocess
+
 import yaml
-import re
+
+from app.db.mongodb import get_database
 from app.models import ScoredUnit
 from app.services.rendercv_mapper import map_to_rendercv_model
-from app.db.mongodb import get_database
 
 
 async def render_resume(
-    compile_id: str,
-    selected_units: list[ScoredUnit],
-    master_version_id: str
+    compile_id: str, selected_units: list[ScoredUnit], master_version_id: str
 ) -> str:
     """
     Render resume using RenderCV (Jake's Resume / sb2nov theme).
-    
+
     1. Get header info from master resume
     2. Map atomic units to RenderCV YAML schema
     3. Generate YAML file
@@ -24,50 +24,41 @@ async def render_resume(
     """
     # Get header info from database
     db = await get_database()
-    
+
     # Fetch ALL header units
-    header_cursor = db.atomic_units.find({
-        "version": master_version_id,
-        "type": "header"
-    })
+    header_cursor = db.atomic_units.find({"version": master_version_id, "type": "header"})
     header_units = [doc async for doc in header_cursor]
     header_info = extract_header_info(header_units)
-    
+
     # Create output directory
     output_dir = os.path.abspath(f"output/{compile_id}")
     os.makedirs(output_dir, exist_ok=True)
-    
+
     # Map to RenderCV Data Model
     cv_data = map_to_rendercv_model(selected_units, header_info)
-    
+
     # Save as YAML
     yaml_path = os.path.join(output_dir, "cv.yaml")
     with open(yaml_path, "w", encoding="utf-8") as f:
         yaml.dump(cv_data, f, sort_keys=False, allow_unicode=True)
-        
+
     # Compile with RenderCV (Subprocess)
     # rendercv creates an output folder named 'rendercv_output' usually
     try:
         # We run it inside output_dir so artifacts stay there
         cmd = ["rendercv", "render", "cv.yaml"]
-        
+
         with open("debug_renderer.log", "w") as log:
             log.write(f"Starting RenderCV in {output_dir}\n")
             log.write(f"YAML Path: {yaml_path}\n")
-        
-        result = subprocess.run(
-            cmd, 
-            cwd=output_dir, 
-            capture_output=True, 
-            text=True, 
-            check=True
-        )
+
+        result = subprocess.run(cmd, cwd=output_dir, capture_output=True, text=True, check=True)
         print(f"RenderCV Output: {result.stdout}")
         with open("debug_renderer.log", "a") as log:
             log.write("RenderCV Success:\n")
             log.write(result.stdout)
             log.write("\n")
-        
+
     except subprocess.CalledProcessError as e:
         print(f"RenderCV Failed: {e.stderr}")
         with open("debug_renderer.log", "a") as log:
@@ -80,19 +71,19 @@ async def render_resume(
     # Move/Rename output PDF
     # RenderCV output structure: output_dir/rendercv_output/Name_CV.pdf
     # We want it at output_dir/resume.pdf
-    
+
     # Find the generated PDF
     found_pdf = None
     rendercv_out = os.path.join(output_dir, "rendercv_output")
     if os.path.exists(rendercv_out):
-        for root, dirs, files in os.walk(rendercv_out):
+        for root, _dirs, files in os.walk(rendercv_out):
             for file in files:
                 if file.endswith(".pdf"):
                     found_pdf = os.path.join(root, file)
                     break
-    
+
     target_pdf = os.path.join(output_dir, "resume.pdf")
-    
+
     if found_pdf and os.path.exists(found_pdf):
         shutil.move(found_pdf, target_pdf)
         # Cleanup
@@ -106,10 +97,10 @@ def extract_header_info(header_units: list[dict]) -> dict:
     """
     Extract name, email, phone, LinkedIn, GitHub from header units.
     Aggregates text from all provided header units.
-    
+
     Args:
         header_units: List of header atomic units from database
-    
+
     Returns:
         Dictionary with extracted contact information
     """
@@ -119,47 +110,47 @@ def extract_header_info(header_units: list[dict]) -> dict:
     # Combine text from all header units
     # We join with newlines to ensure separation
     full_text = "\n".join(unit.get("text", "") for unit in header_units)
-    lines = [line.strip() for line in full_text.split('\n') if line.strip()]
-    
+    lines = [line.strip() for line in full_text.split("\n") if line.strip()]
+
     info = {
         "name": "Your Name",  # Default if not found
         "email": "",
         "phone": "",
         "linkedin": "",
-        "github": ""
+        "github": "",
     }
-    
+
     if lines:
         # Heuristic: The first non-empty line usually contains the name
         # We assume the first unit's first line is the name if multiple units exist
-        # But if units are out of order, this might be tricky. 
+        # But if units are out of order, this might be tricky.
         # Usually, MongoDB returns in insertion order (which matches extraction order).
         info["name"] = lines[0]
-    
+
     # Extract email (look for @ symbol)
     # Improved regex to avoid matching things like "quoted@text" if possible, but keep simple
-    email_pattern = r'[\w\.-]+@[\w\.-]+\.\w+'
+    email_pattern = r"[\w\.-]+@[\w\.-]+\.\w+"
     for line in lines:
         # Search in the whole line
         email_match = re.search(email_pattern, line)
         if email_match:
             info["email"] = email_match.group(0)
             break
-    
+
     # Extract phone (look for phone number patterns)
     # Improved regex to match common formats, avoid short numbers
-    phone_pattern = r'\(?\d{3}\)?[\s\-\.]?\d{3}[\s\-\.]?\d{4}'
+    phone_pattern = r"\(?\d{3}\)?[\s\-\.]?\d{3}[\s\-\.]?\d{4}"
     for line in lines:
         phone_match = re.search(phone_pattern, line)
         if phone_match:
             info["phone"] = phone_match.group(0).strip()
             break
-    
+
     # Extract LinkedIn
     for line in lines:
-        if 'linkedin.com' in line.lower():
+        if "linkedin.com" in line.lower():
             # Try to extract URL
-            url_match = re.search(r'https?://[^\s]+', line)
+            url_match = re.search(r"https?://[^\s]+", line)
             if url_match:
                 info["linkedin"] = url_match.group(0)
             else:
@@ -169,16 +160,18 @@ def extract_header_info(header_units: list[dict]) -> dict:
                 # Find the part that looks like linkedin.com/...
                 parts = clean_line.split()
                 for part in parts:
-                    if 'linkedin.com' in part:
-                         info["linkedin"] = f"https://{part}" if not part.startswith('http') else part
-                         break
+                    if "linkedin.com" in part:
+                        info["linkedin"] = (
+                            f"https://{part}" if not part.startswith("http") else part
+                        )
+                        break
             break
-    
+
     # Extract GitHub
     for line in lines:
-        if 'github.com' in line.lower():
+        if "github.com" in line.lower():
             # Try to extract URL
-            url_match = re.search(r'https?://[^\s]+', line)
+            url_match = re.search(r"https?://[^\s]+", line)
             if url_match:
                 info["github"] = url_match.group(0)
             else:
@@ -186,9 +179,9 @@ def extract_header_info(header_units: list[dict]) -> dict:
                 clean_line = line.replace("|", "").strip()
                 parts = clean_line.split()
                 for part in parts:
-                    if 'github.com' in part:
-                         info["github"] = f"https://{part}" if not part.startswith('http') else part
-                         break
+                    if "github.com" in part:
+                        info["github"] = f"https://{part}" if not part.startswith("http") else part
+                        break
             break
-    
+
     return info

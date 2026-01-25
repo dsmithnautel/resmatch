@@ -3,8 +3,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.config import get_settings, cors_origins
-from app.routers import master, job, resume
+from app.config import cors_origins, get_settings
+from app.routers import job, master, resume
 
 settings = get_settings()
 
@@ -34,11 +34,7 @@ app.include_router(resume.router, prefix="/resume", tags=["Resume Compilation"])
 @app.get("/")
 async def root():
     """Health check endpoint."""
-    return {
-        "service": "Resume.compile() API",
-        "status": "healthy",
-        "version": "1.0.0"
-    }
+    return {"service": "Resume.compile() API", "status": "healthy", "version": "1.0.0"}
 
 
 @app.get("/health")
@@ -47,5 +43,5 @@ async def health_check():
     return {
         "status": "healthy",
         "database": "connected",  # TODO: Add actual DB check
-        "gemini": "configured" if settings.gemini_api_key else "not configured"
+        "gemini": "configured" if settings.gemini_api_key else "not configured",
     }

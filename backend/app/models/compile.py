@@ -1,12 +1,13 @@
 """Resume compilation models."""
 
 from datetime import datetime
-from typing import Optional
+
 from pydantic import BaseModel, Field
 
 
 class CompileConstraints(BaseModel):
     """Constraints for resume compilation."""
+
     page_limit: int = Field(default=1, ge=1, le=3)
     max_experience_bullets: int = Field(default=6, ge=1, le=20)
     max_project_bullets: int = Field(default=4, ge=0, le=10)
@@ -17,28 +18,31 @@ class CompileConstraints(BaseModel):
 
 class CompilePreferences(BaseModel):
     """User preferences for compilation."""
+
     emphasis_domains: list[str] = Field(default_factory=list)
     preferred_roles: list[str] = Field(default_factory=list)
 
 
 class CompileRequest(BaseModel):
     """Request to compile a tailored resume."""
+
     master_version_id: str
-    jd_id: Optional[str] = None  # Use existing parsed JD
-    jd_text: Optional[str] = None  # Or provide raw JD text
+    jd_id: str | None = None  # Use existing parsed JD
+    jd_text: str | None = None  # Or provide raw JD text
     constraints: CompileConstraints = Field(default_factory=CompileConstraints)
     preferences: CompilePreferences = Field(default_factory=CompilePreferences)
 
 
 class ScoredUnit(BaseModel):
     """An atomic unit with its LLM-generated score."""
+
     unit_id: str
     text: str
     section: str
-    org: Optional[str] = None
-    role: Optional[str] = None
-    dates: Optional[dict] = None
-    tags: Optional[dict] = None
+    org: str | None = None
+    role: str | None = None
+    dates: dict | None = None
+    tags: dict | None = None
     llm_score: float = Field(..., ge=0, le=10)
     matched_requirements: list[str] = Field(default_factory=list)
     reasoning: str = ""
@@ -50,6 +54,7 @@ class Provenance(BaseModel):
     Provenance record for a single output line.
     Guarantees traceability from output to source.
     """
+
     compile_id: str
     output_line_id: str
     atomic_unit_id: str
@@ -60,6 +65,7 @@ class Provenance(BaseModel):
 
 class CoverageStats(BaseModel):
     """Coverage statistics for the compiled resume."""
+
     must_haves_matched: int
     must_haves_total: int
     coverage_score: float
@@ -67,9 +73,10 @@ class CoverageStats(BaseModel):
 
 class CompileResponse(BaseModel):
     """Response from resume compilation."""
+
     compile_id: str
     selected_units: list[ScoredUnit]
     coverage: CoverageStats
     provenance: list[Provenance]
-    pdf_url: Optional[str] = None
+    pdf_url: str | None = None
     created_at: datetime = Field(default_factory=datetime.utcnow)

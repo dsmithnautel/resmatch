@@ -1,21 +1,21 @@
 """Pydantic models for Resume.compile()."""
 
 from app.models.atomic_unit import AtomicUnit, AtomicUnitType, SectionType
-from app.models.master_resume import MasterVersion, MasterResumeResponse
-from app.models.job_description import ParsedJD, JDParseRequest
 from app.models.compile import (
-    CompileRequest,
-    CompileResponse,
     CompileConstraints,
     CompilePreferences,
-    ScoredUnit,
+    CompileRequest,
+    CompileResponse,
+    CoverageStats,
     Provenance,
-    CoverageStats
+    ScoredUnit,
 )
+from app.models.job_description import JDParseRequest, ParsedJD
+from app.models.master_resume import MasterResumeResponse, MasterVersion
 
 __all__ = [
     "AtomicUnit",
-    "AtomicUnitType", 
+    "AtomicUnitType",
     "SectionType",
     "MasterVersion",
     "MasterResumeResponse",

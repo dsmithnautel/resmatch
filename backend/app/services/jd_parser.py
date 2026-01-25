@@ -2,14 +2,12 @@
 
 import uuid
 from datetime import datetime
-from typing import Optional
 
 import httpx
 from bs4 import BeautifulSoup
 
 from app.models import ParsedJD
 from app.services.gemini import generate_json
-
 
 JD_EXTRACTION_PROMPT = """
 Parse this job description into structured requirements.
@@ -39,43 +37,43 @@ async def scrape_url(url: str) -> str:
     try:
         # Try trafilatura first (better for job boards)
         import trafilatura
-        
+
         async with httpx.AsyncClient(timeout=30.0, follow_redirects=True) as client:
-            response = await client.get(url, headers={
-                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
-            })
+            response = await client.get(
+                url,
+                headers={
+                    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+                },
+            )
             response.raise_for_status()
             html = response.text
-        
+
         # Extract main content
         text = trafilatura.extract(html)
-        
+
         if text and len(text) > 100:
             return text
-        
+
         # Fallback to BeautifulSoup
         soup = BeautifulSoup(html, "html.parser")
-        
+
         # Remove script and style elements
         for script in soup(["script", "style", "nav", "footer", "header"]):
             script.decompose()
-        
+
         # Get text
         text = soup.get_text(separator="\n", strip=True)
-        
+
         return text
-        
+
     except Exception as e:
         raise ValueError(f"Failed to scrape URL: {str(e)}")
 
 
-async def parse_job_description(
-    url: Optional[str] = None,
-    text: Optional[str] = None
-) -> ParsedJD:
+async def parse_job_description(url: str | None = None, text: str | None = None) -> ParsedJD:
     """
     Parse a job description from URL or text.
-    
+
     Uses Gemini to extract structured requirements.
     """
     # Get the JD text
@@ -91,16 +89,16 @@ async def parse_job_description(
         jd_text = text
     else:
         raise ValueError("Either url or text must be provided")
-    
+
     # Generate unique ID
     jd_id = f"jd_{datetime.now().strftime('%Y%m%d')}_{uuid.uuid4().hex[:8]}"
-    
+
     # Extract structured data using Gemini
     prompt = JD_EXTRACTION_PROMPT + jd_text[:8000]  # Limit to avoid token limits
-    
+
     try:
         result = await generate_json(prompt)
-    except Exception as e:
+    except Exception:
         # Return minimal parsed JD on failure
         return ParsedJD(
             jd_id=jd_id,
@@ -111,9 +109,9 @@ async def parse_job_description(
             responsibilities=[],
             keywords=[],
             source_url=url,
-            raw_text=jd_text[:5000]
+            raw_text=jd_text[:5000],
         )
-    
+
     return ParsedJD(
         jd_id=jd_id,
         role_title=result.get("role_title", "Unknown"),
@@ -123,5 +121,5 @@ async def parse_job_description(
         responsibilities=result.get("responsibilities", []),
         keywords=result.get("keywords", []),
         source_url=url,
-        raw_text=jd_text[:5000]
+        raw_text=jd_text[:5000],
     )
