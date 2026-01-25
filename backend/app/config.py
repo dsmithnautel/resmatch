@@ -51,6 +51,9 @@ class Settings(BaseSettings):
     # Environment
     environment: str = "development"  # development, staging, production
 
+    # CORS
+    cors_origins: list[str] = ["http://localhost:3000", "https://restailor.vercel.app"]
+
     class Config:
         env_file = ".env"
         env_file_encoding = "utf-8"
