@@ -57,6 +57,79 @@ CRITICAL RULES:
 Resume text:
 """
 
+# Map invalid types to valid AtomicUnitTypes
+# Gemini sometimes confuses section names with type names
+TYPE_MAPPING = {
+    # Standard types (valid as-is)
+    "bullet": "bullet",
+    "skill_group": "skill_group",
+    "education": "education",
+    "project": "project",
+    "header": "header",
+    "award": "award",
+    "certification": "certification",
+    "publication": "publication",
+    "language": "language",
+    "interest": "interest",
+    # Section names that should map to types
+    "experience": "bullet",
+    "projects": "project",
+    "skills": "skill_group",
+    "involvement": "bullet",
+    "leadership": "bullet",
+    "volunteer": "bullet",
+    "awards": "award",
+    "certifications": "certification",
+    "publications": "publication",
+    "languages": "language",
+    "interests": "interest",
+    # Common variations
+    "activities": "bullet",
+    "honors": "award",
+    "achievements": "award",
+    "papers": "publication",
+    "research": "publication",
+    "hobbies": "interest",
+}
+
+# Map section name variations to standard SectionType values
+SECTION_MAPPING = {
+    "experience": "experience",
+    "work": "experience",
+    "work experience": "experience",
+    "employment": "experience",
+    "projects": "projects",
+    "personal projects": "projects",
+    "education": "education",
+    "academic": "education",
+    "skills": "skills",
+    "technical skills": "skills",
+    "header": "header",
+    "involvement": "involvement",
+    "activities": "involvement",
+    "clubs": "involvement",
+    "organizations": "involvement",
+    "extracurricular": "involvement",
+    "leadership": "leadership",
+    "leadership experience": "leadership",
+    "volunteer": "volunteer",
+    "volunteering": "volunteer",
+    "community service": "volunteer",
+    "awards": "awards",
+    "honors": "awards",
+    "achievements": "awards",
+    "certifications": "certifications",
+    "licenses": "certifications",
+    "certificates": "certifications",
+    "publications": "publications",
+    "papers": "publications",
+    "research": "publications",
+    "languages": "languages",
+    "interests": "interests",
+    "hobbies": "interests",
+    "other": "other",
+}
+
 
 async def ingest_pdf(pdf_content: bytes, filename: str) -> MasterResumeResponse:
     """
@@ -105,79 +178,6 @@ async def ingest_pdf(pdf_content: bytes, filename: str) -> MasterResumeResponse:
     atomic_units = []
     warnings = []
     counts = {}
-
-    # Map invalid types to valid AtomicUnitTypes
-    # Gemini sometimes confuses section names with type names
-    TYPE_MAPPING = {
-        # Standard types (valid as-is)
-        "bullet": "bullet",
-        "skill_group": "skill_group",
-        "education": "education",
-        "project": "project",
-        "header": "header",
-        "award": "award",
-        "certification": "certification",
-        "publication": "publication",
-        "language": "language",
-        "interest": "interest",
-        # Section names that should map to types
-        "experience": "bullet",
-        "projects": "project",
-        "skills": "skill_group",
-        "involvement": "bullet",
-        "leadership": "bullet",
-        "volunteer": "bullet",
-        "awards": "award",
-        "certifications": "certification",
-        "publications": "publication",
-        "languages": "language",
-        "interests": "interest",
-        # Common variations
-        "activities": "bullet",
-        "honors": "award",
-        "achievements": "award",
-        "papers": "publication",
-        "research": "publication",
-        "hobbies": "interest",
-    }
-
-    # Map section name variations to standard SectionType values
-    SECTION_MAPPING = {
-        "experience": "experience",
-        "work": "experience",
-        "work experience": "experience",
-        "employment": "experience",
-        "projects": "projects",
-        "personal projects": "projects",
-        "education": "education",
-        "academic": "education",
-        "skills": "skills",
-        "technical skills": "skills",
-        "header": "header",
-        "involvement": "involvement",
-        "activities": "involvement",
-        "clubs": "involvement",
-        "organizations": "involvement",
-        "extracurricular": "involvement",
-        "leadership": "leadership",
-        "leadership experience": "leadership",
-        "volunteer": "volunteer",
-        "volunteering": "volunteer",
-        "community service": "volunteer",
-        "awards": "awards",
-        "honors": "awards",
-        "achievements": "awards",
-        "certifications": "certifications",
-        "licenses": "certifications",
-        "certificates": "certifications",
-        "publications": "publications",
-        "papers": "publications",
-        "research": "publications",
-        "languages": "languages",
-        "interests": "interests",
-        "hobbies": "interests",
-        "other": "other",
-    }
 
     for i, raw in enumerate(raw_units):
         try:
