@@ -15,7 +15,6 @@ def map_to_rendercv_model(units: list[ScoredUnit], header_info: dict[str, str]) 
     """
 
     # 1. Construct Header
-<<<<<<< Updated upstream
     # RenderCV expects specific keys for social networks
     social_networks = []
 
@@ -46,31 +45,6 @@ def map_to_rendercv_model(units: list[ScoredUnit], header_info: dict[str, str]) 
         "phone": header_info.get("phone"),
         "social_networks": social_networks,
     }
-
-=======
-    # RenderCV 2.x handles standard social networks as top-level keys
-    # Calculate phone first to match RenderCV format
-    raw_phone = str(header_info.get("phone", ""))
-    digits = "".join(filter(str.isdigit, raw_phone))
-    if len(digits) == 10:
-        phone_val = f"+1 {digits}"
-    else:
-        phone_val = raw_phone
-
-    cv_header = {
-        "name": header_info.get("name", "Your Name"),
-        "location": "City, State", 
-        "email": header_info.get("email"),
-        "phone": phone_val
-    }
-    # Add optional top-level links
-    if header_info.get("linkedin"):
-        cv_header["linkedin"] = header_info["linkedin"]
-    
-    if header_info.get("github"):
-        cv_header["github"] = header_info["github"]
-    
->>>>>>> Stashed changes
     # 2. Group Sections
     # We group units by section, then by entry (Company/Project)
     grouped_sections: dict[str, list[ScoredUnit]] = defaultdict(list)
@@ -115,17 +89,12 @@ def map_to_rendercv_model(units: list[ScoredUnit], header_info: dict[str, str]) 
     model = {
         "cv": {**cv_header, "sections": final_sections},
         "design": {
-<<<<<<< Updated upstream
             "theme": "sb2nov",
             "font": "Latin Modern Serif",
             "font_size": "10pt",
             "page_size": "letterpaper",
             "color": "#000000",
         },
-=======
-            "theme": "sb2nov"
-        }
->>>>>>> Stashed changes
     }
 
     return model
@@ -209,7 +178,6 @@ def _build_projects(units: list[ScoredUnit]) -> list[dict[str, Any]]:
     return entries
 
 
-<<<<<<< Updated upstream
 def _build_skills(units: list[ScoredUnit]) -> list[dict[str, Any]]:
     # RenderCV expects a list of generic objects for this?
     # Actually sb2nov theme expects a specific structure for skills:
@@ -287,27 +255,6 @@ def _build_skills(units: list[ScoredUnit]) -> list[dict[str, Any]]:
         final_skills.append({"label": "Other", "details": ", ".join(unique[:10])})
 
     return final_skills
-=======
-def _build_skills(units: List[ScoredUnit]) -> List[str]:
-    """
-    Build technical skills section using categories provided by LLM.
-    The ingestion prompt now ensures 'org' contains the category name.
-    """
-    skills_list = []
-    
-    for u in units:
-        # LLM puts category in 'org' (e.g. "Languages", "Frameworks")
-        # If missing, fallback to "Skills"
-        category = u.org or "Skills"
-        details = u.text or ""
-        
-        if details:
-             # Format as bolded category + details
-             skills_list.append(f"**{category}**: {details}")
-             
-    # Remove exact duplicates and sort
-    return sorted(list(set(skills_list)))
->>>>>>> Stashed changes
 
 
 def _format_dates(unit: ScoredUnit) -> str:
