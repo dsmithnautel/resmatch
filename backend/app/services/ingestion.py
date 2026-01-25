@@ -149,8 +149,12 @@ async def ingest_pdf(pdf_content: bytes, filename: str) -> MasterResumeResponse:
     doc = fitz.open(stream=pdf_content, filetype="pdf")
     full_text = ""
     for page_num, page in enumerate(doc):
-        full_text += f"\n--- Page {page_num + 1} ---\n"
-        full_text += page.get_text()
+        text = page.get_text()
+        # Basic cleaning: remove null bytes and normalize whitespace
+        text = text.replace("\0", "").strip()
+        if text:
+            full_text += f"\n--- Page {page_num + 1} ---\n"
+            full_text += text
     doc.close()
 
     if not full_text.strip():

@@ -64,14 +64,16 @@ async def compile_resume(request: CompileRequest):
             traceback.print_exc(file=f)
         raise e
 
+    from app.models import CoverageStats
+
     # 4. Skip optimization - User wants ALL original lines preserved
     # optimize_selection is removed to ensure no content is dropped.
     # We construct a dummy coverage object since we aren't calculating it dynamically anymore
-    coverage = {
-        "must_haves_matched": len(parsed_jd.must_haves),
-        "must_haves_total": len(parsed_jd.must_haves),
-        "coverage_score": 100.0,
-    }
+    coverage = CoverageStats(
+        must_haves_matched=len(parsed_jd.must_haves),
+        must_haves_total=len(parsed_jd.must_haves),
+        coverage_score=1.0,  # Range is 0.0 to 1.0 (float)
+    )
 
     # 5. Generate compile ID and provenance
     import uuid
@@ -183,7 +185,7 @@ async def narrate_resume(compile_id: str):
     narration_text = format_resume_for_narration(selected_units)
 
     # Generate audio
-    audio_bytes = await generate_resume_narration(narration_text)
+    audio_bytes: bytes | None = await generate_resume_narration(narration_text)
 
     if audio_bytes is None:
         raise HTTPException(
