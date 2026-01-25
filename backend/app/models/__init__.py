@@ -7,8 +7,10 @@ from app.models.compile import (
     CompileRequest,
     CompileResponse,
     CompileConstraints,
+    CompilePreferences,
     ScoredUnit,
-    Provenance
+    Provenance,
+    CoverageStats
 )
 
 __all__ = [
@@ -22,6 +24,8 @@ __all__ = [
     "CompileRequest",
     "CompileResponse",
     "CompileConstraints",
+    "CompilePreferences",
     "ScoredUnit",
     "Provenance",
+    "CoverageStats",
 ]

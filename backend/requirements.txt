@@ -6,7 +6,7 @@ pydantic-settings>=2.1.0
 python-multipart>=0.0.6
 
 # AI - Gemini (MLH Challenge)
-google-generativeai>=0.4.0
+google-genai>=1.0.0
 
 # Database - MongoDB Atlas (MLH Challenge)
 pymongo>=4.6.0

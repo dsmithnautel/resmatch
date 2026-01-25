@@ -1,22 +1,21 @@
 """Gemini API client wrapper."""
 
 import json
-import google.generativeai as genai
+from google import genai
 from app.config import get_settings
 
-_model = None
+_client = None
 
 
-def get_gemini_model():
-    """Get configured Gemini model instance."""
-    global _model
+def get_gemini_client():
+    """Get configured Gemini client instance."""
+    global _client
     
-    if _model is None:
+    if _client is None:
         settings = get_settings()
-        genai.configure(api_key=settings.gemini_api_key)
-        _model = genai.GenerativeModel("gemini-1.5-flash")
+        _client = genai.Client(api_key=settings.gemini_api_key)
     
-    return _model
+    return _client
 
 
 async def generate_json(prompt: str, max_retries: int = 3) -> dict | list:
@@ -25,7 +24,7 @@ async def generate_json(prompt: str, max_retries: int = 3) -> dict | list:
     
     Includes retry logic for parsing failures.
     """
-    model = get_gemini_model()
+    client = get_gemini_client()
     
     # Add JSON instruction to prompt
     full_prompt = f"""{prompt}
@@ -34,7 +33,10 @@ IMPORTANT: Respond ONLY with valid JSON. No markdown, no explanation, just the J
     
     for attempt in range(max_retries):
         try:
-            response = model.generate_content(full_prompt)
+            response = client.models.generate_content(
+                model="gemini-2.0-flash",
+                contents=full_prompt
+            )
             text = response.text.strip()
             
             # Remove markdown code blocks if present
@@ -60,6 +62,9 @@ IMPORTANT: Respond ONLY with valid JSON. No markdown, no explanation, just the J
 
 async def generate_text(prompt: str) -> str:
     """Generate text response from Gemini."""
-    model = get_gemini_model()
-    response = model.generate_content(prompt)
+    client = get_gemini_client()
+    response = client.models.generate_content(
+        model="gemini-2.0-flash",
+        contents=prompt
+    )
     return response.text
