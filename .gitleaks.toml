@@ -1,0 +1,27 @@
+# Gitleaks configuration
+# https://github.com/gitleaks/gitleaks
+
+title = "ReTailor Gitleaks Config"
+
+[allowlist]
+description = "Allowlisted patterns"
+
+# Example/placeholder values in docs and examples
+regexes = [
+    '''your[-_]?api[-_]?key''',
+    '''example\.com''',
+    '''placeholder''',
+    '''xxx+''',
+]
+
+# Files to ignore
+paths = [
+    '''\.env\.example$''',
+    '''package-lock\.json$''',
+    '''\.md$''',
+]
+
+# Specific commits to ignore (add known false positives here)
+# commits = [
+#     "abc123...",
+# ]

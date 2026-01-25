@@ -1,6 +1,12 @@
 # Resume.compile()
 
+[![CI](https://github.com/dsmithnautel/restailor/actions/workflows/ci.yml/badge.svg)](https://github.com/dsmithnautel/restailor/actions/workflows/ci.yml)
+[![CD](https://github.com/dsmithnautel/restailor/actions/workflows/cd.yml/badge.svg)](https://github.com/dsmithnautel/restailor/actions/workflows/cd.yml)
+[![GitHub release](https://img.shields.io/github/v/release/dsmithnautel/restailor)](https://github.com/dsmithnautel/restailor/releases)
+
 > Truth-first resume tailoring engine - compiles verified experience into job-targeted resumes with zero hallucinations.
+
+**[Live Demo](https://restailor.vercel.app)** | **[Demo Video](https://youtu.be/YOUR_VIDEO_ID)** *(replace with actual link)*
 
 Built for **SwampHacks XI** | Using **Gemini API** (MLH), **MongoDB Atlas** (MLH), **DigitalOcean** (MLH)
 
