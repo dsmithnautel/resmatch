@@ -21,7 +21,7 @@ class Settings(BaseSettings):
     debug: bool = False
     
     # CORS
-    cors_origins: list[str] = ["http://localhost:3000", "https://resume-compile.vercel.app"]
+    cors_origins: list[str] = ["http://localhost:3000", "https://restailor.vercel.app"]
     
     class Config:
         env_file = ".env"
