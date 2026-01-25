@@ -90,6 +90,19 @@ async def ingest_pdf(pdf_content: bytes, filename: str) -> MasterResumeResponse:
     warnings = []
     counts = {}
     
+    # Map invalid types to valid AtomicUnitTypes
+    # Gemini sometimes confuses section names with type names
+    TYPE_MAPPING = {
+        "experience": "bullet",      # Experience items are bullets
+        "projects": "project",       # Projects section -> project type
+        "skills": "skill_group",     # Skills section -> skill_group type
+        "bullet": "bullet",
+        "skill_group": "skill_group",
+        "education": "education",
+        "project": "project",
+        "header": "header",
+    }
+    
     for i, raw in enumerate(raw_units):
         try:
             # Generate unique ID
@@ -113,10 +126,14 @@ async def ingest_pdf(pdf_content: bytes, filename: str) -> MasterResumeResponse:
                 seniority=raw.get("tags", {}).get("seniority")
             )
             
+            # Normalize type - map invalid types to valid ones
+            raw_type = raw.get("type", "bullet").lower()
+            normalized_type = TYPE_MAPPING.get(raw_type, "bullet")
+            
             # Create atomic unit
             unit = AtomicUnit(
                 id=unit_id,
-                type=AtomicUnitType(raw.get("type", "bullet")),
+                type=AtomicUnitType(normalized_type),
                 section=SectionType(raw.get("section", "experience")),
                 org=raw.get("org"),
                 role=raw.get("role"),
