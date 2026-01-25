@@ -3,7 +3,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.config import get_settings
+from app.config import get_settings, cors_origins
 from app.routers import master, job, resume
 
 settings = get_settings()
@@ -15,9 +15,12 @@ app = FastAPI(
 )
 
 # CORS middleware for frontend
+# Log CORS origins for debugging
+print(f"CORS origins configured: {cors_origins}")
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.cors_origins,
+    allow_origins=cors_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
