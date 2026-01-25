@@ -108,7 +108,7 @@ jobs:
           ENVIRONMENT: test
 
       - name: Upload coverage
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
         with:
           file: backend/coverage.xml
           fail_ci_if_error: false  # Don't fail if codecov is not configured
