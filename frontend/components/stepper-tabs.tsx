@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, useReducedMotion } from "framer-motion";
-import { FileText, Target, Sparkles, Download } from "lucide-react";
+import { FileText, Target, Download, Sparkles } from "lucide-react";
 
 interface Step {
   num: number;
@@ -15,28 +15,28 @@ const steps: Step[] = [
     num: 1,
     title: "Upload your resume",
     description:
-      "Upload your PDF. We extract each bullet and track exactly where it came from. No rewriting, no embellishment.",
+      "PDF format. We extract your experience automatically.",
     icon: <FileText className="w-5 h-5" />,
   },
   {
     num: 2,
-    title: "Paste the job description",
+    title: "Paste a job description",
     description:
-      "Paste the job posting. We extract requirements and keywords to match against your experience.",
+      "Copy and paste any job posting.",
     icon: <Target className="w-5 h-5" />,
   },
   {
     num: 3,
-    title: "Review matched bullets",
+    title: "Review matches + missing requirements",
     description:
-      "See which bullets match which requirements, with match scores and source links for every selection.",
+      "Every match links to the exact bullet we used.",
     icon: <Sparkles className="w-5 h-5" />,
   },
   {
     num: 4,
-    title: "Export your tailored PDF",
+    title: "Export a tailored version",
     description:
-      "Download a clean, one-page resume. Every bullet is traceable back to your original.",
+      "Download ready-to-submit PDF.",
     icon: <Download className="w-5 h-5" />,
   },
 ];
@@ -98,7 +98,7 @@ export function StepperTabs({ activeStep, onStepChange }: StepperTabsProps) {
               >
                 {step.title}
               </h3>
-              <motion.p
+              <motion.div
                 initial={shouldReduceMotion ? { height: "auto", opacity: 1 } : { height: 0, opacity: 0 }}
                 animate={
                   isActive
@@ -106,10 +106,12 @@ export function StepperTabs({ activeStep, onStepChange }: StepperTabsProps) {
                     : { height: 0, opacity: 0 }
                 }
                 transition={{ duration: 0.2 }}
-                className="text-sm text-muted-foreground mt-1 overflow-hidden"
+                className="overflow-hidden"
               >
-                {step.description}
-              </motion.p>
+                <p className="text-sm text-muted-foreground mt-1">
+                  {step.description}
+                </p>
+              </motion.div>
             </div>
           </motion.button>
         );
