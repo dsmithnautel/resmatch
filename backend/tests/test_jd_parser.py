@@ -17,7 +17,10 @@ async def test_scrape_url_trafilatura_success():
     with patch("httpx.AsyncClient.get", new_callable=AsyncMock) as mock_get:
         mock_get.return_value = mock_response
 
-        long_text = "Extracted job content that is long enough to pass the 100 character threshold in the scrape_url function " * 2
+        long_text = (
+            "Extracted job content that is long enough to pass the 100 character threshold in the scrape_url function "
+            * 2
+        )
         with patch("trafilatura.extract", return_value=long_text) as mock_extract:
             result = await scrape_url("https://example.com/job")
 
@@ -29,7 +32,9 @@ async def test_scrape_url_trafilatura_success():
 async def test_scrape_url_beautifulsoup_fallback():
     """Test fallback to BeautifulSoup when trafilatura fails."""
     mock_response = MagicMock()
-    mock_response.text = "<html><body><h1>Software Engineer</h1><p>Requirements...</p></body></html>"
+    mock_response.text = (
+        "<html><body><h1>Software Engineer</h1><p>Requirements...</p></body></html>"
+    )
     mock_response.raise_for_status = MagicMock()
 
     with patch("httpx.AsyncClient.get", new_callable=AsyncMock) as mock_get:

@@ -2,7 +2,7 @@
 
 import pytest
 
-from app.models import CompileConstraints, CoverageStats, ParsedJD, ScoredUnit
+from app.models import CompileConstraints, ParsedJD, ScoredUnit
 from app.services.optimizer import optimize_selection
 
 
@@ -75,9 +75,33 @@ def test_optimize_selection_basic(sample_parsed_jd, sample_constraints):
 def test_optimize_selection_section_limits(sample_parsed_jd, sample_constraints):
     """Test that section limits are respected."""
     scored_units = [
-        ScoredUnit(unit_id="u1", text="t1", section="experience", org="o1", role="r1", llm_score=9.0, matched_requirements=[]),
-        ScoredUnit(unit_id="u2", text="t2", section="experience", org="o2", role="r2", llm_score=8.0, matched_requirements=[]),
-        ScoredUnit(unit_id="u3", text="t3", section="experience", org="o3", role="r3", llm_score=7.0, matched_requirements=[]),
+        ScoredUnit(
+            unit_id="u1",
+            text="t1",
+            section="experience",
+            org="o1",
+            role="r1",
+            llm_score=9.0,
+            matched_requirements=[],
+        ),
+        ScoredUnit(
+            unit_id="u2",
+            text="t2",
+            section="experience",
+            org="o2",
+            role="r2",
+            llm_score=8.0,
+            matched_requirements=[],
+        ),
+        ScoredUnit(
+            unit_id="u3",
+            text="t3",
+            section="experience",
+            org="o3",
+            role="r3",
+            llm_score=7.0,
+            matched_requirements=[],
+        ),
     ]
 
     selected, _ = optimize_selection(scored_units, sample_parsed_jd, sample_constraints)
@@ -94,8 +118,24 @@ def test_optimize_selection_char_budget(sample_parsed_jd):
         max_total_chars=1000,
     )
     scored_units = [
-        ScoredUnit(unit_id="u1", text="A" * 900, section="experience", org="o1", role="r1", llm_score=9.0, matched_requirements=[]),
-        ScoredUnit(unit_id="u2", text="A" * 200, section="experience", org="o2", role="r2", llm_score=8.0, matched_requirements=[]),
+        ScoredUnit(
+            unit_id="u1",
+            text="A" * 900,
+            section="experience",
+            org="o1",
+            role="r1",
+            llm_score=9.0,
+            matched_requirements=[],
+        ),
+        ScoredUnit(
+            unit_id="u2",
+            text="A" * 200,
+            section="experience",
+            org="o2",
+            role="r2",
+            llm_score=8.0,
+            matched_requirements=[],
+        ),
     ]
 
     selected, _ = optimize_selection(scored_units, sample_parsed_jd, constraints)
@@ -108,7 +148,15 @@ def test_optimize_selection_char_budget(sample_parsed_jd):
 def test_optimize_selection_score_threshold(sample_parsed_jd, sample_constraints):
     """Test that low scored units are skipped."""
     scored_units = [
-        ScoredUnit(unit_id="u1", text="text", section="experience", org="o1", role="r1", llm_score=2.0, matched_requirements=[]),
+        ScoredUnit(
+            unit_id="u1",
+            text="text",
+            section="experience",
+            org="o1",
+            role="r1",
+            llm_score=2.0,
+            matched_requirements=[],
+        ),
     ]
 
     selected, _ = optimize_selection(scored_units, sample_parsed_jd, sample_constraints)

@@ -12,7 +12,14 @@ from app.services.scoring import tailor_units_against_jd
 def sample_units():
     """Sample units for tailoring."""
     return [
-        {"id": "b1", "text": "Built Python apps", "type": "bullet", "section": "experience", "org": "A", "role": "B"},
+        {
+            "id": "b1",
+            "text": "Built Python apps",
+            "type": "bullet",
+            "section": "experience",
+            "org": "A",
+            "role": "B",
+        },
         {"id": "s1", "text": "Python, FastAPI", "type": "skill_group", "section": "skills"},
     ]
 
@@ -49,12 +56,12 @@ async def test_tailor_units_against_jd_success(sample_units, sample_parsed_jd):
         result = await tailor_units_against_jd(sample_units, sample_parsed_jd)
 
     assert len(result) == 2  # 1 tailored + 1 passthrough (skill)
-    
+
     # Check tailored unit
     tailored = next(u for u in result if u.unit_id == "b1")
     assert tailored.text == "Engineered scalable Python applications"
     assert tailored.llm_score == 9.0
-    
+
     # Check passthrough unit
     skill = next(u for u in result if u.unit_id == "s1")
     assert skill.text == "Python, FastAPI"

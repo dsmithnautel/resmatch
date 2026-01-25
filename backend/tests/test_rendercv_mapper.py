@@ -1,5 +1,4 @@
 import pytest
-from unittest.mock import MagicMock
 
 from app.models import ScoredUnit
 from app.services.rendercv_mapper import map_to_rendercv_model
@@ -28,7 +27,7 @@ def test_map_to_rendercv_model_basic(sample_header):
             org="Google",
             role="SWE",
             llm_score=9.0,
-            dates={"start": "2020-01", "end": "2021-01"}
+            dates={"start": "2020-01", "end": "2021-01"},
         ),
         ScoredUnit(
             unit_id="u2",
@@ -37,15 +36,15 @@ def test_map_to_rendercv_model_basic(sample_header):
             org="Stanford",
             role="BS CS",
             llm_score=10.0,
-            dates={"start": "2016-09", "end": "2020-06"}
+            dates={"start": "2016-09", "end": "2020-06"},
         ),
         ScoredUnit(
             unit_id="s1",
             text="Python, FastAPI, Docker",
             section="skills",
             llm_score=10.0,
-            tags={"skills": ["Python", "FastAPI", "Docker"]}
-        )
+            tags={"skills": ["Python", "FastAPI", "Docker"]},
+        ),
     ]
 
     model = map_to_rendercv_model(units, sample_header)
@@ -54,13 +53,13 @@ def test_map_to_rendercv_model_basic(sample_header):
     assert "experience" in model["cv"]["sections"]
     assert "education" in model["cv"]["sections"]
     assert "technical_skills" in model["cv"]["sections"]
-    
+
     # Check experience mapping
     exp = model["cv"]["sections"]["experience"][0]
     assert exp["company"] == "Google"
     assert exp["position"] == "SWE"
     assert "Developed Python apps" in exp["highlights"]
-    
+
     # Check skills categorizing
     skills = model["cv"]["sections"]["technical_skills"]
     assert any(s["label"] == "Languages" and "Python" in s["details"] for s in skills)

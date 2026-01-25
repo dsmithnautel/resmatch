@@ -30,7 +30,7 @@ def test_parse_cors_origins_single():
 def test_validate_settings_missing_gemini_key():
     """Test validation fails when Gemini key is missing in production."""
     settings = Settings(gemini_api_key="", environment="production")
-    
+
     with patch("sys.exit") as mock_exit:
         validate_settings(settings)
         mock_exit.assert_called_once_with(1)
@@ -39,11 +39,9 @@ def test_validate_settings_missing_gemini_key():
 def test_validate_settings_warning_on_localhost_prod():
     """Test warning when using localhost DB in production."""
     settings = Settings(
-        gemini_api_key="key", 
-        environment="production", 
-        mongodb_uri="mongodb://localhost:27017"
+        gemini_api_key="key", environment="production", mongodb_uri="mongodb://localhost:27017"
     )
-    
+
     with patch("builtins.print") as mock_print:
         warnings = validate_settings(settings)
         assert any("localhost" in str(args[0]) for args, kwargs in mock_print.call_args_list)

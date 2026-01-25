@@ -23,6 +23,17 @@ def client():
 
 
 @pytest.fixture
+async def async_client():
+    """Create an async test client for the FastAPI app."""
+    from httpx import ASGITransport, AsyncClient
+
+    from app.main import app
+
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as ac:
+        yield ac
+
+
+@pytest.fixture
 def mock_gemini():
     """Mock Gemini API responses."""
     with patch("app.services.gemini.generate_json") as mock:

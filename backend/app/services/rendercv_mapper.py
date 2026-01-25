@@ -48,7 +48,7 @@ def map_to_rendercv_model(units: list[ScoredUnit], header_info: dict[str, str]) 
 
     # 2. Group Sections
     # We group units by section, then by entry (Company/Project)
-    grouped_sections = defaultdict(list)
+    grouped_sections: dict[str, list[ScoredUnit]] = defaultdict(list)
     for unit in units:
         # Normalize section name
         sec = unit.section.lower()

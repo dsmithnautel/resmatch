@@ -1,6 +1,5 @@
 """Tests for the Gemini API client wrapper."""
 
-import json
 from unittest.mock import MagicMock, patch
 
 import pytest

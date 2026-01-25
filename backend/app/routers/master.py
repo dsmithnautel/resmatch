@@ -44,13 +44,16 @@ async def get_master_resume(version_id: str):
     units = [AtomicUnit(**doc) async for doc in units_cursor]
 
     # Count by section
-    counts = {}
+    counts: dict[str, int] = {}
     for unit in units:
         section = unit.section.value
         counts[section] = counts.get(section, 0) + 1
 
+    # Initialize warnings as an empty list of strings
+    warnings: list[str] = []
+
     return MasterResumeResponse(
-        master_version_id=version_id, atomic_units=units, counts=counts, warnings=[]
+        master_version_id=version_id, atomic_units=units, counts=counts, warnings=warnings
     )
 
 
