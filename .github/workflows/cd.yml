@@ -26,18 +26,25 @@ jobs:
           token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
 
       - name: Deploy to DigitalOcean App Platform
+        # Only run if DO token is configured
+        if: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN != '' }}
         run: |
-          # Get app ID (replace with your actual app ID or use doctl to find it)
+          # Get app ID
           APP_ID=$(doctl apps list --format ID,Spec.Name --no-header | grep restailor | awk '{print $1}')
 
           if [ -n "$APP_ID" ]; then
             echo "Triggering deployment for app: $APP_ID"
             doctl apps create-deployment $APP_ID --wait
           else
-            echo "App not found. Make sure the app exists in DigitalOcean."
+            echo "::error::App 'restailor' not found in DigitalOcean. Check your app name."
             exit 1
           fi
-        continue-on-error: true  # Don't fail if DO token not configured yet
+
+      - name: Skip deployment (no token)
+        if: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN == '' }}
+        run: |
+          echo "::warning::DIGITALOCEAN_ACCESS_TOKEN not configured. Skipping deployment."
+          echo "Add the secret in GitHub Settings → Secrets → Actions"
 
   # Note: Frontend deployment is handled automatically by Vercel
   # Vercel watches the main branch and deploys on push
