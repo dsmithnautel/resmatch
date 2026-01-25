@@ -68,7 +68,7 @@ def validate_settings(settings: Settings) -> list[str]:
     # Check Gemini API key (required for core functionality)
     if not settings.gemini_api_key:
         errors.append(
-            "GEMINI_API_KEY is not set. " "Get one at https://aistudio.google.com/app/apikey"
+            "GEMINI_API_KEY is not set. Get one at https://aistudio.google.com/app/apikey"
         )
 
     # Check MongoDB URI (warn if using localhost in production)

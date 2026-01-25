@@ -29,9 +29,11 @@ async def generate_resume_narration(
 
         set_api_key(settings.elevenlabs_api_key)
 
+        from typing import cast
+
         audio = generate(text=text, voice=voice_id, model="eleven_monolingual_v1")
 
-        return audio
+        return cast(bytes, audio)
 
     except Exception as e:
         print(f"ElevenLabs error: {e}")
@@ -45,7 +47,7 @@ def format_resume_for_narration(selected_units: list) -> str:
     Converts bullet points into a narrative format suitable for
     text-to-speech.
     """
-    sections = {}
+    sections: dict[str, list] = {}
 
     for unit in selected_units:
         section = unit.get("section", "experience")

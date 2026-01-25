@@ -3,20 +3,21 @@
 import asyncio
 import json
 import re
+from typing import Any
 
 from google import genai
 
 from app.config import get_settings
 
-_client = None
+_client: genai.Client | None = None
 
 # Rate limiting: Gemini free tier allows ~15 requests/minute
 # We'll be conservative and add delays between requests
 RATE_LIMIT_DELAY = 4.0  # seconds between requests
-_last_request_time = 0
+_last_request_time: float = 0.0
 
 
-def get_gemini_client():
+def get_gemini_client() -> genai.Client:
     """Get configured Gemini client instance."""
     global _client
 
@@ -27,7 +28,7 @@ def get_gemini_client():
     return _client
 
 
-async def _rate_limit():
+async def _rate_limit() -> None:
     """Ensure we don't exceed rate limits by spacing out requests."""
     global _last_request_time
     import time
@@ -51,7 +52,7 @@ def _extract_retry_delay(error_message: str) -> float:
     return 60.0  # Default to 60 seconds if not found
 
 
-async def generate_json(prompt: str, max_retries: int = 5) -> dict | list:
+async def generate_json(prompt: str, max_retries: int = 5) -> Any:
     """
     Generate JSON response from Gemini.
 
@@ -60,6 +61,7 @@ async def generate_json(prompt: str, max_retries: int = 5) -> dict | list:
     - Rate limit errors (429) with exponential backoff
     """
     client = get_gemini_client()
+    assert client is not None
 
     # Add JSON instruction to prompt
     full_prompt = f"""{prompt}
@@ -73,22 +75,28 @@ IMPORTANT: Respond ONLY with valid JSON. No markdown, no explanation, just the J
             # Apply rate limiting
             await _rate_limit()
 
-            response = client.models.generate_content(
+            response = client.models.generate_content(  # type: ignore
                 model="gemini-2.0-flash",  # Using 1.5-flash for better free tier limits
                 contents=full_prompt,
             )
             text = response.text.strip()
 
             # Remove markdown code blocks if present
-            if text.startswith("```json"):
-                text = text[7:]
-            if text.startswith("```"):
-                text = text[3:]
-            if text.endswith("```"):
-                text = text[:-3]
             text = text.strip()
+            if text.startswith("```"):
+                # Use regex to find content between ```json and ``` or just ``` and ```
+                match = re.search(r"```(?:json)?\s*(.*?)\s*```", text, re.DOTALL)
+                if match:
+                    text = match.group(1).strip()
 
-            return json.loads(text)
+            try:
+                return json.loads(text)
+            except json.JSONDecodeError:
+                # Fallback: try to find anything that looks like a JSON object or array
+                match = re.search(r"(\{.*\}|\[.*\])", text, re.DOTALL)
+                if match:
+                    return json.loads(match.group(1))
+                raise
 
         except json.JSONDecodeError as e:
             if attempt < max_retries - 1:
@@ -133,6 +141,7 @@ IMPORTANT: Respond ONLY with valid JSON. No markdown, no explanation, just the J
 async def generate_text(prompt: str, max_retries: int = 3) -> str:
     """Generate text response from Gemini with rate limiting."""
     client = get_gemini_client()
+    assert client is not None
 
     base_delay = 2.0
 
