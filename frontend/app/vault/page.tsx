@@ -32,24 +32,27 @@ import {
 
 // Progress steps for the pipeline
 const steps = [
-  { num: 1, label: "Upload Resume", icon: FileText },
-  { num: 2, label: "Add Job", icon: Target },
-  { num: 3, label: "Review Matches", icon: Sparkles },
-  { num: 4, label: "Export PDF", icon: Download },
+  { num: 0, label: "Upload Resume", icon: FileText },
+  { num: 1, label: "Add Job", icon: Target },
+  { num: 2, label: "Review Matches", icon: Sparkles },
+  { num: 3, label: "Export PDF", icon: Download },
 ];
 
 // Progress Indicator Component
 function ProgressIndicator({ currentStep }: { currentStep: number }) {
+  const totalSteps = 4;
+  const currentStepData = steps.find(s => s.num === currentStep);
+
   return (
-    <div className="w-full max-w-2xl mx-auto mb-8">
+    <div className="w-full max-w-3xl mx-auto mb-8">
       {/* Step label */}
       <div className="flex items-center justify-between mb-3">
         <span className="text-sm font-medium text-foreground">
-          Step {currentStep} of 4:{" "}
-          <span className="text-primary">{steps[currentStep - 1].label}</span>
+          Step {currentStep + 1} of {totalSteps}:{" "}
+          <span className="text-primary">{currentStepData?.label}</span>
         </span>
         <span className="text-sm text-muted-foreground">
-          {Math.round((currentStep / 4) * 100)}% complete
+          {Math.round(((currentStep + 1) / totalSteps) * 100)}% complete
         </span>
       </div>
 
@@ -58,7 +61,7 @@ function ProgressIndicator({ currentStep }: { currentStep: number }) {
         <motion.div
           className="h-full bg-primary rounded-full"
           initial={{ width: 0 }}
-          animate={{ width: `${(currentStep / 4) * 100}%` }}
+          animate={{ width: `${((currentStep + 1) / totalSteps) * 100}%` }}
           transition={{ duration: 0.5, ease: "easeOut" }}
         />
       </div>
@@ -73,22 +76,20 @@ function ProgressIndicator({ currentStep }: { currentStep: number }) {
           return (
             <div
               key={step.num}
-              className={`flex items-center gap-1.5 text-xs transition-colors ${
-                isActive
+              className={`flex items-center gap-1.5 text-xs transition-colors ${isActive
                   ? "text-primary font-medium"
                   : isCompleted
                     ? "text-green-600"
                     : "text-muted-foreground"
-              }`}
+                }`}
             >
               <div
-                className={`w-6 h-6 rounded-full flex items-center justify-center transition-colors ${
-                  isActive
+                className={`w-6 h-6 rounded-full flex items-center justify-center transition-colors ${isActive
                     ? "bg-primary text-primary-foreground"
                     : isCompleted
                       ? "bg-green-500 text-white"
                       : "bg-muted"
-                }`}
+                  }`}
               >
                 {isCompleted ? (
                   <CheckCircle className="w-3.5 h-3.5" />
@@ -222,14 +223,27 @@ export default function VaultPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<MasterResumeResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const shouldReduceMotion = useReducedMotion();
 
   const handleFileSelect = async (file: File) => {
+    // Single file callback - handled by onFilesSelect instead
+  };
+
+  const handleFilesSelect = (files: File[]) => {
+    setSelectedFiles(files);
+    setError(null);
+  };
+
+  const handleUploadFiles = async () => {
+    if (selectedFiles.length === 0) return;
+
     setIsLoading(true);
     setError(null);
 
     try {
-      const response = await uploadResume(file);
+      // Upload first file for now (or combine later)
+      const response = await uploadResume(selectedFiles[0]);
       setResult(response);
     } catch (err) {
       setError(
@@ -240,8 +254,8 @@ export default function VaultPage() {
     }
   };
 
-  // Determine current step
-  const currentStep = result ? 1 : 1; // Still step 1, but upload complete
+  // Determine current step (0 = upload, 1 = add job, etc.)
+  const currentStep = result ? 1 : 0;
 
   return (
     <div className="min-h-screen bg-background">
@@ -269,15 +283,14 @@ export default function VaultPage() {
           className="text-center mb-8"
         >
           <h1 className="text-3xl font-bold text-foreground mb-2">
-            Upload Your Resume
+            Upload Your Resumes
           </h1>
           <p className="text-muted-foreground max-w-lg mx-auto">
-            We&apos;ll extract each bullet point and track its exact source,
-            so your tailored resume only contains verified experience.
+            Upload one or more resumes and we&apos;ll extract your experience from all of them.
           </p>
         </motion.div>
 
-        {/* Upload Section */}
+        {/* Step 1: Upload Section */}
         {!result && (
           <motion.div
             initial={shouldReduceMotion ? { opacity: 1 } : { opacity: 0, y: 20 }}
@@ -287,16 +300,24 @@ export default function VaultPage() {
             <Card className="max-w-2xl mx-auto">
               <CardHeader>
                 <div className="flex items-center justify-between">
-                  <CardTitle>Select Your Resume</CardTitle>
+                  <CardTitle>Select Your Resumes</CardTitle>
                   <HowItWorksTooltip />
                 </div>
                 <CardDescription>
-                  We&apos;ll extract every bullet point and remember exactly
-                  where it came from. No rewriting, no embellishment.
+                  We&apos;ll extract every bullet point from all your resumes and remember exactly
+                  where each came from. No rewriting, no embellishment.
                 </CardDescription>
+                <p className="text-xs text-muted-foreground mt-2">
+                  Upload multiple PDFs to build a comprehensive experience profile.
+                </p>
               </CardHeader>
               <CardContent>
-                <FileUpload onFileSelect={handleFileSelect} isLoading={isLoading} />
+                <FileUpload
+                  onFileSelect={handleFileSelect}
+                  onFilesSelect={handleFilesSelect}
+                  isLoading={isLoading}
+                  multiple={true}
+                />
                 {error && (
                   <div className="mt-4 p-4 bg-destructive/10 rounded-lg flex items-center gap-2 text-destructive">
                     <AlertCircle className="w-5 h-5 flex-shrink-0" />
@@ -306,15 +327,23 @@ export default function VaultPage() {
               </CardContent>
             </Card>
 
-            {/* Disabled Continue Button */}
+            {/* Continue Button */}
             <div className="flex justify-center mt-8">
-              <Button size="lg" disabled className="gap-2">
-                Continue to Job Description
+              <Button
+                size="lg"
+                disabled={selectedFiles.length === 0 || isLoading}
+                className="gap-2"
+                onClick={handleUploadFiles}
+              >
+                {isLoading ? "Processing..." : "Continue to Job Description"}
                 <ArrowRight className="w-4 h-4" />
               </Button>
             </div>
             <p className="text-center text-sm text-muted-foreground mt-2">
-              Upload your resume to continue
+              {selectedFiles.length === 0
+                ? "Upload your resume(s) to continue"
+                : `${selectedFiles.length} file${selectedFiles.length !== 1 ? "s" : ""} ready to process`
+              }
             </p>
           </motion.div>
         )}
