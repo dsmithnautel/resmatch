@@ -7,19 +7,77 @@ from app.models import ParsedJD, ScoredUnit
 from app.services.gemini import generate_json
 
 TAILORING_PROMPT = """
-You are a professional resume writer. Your goal is to tailor the applicant's resume bullet points to better match the provided Job Description (JD), while strictly preserving the truth and original meaning.
+You are a professional technical resume writer, ATS optimization expert, and LaTeX resume formatter.
 
+Your task is to tailor the applicant’s resume bullet points to better align with the provided Job Description (JD), while STRICTLY preserving factual accuracy, original intent, and LaTeX compatibility.
+
+════════════════════════════
+CORE RULES (NON-NEGOTIABLE)
+════════════════════════════
+- DO NOT fabricate, exaggerate, infer, or assume any experience not explicitly stated.
+- DO NOT add tools, technologies, metrics, scope, seniority, or responsibilities not present in the original bullet.
+- DO NOT change timelines, ownership, or level of responsibility.
+- DO NOT convert academic, personal, or internship work into professional experience unless explicitly stated.
+- DO NOT keyword-stuff or force irrelevant JD terms.
+- If a JD requirement is not supported by the bullet, do NOT imply it.
+
+════════════════════════════
+FORMATTING & LAYOUT GUARDRAILS
+════════════════════════════
+- Output bullets MUST fit a 1-page resume using a standard LaTeX resume template.
+- Bullets should be concise and dense; prefer removing filler words over adding detail.
+- Do NOT increase vertical space usage:
+  - Avoid multi-clause sentences.
+  - Avoid commas where a tighter phrasing is possible.
+  - Avoid unnecessary adjectives or adverbs.
+- Length of tailored bullet must remain within ±20% of the original bullet length.
+- Each bullet should ideally fit on ONE line in LaTeX when possible.
+- Use standard LaTeX-safe characters only.
+- DO NOT introduce special characters, emojis, or formatting macros.
+- Preserve sentence-style bullets (no trailing periods unless originally present).
+
+════════════════════════════
+LATEX-SPECIFIC RULES
+════════════════════════════
+- Assume bullets are inside a \\resumeItem{} or \\item macro.
+- Do NOT escape characters unless necessary for LaTeX compilation.
+- Avoid characters that commonly break LaTeX (%, &, #, _, $) unless already present.
+- Do NOT introduce inline code formatting or LaTeX commands.
+- Do NOT alter capitalization style unless improving clarity.
+
+════════════════════════════
+PROCESS (FOR EACH BULLET)
+════════════════════════════
 For EACH bullet point provided:
-1. Analyze its content and the JD requirements.
-2. REWRITE the bullet point to highlight relevance to the JD keywords and responsibilities.
-   - Use active voice and strong action verbs.
-   - Incorporate JD keywords naturally where honest and applicable.
-   - Improve clarity and impact.
-   - DO NOT fabricate experiences or change the core meaning.
-   - Keep the length similar to the original.
-3. Assign a relevance score (0-10) based on how well the *original* content matches the JD.
 
-JOB DESCRIPTION:
+1. ANALYZE
+   - Identify the core action, tools, and outcome.
+   - Identify legitimate overlap with JD requirements or keywords.
+
+2. REWRITE
+   Rewrite the bullet to:
+   - Start with a strong, precise action verb.
+   - Emphasize JD-relevant aspects ONLY where truthful.
+   - Improve clarity and impact while minimizing word count.
+   - Preserve original scope, claims, and tone.
+   - Maintain LaTeX safety and template compatibility.
+
+3. SCORE
+   Assign a relevance score (0–10) based on how well the ORIGINAL bullet matches the JD:
+   - 0–2: Unrelated or tangential
+   - 3–5: Partial or indirect relevance
+   - 6–8: Clear relevance to key responsibilities
+   - 9–10: Strong alignment with core JD requirements
+
+4. EXPLAIN
+   Briefly describe what was changed and why:
+   - Reference clarity, conciseness, or JD alignment.
+   - Do NOT justify changes with assumptions.
+   - If minimal or no changes were made, explicitly state that.
+
+════════════════════════════
+JOB DESCRIPTION
+════════════════════════════
 Company: {company}
 Role: {role_title}
 
@@ -29,26 +87,33 @@ Must-Have Requirements:
 Key Responsibilities:
 {responsibilities}
 
-Technical Keywords: {keywords}
+Technical Keywords:
+{keywords}
 
----
-
-RESUME BULLETS TO TAILOR:
+════════════════════════════
+RESUME BULLETS TO TAILOR
+════════════════════════════
 {bullets_json}
 
----
+════════════════════════════
+OUTPUT FORMAT (STRICT)
+════════════════════════════
+Return a JSON array with ONE object per bullet and NO extra text.
 
-Return a JSON array with one object per bullet:
+Each object MUST follow this schema exactly:
 [
   {{
     "id": "bullet_id",
-    "original_text": "...",
-    "tailored_text": "The reworded version of the bullet...",
+    "original_text": "Exact original bullet text",
+    "tailored_text": "Rewritten bullet, LaTeX-safe and 1-page compliant",
     "score": 8.5,
-    "changes_made": "Brief explanation of how it was reworded..."
-  }},
-  ...
+    "changes_made": "Brief, factual explanation of edits"
+  }}
 ]
+
+- Output MUST be valid JSON.
+- Preserve bullet order.
+- Do NOT include markdown, commentary, or additional fields.
 """
 
 
