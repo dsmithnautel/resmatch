@@ -26,6 +26,8 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { FlowDiagram } from "@/components/flow-diagram";
+import { StepperTabs } from "@/components/stepper-tabs";
 
 // Animation variants
 const fadeInUp = {
@@ -249,6 +251,7 @@ const faqItems = [
 
 export default function Home() {
   const shouldReduceMotion = useReducedMotion();
+  const [activeStep, setActiveStep] = useState(1);
 
   return (
     <>
@@ -360,113 +363,21 @@ export default function Home() {
             <AnimatedSection className="text-center mb-16">
               <h2 className="text-h2 text-foreground">How it works</h2>
               <p className="mt-3 text-body-sm text-muted-foreground max-w-2xl mx-auto">
-                Four simple steps from your master resume to a perfectly
-                tailored PDF
+                Two inputs converge into one tailored resume — with full provenance
               </p>
             </AnimatedSection>
 
-            <div className="grid lg:grid-cols-2 gap-12 items-start">
-              {/* Steps */}
-              <div className="space-y-6">
-                {[
-                  {
-                    num: 1,
-                    title: "Upload your resume",
-                    desc: "Upload your master resume PDF. We extract every bullet point as a verified unit of experience.",
-                    icon: FileText,
-                  },
-                  {
-                    num: 2,
-                    title: "Paste the job description",
-                    desc: "Paste the job posting text. Our AI extracts requirements and skills to match against.",
-                    icon: Target,
-                  },
-                  {
-                    num: 3,
-                    title: "Review matched bullets",
-                    desc: "See which bullets match which requirements, with match scores and source links.",
-                    icon: Eye,
-                  },
-                  {
-                    num: 4,
-                    title: "Export your tailored PDF",
-                    desc: "Download a clean, one-page resume optimized for ATS systems.",
-                    icon: Download,
-                  },
-                ].map((step, i) => (
-                  <AnimatedSection key={step.num} delay={i * 0.1}>
-                    <div className="flex gap-4">
-                      <div className="flex-shrink-0 w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-semibold">
-                        {step.num}
-                      </div>
-                      <div>
-                        <h3 className="font-semibold text-foreground">
-                          {step.title}
-                        </h3>
-                        <p className="text-sm text-muted-foreground mt-1">
-                          {step.desc}
-                        </p>
-                      </div>
-                    </div>
-                  </AnimatedSection>
-                ))}
-              </div>
+            <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-start">
+              {/* Interactive Steps */}
+              <AnimatedSection>
+                <StepperTabs activeStep={activeStep} onStepChange={setActiveStep} />
+              </AnimatedSection>
 
-              {/* Demo Card */}
+              {/* Flow Diagram */}
               <AnimatedSection delay={0.2}>
-                <Card className="shadow-lg">
-                  <CardContent className="p-6">
-                    <div className="text-sm font-medium text-muted-foreground mb-4">
-                      Matching in action
-                    </div>
-
-                    <div className="space-y-4">
-                      {/* Job Requirement */}
-                      <div className="p-3 rounded-lg bg-muted/50 border">
-                        <div className="text-xs text-muted-foreground mb-1">
-                          Job Requirement
-                        </div>
-                        <p className="text-sm">
-                          Experience with{" "}
-                          <span className="bg-primary/20 px-1 rounded">
-                            real-time data visualization
-                          </span>{" "}
-                          and dashboard development
-                        </p>
-                      </div>
-
-                      {/* Arrow */}
-                      <div className="flex justify-center">
-                        <div className="w-8 h-8 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
-                          <CheckCircle className="w-4 h-4 text-green-600" />
-                        </div>
-                      </div>
-
-                      {/* Matched Bullet */}
-                      <div className="p-3 rounded-lg border-2 border-primary bg-primary/5">
-                        <div className="text-xs text-muted-foreground mb-1">
-                          Your Resume Bullet
-                        </div>
-                        <p className="text-sm">
-                          Led development of{" "}
-                          <span className="bg-primary/20 px-1 rounded">
-                            real-time analytics dashboard
-                          </span>{" "}
-                          serving 10K+ daily users
-                        </p>
-                        <div className="mt-2 flex items-center justify-between">
-                          <span className="text-xs text-primary font-medium">
-                            Match score: 0.92
-                          </span>
-                          <button className="text-xs text-primary hover:underline flex items-center gap-1">
-                            <Link2 className="w-3 h-3" />
-                            View source
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
+                <div className="lg:sticky lg:top-24">
+                  <FlowDiagram activeStep={activeStep} />
+                </div>
               </AnimatedSection>
             </div>
           </div>
