@@ -80,15 +80,21 @@ IMPORTANT: Respond ONLY with valid JSON. No markdown, no explanation, just the J
             text = response.text.strip()
 
             # Remove markdown code blocks if present
-            if text.startswith("```json"):
-                text = text[7:]
-            if text.startswith("```"):
-                text = text[3:]
-            if text.endswith("```"):
-                text = text[:-3]
             text = text.strip()
-
-            return json.loads(text)
+            if text.startswith("```"):
+                # Use regex to find content between ```json and ``` or just ``` and ```
+                match = re.search(r"```(?:json)?\s*(.*?)\s*```", text, re.DOTALL)
+                if match:
+                    text = match.group(1).strip()
+            
+            try:
+                return json.loads(text)
+            except json.JSONDecodeError:
+                # Fallback: try to find anything that looks like a JSON object or array
+                match = re.search(r"(\{.*\}|\[.*\])", text, re.DOTALL)
+                if match:
+                    return json.loads(match.group(1))
+                raise
 
         except json.JSONDecodeError as e:
             if attempt < max_retries - 1:

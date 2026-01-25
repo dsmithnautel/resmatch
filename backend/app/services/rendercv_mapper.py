@@ -164,8 +164,8 @@ def _build_projects(units: list[ScoredUnit]) -> list[dict[str, Any]]:
 
         # Extract tools from tags
         tools = []
-        if bullets[0].tags and getattr(bullets[0].tags, "skills", None):
-            tools = bullets[0].tags.skills[:6]  # Limit
+        if bullets[0].tags and isinstance(bullets[0].tags, dict):
+            tools = bullets[0].tags.get("skills", [])[:6]  # Limit
 
         entry = {
             "name": real_name,
@@ -186,8 +186,8 @@ def _build_skills(units: list[ScoredUnit]) -> list[dict[str, Any]]:
 
     all_skills = []
     for u in units:
-        if u.tags and getattr(u.tags, "skills", None):
-            all_skills.extend(u.tags.skills)
+        if u.tags and isinstance(u.tags, dict):
+            all_skills.extend(u.tags.get("skills", []))
 
     # De-duplicate
     unique = sorted(set(all_skills))
@@ -259,10 +259,10 @@ def _build_skills(units: list[ScoredUnit]) -> list[dict[str, Any]]:
 
 
 def _format_dates(unit: ScoredUnit) -> str:
-    dates = getattr(unit, "dates", None)
-    if dates:
-        start = getattr(dates, "start", "") or ""
-        end = getattr(dates, "end", "") or "Present"
+    dates = unit.dates
+    if dates and isinstance(dates, dict):
+        start = dates.get("start", "") or ""
+        end = dates.get("end", "") or "Present"
         if start and end:
             return f"{start} – {end}"
         if start:

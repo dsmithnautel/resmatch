@@ -19,6 +19,7 @@ rendercv>=1.10
 # Web Scraping
 httpx>=0.26.0
 trafilatura>=1.8.0
+lxml_html_clean>=0.1.0
 beautifulsoup4>=4.12.0
 
 # Voice - ElevenLabs (Stretch)
