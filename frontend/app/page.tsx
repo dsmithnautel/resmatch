@@ -51,7 +51,7 @@ function AnimatedSection({
   delay?: number;
 }) {
   const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, margin: "-100px" });
+  const isInView = useInView(ref, { once: true, margin: "-50px" });
   const shouldReduceMotion = useReducedMotion();
 
   return (
@@ -360,7 +360,7 @@ export default function Home() {
             <motion.div
               initial="hidden"
               whileInView="visible"
-              viewport={{ once: true, margin: "-100px" }}
+              viewport={{ once: true, margin: "-50px" }}
               variants={staggerContainer}
               className="grid md:grid-cols-2 lg:grid-cols-4 gap-5"
             >
@@ -397,9 +397,9 @@ export default function Home() {
         </section>
 
         {/* How It Works */}
-        <section id="how-it-works" className="py-section-md px-6 bg-muted/20">
+        <section id="how-it-works" className="py-12 px-6 bg-muted/20">
           <div className="container">
-            <AnimatedSection className="text-center mb-8">
+            <AnimatedSection className="text-center mb-6">
               <h2 className="text-h2 text-foreground">How it works</h2>
               <p className="mt-2 text-body-sm text-muted-foreground max-w-2xl mx-auto">
                 Upload your resume, paste a job description, download your tailored version.
@@ -408,8 +408,8 @@ export default function Home() {
 
             {/* Horizontal Steps */}
             <AnimatedSection delay={0.1}>
-              <div className="max-w-3xl mx-auto">
-                <div className="flex flex-col md:flex-row items-start justify-center gap-2">
+              <div className="max-w-4xl mx-auto">
+                <div className="flex flex-col md:flex-row items-start justify-between gap-4">
                   {/* Step 1: Upload */}
                   <div className="flex items-start">
                     <div className="flex flex-col items-center text-center w-[140px]">
@@ -421,7 +421,7 @@ export default function Home() {
                         We extract your experience
                       </p>
                     </div>
-                    <ChevronRight className="hidden md:block w-5 h-5 text-muted-foreground/40 mt-3.5 mx-1 flex-shrink-0" />
+                    <ChevronRight className="hidden md:block w-5 h-5 text-muted-foreground/40 mt-3.5 mx-4 flex-shrink-0" />
                   </div>
 
                   {/* Step 2: Paste */}
@@ -435,7 +435,7 @@ export default function Home() {
                         Copy from any posting
                       </p>
                     </div>
-                    <ChevronRight className="hidden md:block w-5 h-5 text-muted-foreground/40 mt-3.5 mx-1 flex-shrink-0" />
+                    <ChevronRight className="hidden md:block w-5 h-5 text-muted-foreground/40 mt-3.5 mx-4 flex-shrink-0" />
                   </div>
 
                   {/* Step 3: Review */}
@@ -449,7 +449,7 @@ export default function Home() {
                         See what fits each role
                       </p>
                     </div>
-                    <ChevronRight className="hidden md:block w-5 h-5 text-muted-foreground/40 mt-3.5 mx-1 flex-shrink-0" />
+                    <ChevronRight className="hidden md:block w-5 h-5 text-muted-foreground/40 mt-3.5 mx-4 flex-shrink-0" />
                   </div>
 
                   {/* Step 4: Export */}
@@ -485,7 +485,7 @@ export default function Home() {
             <motion.div
               initial="hidden"
               whileInView="visible"
-              viewport={{ once: true, margin: "-100px" }}
+              viewport={{ once: true, margin: "-50px" }}
               variants={staggerContainer}
               className="max-w-5xl mx-auto"
             >
