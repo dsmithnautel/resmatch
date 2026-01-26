@@ -1,4 +1,4 @@
-# Resume.compile()
+# ResMatch
 
 [![CI](https://github.com/dsmithnautel/restailor/actions/workflows/ci.yml/badge.svg)](https://github.com/dsmithnautel/restailor/actions/workflows/ci.yml)
 [![CD](https://github.com/dsmithnautel/restailor/actions/workflows/cd.yml/badge.svg)](https://github.com/dsmithnautel/restailor/actions/workflows/cd.yml)
@@ -12,7 +12,7 @@ Built for **SwampHacks XI** | Using **Gemini API** (MLH), **MongoDB Atlas** (MLH
 
 ## Overview
 
-Resume.compile() treats your resume like source code and job descriptions like build targets. It:
+ResMatch treats your resume like source code and job descriptions like build targets. It:
 
 1. **Extracts** every bullet point from your master resume as verified "atomic units"
 2. **Parses** job descriptions to identify requirements and keywords
@@ -162,7 +162,7 @@ restailor/
 
 ## Frequently Asked Questions (FAQ)
 
-### How does Resume.compile() ensure zero hallucinations?
+### How does ResMatch ensure zero hallucinations?
 
 We only use content that already exists in your uploaded resume. Every bullet point in your tailored resume can be traced back to an exact line in your original document. We never generate, invent, or embellish any experience.
 
@@ -172,15 +172,15 @@ For every bullet we include in your tailored resume, you can click 'View source'
 
 ### Do I need to create an account?
 
-No. Resume.compile() works without sign-up. Just upload your resume, paste a job description, and export your tailored PDF immediately.
+No. ResMatch works without sign-up. Just upload your resume, paste a job description, and export your tailored PDF immediately.
 
 ### What file formats are supported?
 
 We currently support PDF uploads. The exported tailored resume is also delivered as a PDF optimized for ATS systems.
 
-### Is Resume.compile() really free?
+### Is ResMatch really free?
 
-Yes. Resume.compile() is free and open source. You can view the source code on GitHub and even self-host if you prefer.
+Yes. ResMatch is free and open source. You can view the source code on GitHub and even self-host if you prefer.
 
 ## Team
 
