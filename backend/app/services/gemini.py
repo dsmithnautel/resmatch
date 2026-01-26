@@ -5,7 +5,6 @@ import json
 import re
 
 from google import genai
-from google.genai import errors as genai_errors
 
 from app.config import get_settings
 

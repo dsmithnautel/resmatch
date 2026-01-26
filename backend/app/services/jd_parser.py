@@ -89,23 +89,7 @@ async def parse_job_description(url: str | None = None, text: str | None = None)
         jd_text = text
     else:
         raise ValueError("Either url or text must be provided")
-<<<<<<< Updated upstream
 
-=======
-    
-    # Check cache first (hash-based lookup)
-    import hashlib
-    from app.db.mongodb import get_database
-    
-    text_hash = hashlib.sha256(jd_text.encode()).hexdigest()[:16]
-    db = await get_database()
-    
-    cached = await db.parsed_jds.find_one({"text_hash": text_hash})
-    if cached:
-        # Return cached result (skip LLM call entirely!)
-        return ParsedJD(**cached)
-    
->>>>>>> Stashed changes
     # Generate unique ID
     jd_id = f"jd_{datetime.now().strftime('%Y%m%d')}_{uuid.uuid4().hex[:8]}"
 
@@ -127,13 +111,8 @@ async def parse_job_description(url: str | None = None, text: str | None = None)
             source_url=url,
             raw_text=jd_text[:5000],
         )
-<<<<<<< Updated upstream
 
     return ParsedJD(
-=======
-    
-    parsed_jd = ParsedJD(
->>>>>>> Stashed changes
         jd_id=jd_id,
         role_title=result.get("role_title", "Unknown"),
         company=result.get("company", "Unknown"),
@@ -144,10 +123,3 @@ async def parse_job_description(url: str | None = None, text: str | None = None)
         source_url=url,
         raw_text=jd_text[:5000],
     )
-    
-    # Cache the result for future lookups
-    cache_doc = parsed_jd.model_dump()
-    cache_doc["text_hash"] = text_hash
-    await db.parsed_jds.insert_one(cache_doc)
-    
-    return parsed_jd
