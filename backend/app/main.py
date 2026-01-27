@@ -1,4 +1,4 @@
-"""FastAPI application entry point for Resume.compile()."""
+"""FastAPI application entry point for ResMatch."""
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -9,7 +9,7 @@ from app.routers import job, master, resume
 settings = get_settings()
 
 app = FastAPI(
-    title="Resume.compile() API",
+    title="ResMatch API",
     description="Truth-first resume tailoring engine - compiles verified experience into job-targeted resumes",
     version="1.0.0",
 )
@@ -34,7 +34,7 @@ app.include_router(resume.router, prefix="/resume", tags=["Resume Compilation"])
 @app.get("/")
 async def root():
     """Health check endpoint."""
-    return {"service": "Resume.compile() API", "status": "healthy", "version": "1.0.0"}
+    return {"service": "ResMatch API", "status": "healthy", "version": "1.0.0"}
 
 
 @app.get("/health")

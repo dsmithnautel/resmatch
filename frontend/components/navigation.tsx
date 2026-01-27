@@ -12,10 +12,10 @@ export function Navigation() {
           {/* Logo */}
           <Link href="/" className="flex items-center gap-1">
             <span className="text-xl font-bold tracking-tight">
-              Resume.<span className="text-primary">compile</span>()
+              Res<span className="text-primary">Match</span>
             </span>
           </Link>
-          
+
         </div>
 
         <div className="flex items-center gap-4">
@@ -29,7 +29,7 @@ export function Navigation() {
           >
             <Github className="h-5 w-5" />
           </a>
-          
+
           {/* Primary CTA */}
           <Button asChild size="sm">
             <Link href="/vault">Start free</Link>

@@ -1,10 +1,10 @@
-# Resume.compile() - Product Requirements Document
+# ResMatch - Product Requirements Document
 
 ## 1. Header and Meta Information
 
 | Field | Value |
 |-------|-------|
-| **Title** | Resume.compile() Truth-First Resume Engine |
+| **Title** | ResMatch Truth-First Resume Engine |
 | **Author** | Derek |
 | **Status** | Draft |
 | **Last Updated** | January 24, 2026 |
@@ -53,7 +53,7 @@
 
 ## 3. Executive Summary
 
-Resume.compile() is a truth-first resume tailoring engine that eliminates AI hallucinations in job applications. The system treats the user's career history as a verified database (Master Resume) and job descriptions as search queries. Using LLM-direct scoring, it matches factual "atomic units" of experience to JD requirements and assembles an optimized one-page resume with full provenance tracking.
+ResMatch is a truth-first resume tailoring engine that eliminates AI hallucinations in job applications. The system treats the user's career history as a verified database (Master Resume) and job descriptions as search queries. Using LLM-direct scoring, it matches factual "atomic units" of experience to JD requirements and assembles an optimized one-page resume with full provenance tracking.
 
 **Core Principle**: The system behaves like a compiler, not a creative writer. It can only output content that exists in the verified Master Resume.
 
