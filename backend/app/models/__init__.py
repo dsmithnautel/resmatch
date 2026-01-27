@@ -1,4 +1,4 @@
-"""Pydantic models for Resume.compile()."""
+"""Pydantic models for ResMatch."""
 
 from app.models.atomic_unit import AtomicUnit, AtomicUnitType, SectionType
 from app.models.compile import (

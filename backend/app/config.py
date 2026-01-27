@@ -1,4 +1,4 @@
-"""Configuration settings for the Resume.compile() backend."""
+"""Configuration settings for the ResMatch backend."""
 
 import json
 import os

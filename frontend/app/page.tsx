@@ -94,7 +94,7 @@ function ProductPreview() {
             <div className="w-3 h-3 rounded-full bg-green-400" />
           </div>
           <span className="text-xs text-muted-foreground ml-2">
-            resume-compile
+            ResMatch
           </span>
         </div>
 
@@ -630,7 +630,7 @@ export default function Home() {
               {/* Logo */}
               <div className="flex items-center gap-1">
                 <span className="text-lg font-bold tracking-tight">
-                  Resume.<span className="text-primary">compile</span>()
+                  Res<span className="text-primary">Match</span>
                 </span>
               </div>
 
