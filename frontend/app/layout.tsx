@@ -5,7 +5,7 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Resume.compile() - Truth-First Resume Tailoring",
+  title: "ResMatch - Truth-First Resume Tailoring",
   description: "Compile verified experience into job-targeted resumes with zero hallucinations",
   icons: {
     icon: [

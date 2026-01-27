@@ -1,1 +1,1 @@
-"""Database module for Resume.compile()."""
+"""Database module for ResMatch."""

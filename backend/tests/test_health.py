@@ -7,7 +7,7 @@ def test_root_endpoint(client):
 
     assert response.status_code == 200
     data = response.json()
-    assert data["service"] == "Resume.compile() API"
+    assert data["service"] == "ResMatch API"
     assert data["status"] == "healthy"
     assert "version" in data
 

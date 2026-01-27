@@ -1,1 +1,1 @@
-"""Services for Resume.compile() backend."""
+"""Services for ResMatch backend."""
