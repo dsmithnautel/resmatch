@@ -96,22 +96,11 @@ async def render_resume(
 def extract_header_info(header_units: list[dict]) -> dict:
     """
     Extract name, email, phone, LinkedIn, GitHub from header units.
-    Aggregates text from all provided header units.
-
-    Args:
-        header_units: List of header atomic units from database
-
-    Returns:
-        Dictionary with extracted contact information
+    Prioritizes structured 'tags' from LLM, then falls back to regex on text.
     """
     if not header_units:
         return {}
-
-    # Combine text from all header units
-    # We join with newlines to ensure separation
-    full_text = "\n".join(unit.get("text", "") for unit in header_units)
-    lines = [line.strip() for line in full_text.split("\n") if line.strip()]
-
+        
     info = {
         "name": "Your Name",  # Default if not found
         "email": "",
@@ -120,68 +109,71 @@ def extract_header_info(header_units: list[dict]) -> dict:
         "github": "",
     }
 
-    if lines:
-        # Heuristic: The first non-empty line usually contains the name
-        # We assume the first unit's first line is the name if multiple units exist
-        # But if units are out of order, this might be tricky.
-        # Usually, MongoDB returns in insertion order (which matches extraction order).
-        info["name"] = lines[0]
+    # 1. Try extracted metadata from tags (New Ingestion)
+    full_text_parts = []
+    
+    for unit in header_units:
+        # Accumulate text for fallback
+        if unit.get("text"):
+            full_text_parts.append(unit["text"])
+            # If prompt followed, first unit text is Name
+            if info["name"] == "Your Name":
+                info["name"] = unit["text"]
 
-    # Extract email (look for @ symbol)
-    # Improved regex to avoid matching things like "quoted@text" if possible, but keep simple
-    email_pattern = r"[\w\.-]+@[\w\.-]+\.\w+"
-    for line in lines:
-        # Search in the whole line
-        email_match = re.search(email_pattern, line)
-        if email_match:
-            info["email"] = email_match.group(0)
-            break
+        # Check tags
+        tags = unit.get("tags") or {}
+        if isinstance(tags, dict):
+            if tags.get("email"): info["email"] = tags["email"]
+            if tags.get("phone"): info["phone"] = tags["phone"]
+            if tags.get("linkedin"): info["linkedin"] = tags["linkedin"]
+            if tags.get("github"): info["github"] = tags["github"]
+            
+    # 2. Regex Fallback (Old Ingestion or LLM miss)
+    full_text = "\n".join(full_text_parts)
+    lines = [line.strip() for line in full_text.split("\n") if line.strip()]
+    
+    # Extract email if missing
+    if not info["email"]:
+        email_pattern = r"[\w\.-]+@[\w\.-]+\.\w+"
+        for line in lines:
+            if match := re.search(email_pattern, line):
+                info["email"] = match.group(0)
+                break
+                
+    # Extract phone if missing
+    if not info["phone"]:
+        phone_pattern = r"\(?\d{3}\)?[\s\-\.]?\d{3}[\s\-\.]?\d{4}"
+        for line in lines:
+            if match := re.search(phone_pattern, line):
+                info["phone"] = match.group(0).strip()
+                break
+                
+    # Extract LinkedIn if missing
+    if not info["linkedin"]:
+        for line in lines:
+            if "linkedin.com" in line.lower():
+                if match := re.search(r"https?://[^\s]+", line):
+                    info["linkedin"] = match.group(0)
+                else:
+                    clean = line.replace("|", "").strip()
+                    for part in clean.split():
+                        if "linkedin.com" in part:
+                            info["linkedin"] = f"https://{part}" if not part.startswith("http") else part
+                            break
+                break
 
-    # Extract phone (look for phone number patterns)
-    # Improved regex to match common formats, avoid short numbers
-    phone_pattern = r"\(?\d{3}\)?[\s\-\.]?\d{3}[\s\-\.]?\d{4}"
-    for line in lines:
-        phone_match = re.search(phone_pattern, line)
-        if phone_match:
-            info["phone"] = phone_match.group(0).strip()
-            break
-
-    # Extract LinkedIn
-    for line in lines:
-        if "linkedin.com" in line.lower():
-            # Try to extract URL
-            url_match = re.search(r"https?://[^\s]+", line)
-            if url_match:
-                info["linkedin"] = url_match.group(0)
-            else:
-                # Construct URL if just the display text is present
-                # Clean up the line to get potential path
-                clean_line = line.replace("|", "").strip()
-                # Find the part that looks like linkedin.com/...
-                parts = clean_line.split()
-                for part in parts:
-                    if "linkedin.com" in part:
-                        info["linkedin"] = (
-                            f"https://{part}" if not part.startswith("http") else part
-                        )
-                        break
-            break
-
-    # Extract GitHub
-    for line in lines:
-        if "github.com" in line.lower():
-            # Try to extract URL
-            url_match = re.search(r"https?://[^\s]+", line)
-            if url_match:
-                info["github"] = url_match.group(0)
-            else:
-                # Construct URL if just the display text is present
-                clean_line = line.replace("|", "").strip()
-                parts = clean_line.split()
-                for part in parts:
-                    if "github.com" in part:
-                        info["github"] = f"https://{part}" if not part.startswith("http") else part
-                        break
-            break
+    # Extract GitHub if missing
+    if not info["github"]:
+        for line in lines:
+            if "github.com" in line.lower():
+                if match := re.search(r"https?://[^\s]+", line):
+                    info["github"] = match.group(0)
+                else:
+                    clean = line.replace("|", "").strip()
+                    for part in clean.split():
+                        if "github.com" in part:
+                            info["github"] = f"https://{part}" if not part.startswith("http") else part
+                            break
+                break
 
     return info

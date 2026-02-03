@@ -15,36 +15,28 @@ def map_to_rendercv_model(units: list[ScoredUnit], header_info: dict[str, str]) 
     """
 
     # 1. Construct Header
-    # RenderCV expects specific keys for social networks
-    social_networks = []
-
-    if header_info.get("linkedin"):
-        social_networks.append(
-            {
-                "network": "LinkedIn",
-                "username": header_info.get("linkedin", "")
-                .split("linkedin.com/in/")[-1]
-                .replace("/", ""),
-                "url": header_info.get("linkedin"),
-            }
-        )
-
-    if header_info.get("github"):
-        social_networks.append(
-            {
-                "network": "GitHub",
-                "username": header_info.get("github", "").split("github.com/")[-1].replace("/", ""),
-                "url": header_info.get("github"),
-            }
-        )
+    # RenderCV 2.x handles standard social networks as top-level keys
+    # Calculate phone first to match RenderCV format
+    raw_phone = str(header_info.get("phone", ""))
+    digits = "".join(filter(str.isdigit, raw_phone))
+    if len(digits) == 10:
+        phone_val = f"+1 {digits}"
+    else:
+        phone_val = raw_phone
 
     cv_header = {
         "name": header_info.get("name", "Your Name"),
-        "location": "City, State",  # Placeholder or extract if available
-        "email": header_info.get("email"),
-        "phone": header_info.get("phone"),
-        "social_networks": social_networks,
+        "location": "City, State", 
+        "email": header_info.get("email") or "contact@example.com",  # Fallback for validation
+        "phone": phone_val if phone_val and phone_val != "" else "+1 000-000-0000"  # Fallback for validation
     }
+    # Add optional top-level links
+    if header_info.get("linkedin"):
+        cv_header["linkedin"] = header_info["linkedin"]
+    
+    if header_info.get("github"):
+        cv_header["github"] = header_info["github"]
+    
     # 2. Group Sections
     # We group units by section, then by entry (Company/Project)
     grouped_sections: dict[str, list[ScoredUnit]] = defaultdict(list)
@@ -89,12 +81,10 @@ def map_to_rendercv_model(units: list[ScoredUnit], header_info: dict[str, str]) 
     model = {
         "cv": {**cv_header, "sections": final_sections},
         "design": {
-            "theme": "sb2nov",
-            "font": "Latin Modern Serif",
-            "font_size": "10pt",
-            "page_size": "letterpaper",
-            "color": "#000000",
-        },
+            "theme": "sb2nov"
+            # Note: font and font_size are not valid in RenderCV 2.x design schema
+            # Theme controls all typography settings
+        }
     }
 
     return model
@@ -103,20 +93,15 @@ def map_to_rendercv_model(units: list[ScoredUnit], header_info: dict[str, str]) 
 def _build_education(units: list[ScoredUnit]) -> list[dict[str, Any]]:
     entries = []
     for unit in units:
-        # Assuming one unit per degree for now, strictly speaking atomic units might be granular.
-        # But our ingestion usually keeps education entries as blocks or single lines.
-        # If granular, we'd need grouping logic. assuming 1 unit = 1 entry for simplicitly first.
-
+        # Assuming one unit per degree for now
         date_str = _format_dates(unit)
 
         entry = {
             "institution": unit.org or "University",
             "area": unit.role or "Degree",
             "date": date_str,
-            # "location": "City, State", # Missing in our extraction
         }
         if unit.text and len(unit.text) > 50:
-            # Treat long text as highlights? Or simplified
             pass
         entries.append(entry)
     return entries
@@ -132,13 +117,15 @@ def _build_experience(units: list[ScoredUnit]) -> list[dict[str, Any]]:
     entries = []
     for key, bullets in grouped.items():
         org, role = key.split("|")
-
-        # Get dates from first bullet
         date_str = _format_dates(bullets[0])
-
         highlights = [b.text for b in bullets if b.text.strip()]
 
-        entry = {"company": org, "position": role, "date": date_str, "highlights": highlights}
+        entry = {
+            "company": org,
+            "position": role,
+            "date": date_str,
+            "highlights": highlights,
+        }
         entries.append(entry)
     return entries
 
@@ -153,7 +140,6 @@ def _build_projects(units: list[ScoredUnit]) -> list[dict[str, Any]]:
     entries = []
     for name, bullets in grouped.items():
         if name == "Project" and bullets[0].role:
-            # Fallback to role if org missing
             real_name = bullets[0].role
         else:
             real_name = name
@@ -163,8 +149,8 @@ def _build_projects(units: list[ScoredUnit]) -> list[dict[str, Any]]:
 
         # Extract tools from tags
         tools = []
-        if bullets[0].tags and isinstance(bullets[0].tags, dict):
-            tools = bullets[0].tags.get("skills", [])[:6]  # Limit
+        if bullets[0].tags and getattr(bullets[0].tags, "skills", None):
+            tools = bullets[0].tags.skills[:6]
 
         entry = {
             "name": real_name,
@@ -178,83 +164,25 @@ def _build_projects(units: list[ScoredUnit]) -> list[dict[str, Any]]:
     return entries
 
 
-def _build_skills(units: list[ScoredUnit]) -> list[dict[str, Any]]:
-    # RenderCV expects a list of generic objects for this?
-    # Actually sb2nov theme expects a specific structure for skills:
-    # label: details
+def _build_skills(units: list[ScoredUnit]) -> list[str]:
+    """
+    Build technical skills section using categories provided by LLM.
+    The ingestion prompt now ensures 'org' contains the category name.
+    """
+    skills_list = []
 
-    all_skills = []
     for u in units:
-        if u.tags and isinstance(u.tags, dict):
-            all_skills.extend(u.tags.get("skills", []))
+        # LLM puts category in 'org' (e.g. "Languages", "Frameworks")
+        # If missing, fallback to "Skills"
+        category = u.org or "Skills"
+        details = u.text or ""
 
-    # De-duplicate
-    unique = sorted(set(all_skills))
+        if details:
+            # Format as bolded category + details
+            skills_list.append(f"**{category}**: {details}")
 
-    # Categorize
-    categories = {
-        "Languages": [
-            "Python",
-            "Java",
-            "C++",
-            "JavaScript",
-            "TypeScript",
-            "SQL",
-            "Go",
-            "Rust",
-            "Swift",
-            "Kotlin",
-            "R",
-            "MATLAB",
-            "HTML",
-            "CSS",
-        ],
-        "Frameworks": [
-            "React",
-            "Node.js",
-            "Flask",
-            "Django",
-            "FastAPI",
-            "Spring",
-            "Express",
-            "Vue",
-            "Angular",
-            "Next.js",
-            "Torch",
-            "PyTorch",
-            "TensorFlow",
-        ],
-        "Tools": [
-            "Git",
-            "Docker",
-            "Kubernetes",
-            "AWS",
-            "GCP",
-            "Azure",
-            "MongoDB",
-            "PostgreSQL",
-            "Redis",
-            "Jira",
-            "Linux",
-            "Unix",
-        ],
-    }
-
-    final_skills = []
-
-    # Bucket skills
-    for cat, keywords in categories.items():
-        matches = [s for s in unique if s in keywords]
-        if matches:
-            final_skills.append({"label": cat, "details": ", ".join(matches)})
-            # Remove from pool
-            unique = [s for s in unique if s not in matches]
-
-    # Remainder
-    if unique:
-        final_skills.append({"label": "Other", "details": ", ".join(unique[:10])})
-
-    return final_skills
+    # Remove exact duplicates and sort
+    return sorted(list(set(skills_list)))
 
 
 def _format_dates(unit: ScoredUnit) -> str:

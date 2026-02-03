@@ -51,7 +51,7 @@ CRITICAL RULES:
 4. If dates are unclear, use null
 5. Extract EVERY bullet point, even short ones
 6. For skills section, create one skill_group per category. Put the category name (e.g. "Languages", "Frameworks") in the "org" field.
-7. Include header info (name, contact) as type "header", section "header"
+7. For "header" section, create ONE unit. Put name in "text". Store exact "phone", "email", "linkedin", "github" values in the "tags" dictionary.
 8. Recognize ALL sections, not just standard ones
 
 Resume text:
@@ -211,6 +211,11 @@ async def ingest_pdf(pdf_content: bytes, filename: str) -> MasterResumeResponse:
                 skills=raw.get("tags", {}).get("skills", []),
                 domains=raw.get("tags", {}).get("domains", []),
                 seniority=raw.get("tags", {}).get("seniority"),
+                # Contact info (from header units)
+                email=raw.get("tags", {}).get("email"),
+                phone=raw.get("tags", {}).get("phone"),
+                linkedin=raw.get("tags", {}).get("linkedin"),
+                github=raw.get("tags", {}).get("github"),
             )
 
             # Normalize type - map invalid types to valid ones

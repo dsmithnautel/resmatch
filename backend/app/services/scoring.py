@@ -42,7 +42,7 @@ Return a JSON array with one object per bullet:
 [
   {{
     "id": "bullet_id",
-    "original_text": "...",
+    "original_text": "...", 
     "tailored_text": "The reworded version of the bullet...",
     "score": 8.5,
     "changes_made": "Brief explanation of how it was reworded..."
