@@ -17,9 +17,12 @@ def map_to_rendercv_model(units: list[ScoredUnit], header_info: dict[str, str]) 
     # 1. Construct Header
     # RenderCV 2.x handles standard social networks as top-level keys
     # Calculate phone first to match RenderCV format
-    raw_phone = str(header_info.get("phone", ""))
+    raw_phone = str(header_info.get("phone", "")).strip()
     digits = "".join(filter(str.isdigit, raw_phone))
-    if len(digits) == 10:
+    if raw_phone.startswith("+"):
+        # Assume already includes a country code; keep as-is
+        phone_val = raw_phone
+    elif len(digits) == 10:
         phone_val = f"+1 {digits}"
     else:
         phone_val = raw_phone
