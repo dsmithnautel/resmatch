@@ -114,8 +114,6 @@ async def tailor_units_against_jd(
                 # Use tailored text if available, else original
                 final_text = result.get("tailored_text", u.get("text", ""))
 
-                from app.models.atomic_unit import DateRange, Tags
-
                 dates_data = u.get("dates")
                 tags_data = u.get("tags")
 
@@ -126,10 +124,10 @@ async def tailor_units_against_jd(
                         section=u.get("section", "experience"),
                         org=u.get("org"),
                         role=u.get("role"),
-                        dates=DateRange(**dates_data) if dates_data else None,
-                        tags=Tags(**tags_data) if tags_data else None,
+                        dates=dates_data, 
+                        tags=tags_data,
                         llm_score=float(result.get("score", 5.0)),
-                        matched_requirements=[],  # implied in text now
+                        matched_requirements=[],
                         reasoning=result.get("changes_made", "Original text preserved"),
                     )
                 )

@@ -1,3 +1,4 @@
+import json
 import os
 import re
 import shutil
@@ -7,19 +8,20 @@ import yaml
 
 from app.db.mongodb import get_database
 from app.models import ScoredUnit
-from app.services.rendercv_mapper import map_to_rendercv_model
+from app.services.gemini import generate_text
+from app.services.prompts import generate_latex_prompt
 
 
 async def render_resume(
     compile_id: str, selected_units: list[ScoredUnit], master_version_id: str
 ) -> str:
     """
-    Render resume using RenderCV (Jake's Resume / sb2nov theme).
+    Render resume using LLM-generated LaTeX (Jake's Resume).
 
     1. Get header info from master resume
-    2. Map atomic units to RenderCV YAML schema
-    3. Generate YAML file
-    4. Run 'rendercv render' to produce PDF
+    2. Group atomic units by section/role
+    3. Generate LaTeX using LLM
+    4. Compile LaTeX to PDF
     5. Return path to generated PDF
     """
     # Get header info from database
@@ -30,67 +32,132 @@ async def render_resume(
     header_units = [doc async for doc in header_cursor]
     header_info = extract_header_info(header_units)
 
+    # Prepare data for LLM
+    resume_data = prepare_resume_data(header_info, selected_units)
+    resume_json = json.dumps(resume_data, indent=2)
+
+    # Generate LaTeX Prompt
+    prompt = generate_latex_prompt(resume_json)
+
+    # Call Gemini to get LaTeX
+    try:
+        latex_content = await generate_text(prompt)
+        # Clean up code blocks if present
+        if latex_content.startswith("```latex"):
+            latex_content = latex_content.replace("```latex", "", 1)
+        elif latex_content.startswith("```tex"):
+            latex_content = latex_content.replace("```tex", "", 1)
+        
+        if latex_content.startswith("```"):
+             latex_content = latex_content.replace("```", "", 1)
+             
+        if latex_content.endswith("```"):
+            latex_content = latex_content[:-3]
+            
+        latex_content = latex_content.strip()
+        
+    except Exception as e:
+        raise RuntimeError(f"Failed to generate LaTeX from LLM: {e}")
+
     # Create output directory
     output_dir = os.path.abspath(f"output/{compile_id}")
     os.makedirs(output_dir, exist_ok=True)
 
-    # Map to RenderCV Data Model
-    cv_data = map_to_rendercv_model(selected_units, header_info)
+    # Save LaTeX file
+    tex_path = os.path.join(output_dir, "cv.tex")
+    with open(tex_path, "w", encoding="utf-8") as f:
+        f.write(latex_content)
 
-    # Save as YAML
-    yaml_path = os.path.join(output_dir, "cv.yaml")
-    with open(yaml_path, "w", encoding="utf-8") as f:
-        yaml.dump(cv_data, f, sort_keys=False, allow_unicode=True)
-
-    # Compile with RenderCV (Subprocess)
-    # rendercv creates an output folder named 'rendercv_output' usually
+    # Compile with pdflatex
+    # We run pdflatex twice to ensure formatting (though once might be enough for this simple template)
     try:
-        # We run it inside output_dir so artifacts stay there
-        cmd = ["rendercv", "render", "cv.yaml"]
+        # Check if pdflatex is available
+        if shutil.which("pdflatex") is None:
+             # Fallback logic could go here, but for now we expect a LaTeX environment
+             pass
+        
+        cmd = ["pdflatex", "-interaction=nonstopmode", "-output-directory", output_dir, tex_path]
 
-        with open("debug_renderer.log", "w") as log:
-            log.write(f"Starting RenderCV in {output_dir}\n")
-            log.write(f"YAML Path: {yaml_path}\n")
+        with open(os.path.join(output_dir, "debug_renderer.log"), "w") as log:
+            log.write(f"Starting pdflatex in {output_dir}\n")
+            log.write(f"TeX Path: {tex_path}\n")
 
-        result = subprocess.run(cmd, cwd=output_dir, capture_output=True, text=True, check=True)
-        print(f"RenderCV Output: {result.stdout}")
-        with open("debug_renderer.log", "a") as log:
-            log.write("RenderCV Success:\n")
+        # Run 1
+        result = subprocess.run(cmd, capture_output=True, text=True, check=True)
+        # Run 2 (optional, but good practice for layout)
+        # subprocess.run(cmd, capture_output=True, text=True, check=True)
+
+        print(f"pdflatex Output: {result.stdout}")
+        with open(os.path.join(output_dir, "debug_renderer.log"), "a") as log:
+            log.write("pdflatex Success:\n")
             log.write(result.stdout)
             log.write("\n")
 
     except subprocess.CalledProcessError as e:
-        print(f"RenderCV Failed: {e.stderr}")
-        with open("debug_renderer.log", "a") as log:
-            log.write("RenderCV FAILED:\n")
+        print(f"pdflatex Failed: {e.stderr}")
+        with open(os.path.join(output_dir, "debug_renderer.log"), "a") as log:
+            log.write("pdflatex FAILED:\n")
+            log.write(e.stdout) # pdflatex often puts errors in stdout
             log.write(e.stderr)
             log.write("\n")
-            log.write(f"STDOUT: {e.stdout}\n")
-        raise RuntimeError(f"RenderCV compilation failed: {e.stderr}")
-
-    # Move/Rename output PDF
-    # RenderCV output structure: output_dir/rendercv_output/Name_CV.pdf
-    # We want it at output_dir/resume.pdf
+        raise RuntimeError(f"LaTeX compilation failed. see {output_dir}/debug_renderer.log. Error: {e.stdout}")
+    except FileNotFoundError:
+        raise RuntimeError("pdflatex not found. Please install a LaTeX distribution (e.g., TeX Live, MacTeX, MiKTeX).")
 
     # Find the generated PDF
-    found_pdf = None
-    rendercv_out = os.path.join(output_dir, "rendercv_output")
-    if os.path.exists(rendercv_out):
-        for root, _dirs, files in os.walk(rendercv_out):
-            for file in files:
-                if file.endswith(".pdf"):
-                    found_pdf = os.path.join(root, file)
-                    break
-
+    # pdflatex should generate cv.pdf in output_dir
+    generated_pdf = os.path.join(output_dir, "cv.pdf")
     target_pdf = os.path.join(output_dir, "resume.pdf")
 
-    if found_pdf and os.path.exists(found_pdf):
-        shutil.move(found_pdf, target_pdf)
-        # Cleanup
-        shutil.rmtree(rendercv_out, ignore_errors=True)
+    if os.path.exists(generated_pdf):
+        shutil.move(generated_pdf, target_pdf)
         return target_pdf
     else:
-        raise FileNotFoundError(f"PDF not generated by RenderCV. Check logs in {output_dir}")
+        raise FileNotFoundError(f"PDF not generated. Check logs in {output_dir}")
+
+
+def prepare_resume_data(header_info: dict, units: list[ScoredUnit]) -> dict:
+    """
+    Organize flat list of atomic units into a structured dictionary.
+    """
+    data = {"header": header_info, "sections": {}}
+
+    # Group by section
+    for unit in units:
+        section = unit.section
+        # Lowercase section for consistency
+        section_key = section.lower() if section else "other"
+        
+        if section_key not in data["sections"]:
+            data["sections"][section_key] = []
+        
+        # We need to group bullets under their org/role/dates tuple
+        # This is a heuristic grouping
+        
+        # Check if we can add to the last entry
+        added = False
+        if data["sections"][section_key]:
+            last_entry = data["sections"][section_key][-1]
+            if (
+                last_entry.get("org") == unit.org
+                and last_entry.get("role") == unit.role
+                # Relax date check or verify if strict equality needed
+            ):
+                last_entry["bullets"].append(unit.text)
+                added = True
+        
+        if not added:
+            # Create new entry
+            entry = {
+                "org": unit.org,
+                "role": unit.role,
+                "dates": unit.dates,  # Keep as dict or string
+                "bullets": [unit.text]
+            }
+            data["sections"][section_key].append(entry)
+            
+    # Clean up dates format if needed (atomic unit dates can be dicts or None)
+    return data
 
 
 def extract_header_info(header_units: list[dict]) -> dict:

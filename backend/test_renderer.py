@@ -150,7 +150,7 @@ def test_with_mock_data():
         "linkedin": "https://linkedin.com/in/testuser",
         "github": "https://github.com/testuser"
     }
-    
+    =
     # Create test output directory
     output_dir = Path(__file__).parent / "output" / "test_mock"
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -217,7 +217,6 @@ def show_available_compiles():
 if __name__ == "__main__":
     if len(sys.argv) > 1:
         arg = sys.argv[1]
-        
         if arg == "--mock":
             test_with_mock_data()
         elif arg == "--list":

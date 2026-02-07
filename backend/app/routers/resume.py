@@ -48,14 +48,36 @@ async def compile_resume(request: CompileRequest):
         from app.services.jd_parser import parse_job_description
 
         parsed_jd = await parse_job_description(text=request.jd_text)
+        
+        # RATE LIMIT GUARD: 
+        # On-the-fly parsing calls the LLM. Tailoring immediately follows and also calls the LLM.
+        # This rapid sequence triggers "burst" rate limits (tokens/minute) on Free Tier.
+        # We pause here to let the token bucket refill.
+        import asyncio
+        print("Guard: Pausing 5s to recover rate limit quota...")
+        await asyncio.sleep(5.0)
     else:
         raise HTTPException(status_code=400, detail="Either jd_id or jd_text must be provided")
 
     # 3. Tailor units using LLM (Rewriting)
     # We now tailor (rewrite) instead of just scoring.
     # We acts on ALL units and keep them all.
+    import time
     try:
+        print("XXX_METRICS_XXX: Starting Tailoring...")
+        start_tailor = time.time()
         selected_units = await tailor_units_against_jd(units, parsed_jd)
+        tailor_duration = time.time() - start_tailor
+        print(f"XXX_METRICS_XXX: Tailoring took {tailor_duration:.2f} seconds")
+        with open("metrics.log", "a") as f:
+            f.write(f"Tailoring: {tailor_duration:.2f}s\n")
+
+        # RATE LIMIT GUARD:
+        # Tailoring (LLM Call #2) just finished. Rendering (LLM Call #3) is next.
+        # Pause to refill token bucket.
+        import asyncio
+        print("Guard: Pausing 5s before rendering...")
+        await asyncio.sleep(5.0)
     except Exception as e:
         with open("debug_tailor.log", "w") as f:
             f.write(f"Tailoring Failed: {e}\n")
@@ -99,7 +121,13 @@ async def compile_resume(request: CompileRequest):
     # 6. Render PDF (async, may take a moment)
     pdf_url = None
     try:
+        print("XXX_METRICS_XXX: Starting Rendering...")
+        start_render = time.time()
         await render_resume(compile_id, selected_units, request.master_version_id)
+        render_duration = time.time() - start_render
+        print(f"XXX_METRICS_XXX: Rendering took {render_duration:.2f} seconds")
+        with open("metrics.log", "a") as f:
+            f.write(f"Rendering: {render_duration:.2f}s\n")
         pdf_url = f"/resume/{compile_id}/pdf"
     except Exception as e:
         # PDF generation failed, but we can still return the data
