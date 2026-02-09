@@ -181,7 +181,7 @@ async def ingest_pdf(pdf_content: bytes, filename: str) -> MasterResumeResponse:
     # Parse and validate units
     atomic_units = []
     warnings = []
-    counts = {}
+    counts: dict[str, int] = {}
 
     for i, raw in enumerate(raw_units):
         try:

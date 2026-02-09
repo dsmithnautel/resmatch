@@ -17,13 +17,13 @@ from pathlib import Path
 import yaml
 
 # Add app to path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'app'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "app"))
 
 from app.models import ScoredUnit
 from app.services.rendercv_mapper import map_to_rendercv_model
 
 
-def test_existing_yaml(compile_id: str = None):
+def test_existing_yaml(compile_id: str | None = None):
     """Test RenderCV rendering using an existing cv.yaml file."""
 
     output_base = Path(__file__).parent / "output"
@@ -36,8 +36,11 @@ def test_existing_yaml(compile_id: str = None):
             return
     else:
         # Use the most recent one
-        folders = sorted([d for d in output_base.iterdir() if d.is_dir()],
-                        key=lambda x: x.stat().st_mtime, reverse=True)
+        folders = sorted(
+            [d for d in output_base.iterdir() if d.is_dir()],
+            key=lambda x: x.stat().st_mtime,
+            reverse=True,
+        )
         if not folders:
             print("❌ No output folders found")
             return
@@ -61,7 +64,7 @@ def test_existing_yaml(compile_id: str = None):
     print(f"   Phone: {cv_data.get('cv', {}).get('phone', 'N/A') or '⚠️  EMPTY'}")
     print(f"   Theme: {cv_data.get('design', {}).get('theme', 'N/A')}")
 
-    sections = cv_data.get('cv', {}).get('sections', {})
+    sections = cv_data.get("cv", {}).get("sections", {})
     print(f"   Sections: {', '.join(sections.keys())}")
 
     # Run RenderCV
@@ -69,11 +72,7 @@ def test_existing_yaml(compile_id: str = None):
     try:
         cmd = ["rendercv", "render", "cv.yaml"]
         result = subprocess.run(
-            cmd,
-            cwd=str(output_dir),
-            capture_output=True,
-            text=True,
-            check=True
+            cmd, cwd=str(output_dir), capture_output=True, text=True, check=True
         )
         print("✅ RenderCV succeeded!")
         if result.stdout.strip():
@@ -128,7 +127,7 @@ def test_with_mock_data():
             llm_score=9.5,
             selected=True,
             matched_requirements=["Full-stack development", "React"],
-            tags={"skills": ["React", "Node.js", "JavaScript"]}
+            tags={"skills": ["React", "Node.js", "JavaScript"]},
         ),
         ScoredUnit(
             text="Built REST APIs serving 10,000+ daily requests",
@@ -139,7 +138,7 @@ def test_with_mock_data():
             llm_score=8.8,
             selected=True,
             matched_requirements=["API development"],
-            tags={"skills": ["REST", "Node.js"]}
+            tags={"skills": ["REST", "Node.js"]},
         ),
     ]
 
@@ -149,7 +148,7 @@ def test_with_mock_data():
         "email": "test@example.com",
         "phone": "+1 1234567890",
         "linkedin": "https://linkedin.com/in/testuser",
-        "github": "https://github.com/testuser"
+        "github": "https://github.com/testuser",
     }
 
     # Create test output directory
@@ -171,13 +170,7 @@ def test_with_mock_data():
     print("\n🚀 Running RenderCV...")
     try:
         cmd = ["rendercv", "render", "cv.yaml"]
-        subprocess.run(
-            cmd,
-            cwd=str(output_dir),
-            capture_output=True,
-            text=True,
-            check=True
-        )
+        subprocess.run(cmd, cwd=str(output_dir), capture_output=True, text=True, check=True)
         print("✅ RenderCV succeeded!")
 
     except subprocess.CalledProcessError as e:
@@ -201,14 +194,19 @@ def test_with_mock_data():
 def show_available_compiles():
     """List all available compile folders."""
     output_base = Path(__file__).parent / "output"
-    folders = sorted([d for d in output_base.iterdir() if d.is_dir()],
-                    key=lambda x: x.stat().st_mtime, reverse=True)
+    folders = sorted(
+        [d for d in output_base.iterdir() if d.is_dir()],
+        key=lambda x: x.stat().st_mtime,
+        reverse=True,
+    )
 
     print("\n📁 Available compile folders:\n")
     for i, folder in enumerate(folders[:10], 1):
         has_yaml = (folder / "cv.yaml").exists()
         has_pdf = (folder / "resume.pdf").exists()
-        status = "✅ YAML+PDF" if has_yaml and has_pdf else "📄 YAML only" if has_yaml else "❌ Empty"
+        status = (
+            "✅ YAML+PDF" if has_yaml and has_pdf else "📄 YAML only" if has_yaml else "❌ Empty"
+        )
         print(f"  {i}. {folder.name:30s} {status}")
 
     if len(folders) > 10:
@@ -228,6 +226,6 @@ if __name__ == "__main__":
     else:
         print("🔍 No compile_id specified, using most recent...\n")
         test_existing_yaml()
-        print("\n" + "="*60)
+        print("\n" + "=" * 60)
         print("💡 Tip: Use 'python test_renderer.py --list' to see all options")
         print("💡 Tip: Use 'python test_renderer.py --mock' to test with fake data")

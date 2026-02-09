@@ -75,10 +75,12 @@ IMPORTANT: Respond ONLY with valid JSON. No markdown, no explanation, just the J
             # Apply rate limiting
             await _rate_limit()
 
-            response = client.models.generate_content(  # type: ignore
+            response = client.models.generate_content(
                 model="gemini-2.0-flash",  # Using 1.5-flash for better free tier limits
                 contents=full_prompt,
             )
+            if not response.text:
+                raise ValueError("Gemini returned an empty response.")
             text = response.text.strip()
 
             # Remove markdown code blocks if present
@@ -137,6 +139,8 @@ IMPORTANT: Respond ONLY with valid JSON. No markdown, no explanation, just the J
                 continue
             raise
 
+    raise RuntimeError("Failed to generate JSON from Gemini.")
+
 
 async def generate_text(prompt: str, max_retries: int = 3) -> str:
     """Generate text response from Gemini with rate limiting."""
@@ -150,6 +154,8 @@ async def generate_text(prompt: str, max_retries: int = 3) -> str:
             await _rate_limit()
 
             response = client.models.generate_content(model="gemini-2.0-flash", contents=prompt)
+            if not response.text:
+                raise ValueError("Gemini returned an empty response.")
             return response.text
 
         except Exception as e:
@@ -168,3 +174,5 @@ async def generate_text(prompt: str, max_retries: int = 3) -> str:
                 await asyncio.sleep(delay)
                 continue
             raise
+
+    raise RuntimeError("Failed to generate text from Gemini.")

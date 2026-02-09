@@ -4,8 +4,6 @@ import re
 import shutil
 import subprocess
 
-import yaml
-
 from app.db.mongodb import get_database
 from app.models import ScoredUnit
 from app.services.gemini import generate_text
@@ -47,15 +45,15 @@ async def render_resume(
             latex_content = latex_content.replace("```latex", "", 1)
         elif latex_content.startswith("```tex"):
             latex_content = latex_content.replace("```tex", "", 1)
-        
+
         if latex_content.startswith("```"):
-             latex_content = latex_content.replace("```", "", 1)
-             
+            latex_content = latex_content.replace("```", "", 1)
+
         if latex_content.endswith("```"):
             latex_content = latex_content[:-3]
-            
+
         latex_content = latex_content.strip()
-        
+
     except Exception as e:
         raise RuntimeError(f"Failed to generate LaTeX from LLM: {e}")
 
@@ -73,9 +71,9 @@ async def render_resume(
     try:
         # Check if pdflatex is available
         if shutil.which("pdflatex") is None:
-             # Fallback logic could go here, but for now we expect a LaTeX environment
-             pass
-        
+            # Fallback logic could go here, but for now we expect a LaTeX environment
+            pass
+
         cmd = ["pdflatex", "-interaction=nonstopmode", "-output-directory", output_dir, tex_path]
 
         with open(os.path.join(output_dir, "debug_renderer.log"), "w") as log:
@@ -97,12 +95,16 @@ async def render_resume(
         print(f"pdflatex Failed: {e.stderr}")
         with open(os.path.join(output_dir, "debug_renderer.log"), "a") as log:
             log.write("pdflatex FAILED:\n")
-            log.write(e.stdout) # pdflatex often puts errors in stdout
+            log.write(e.stdout)  # pdflatex often puts errors in stdout
             log.write(e.stderr)
             log.write("\n")
-        raise RuntimeError(f"LaTeX compilation failed. see {output_dir}/debug_renderer.log. Error: {e.stdout}")
+        raise RuntimeError(
+            f"LaTeX compilation failed. see {output_dir}/debug_renderer.log. Error: {e.stdout}"
+        )
     except FileNotFoundError:
-        raise RuntimeError("pdflatex not found. Please install a LaTeX distribution (e.g., TeX Live, MacTeX, MiKTeX).")
+        raise RuntimeError(
+            "pdflatex not found. Please install a LaTeX distribution (e.g., TeX Live, MacTeX, MiKTeX)."
+        )
 
     # Find the generated PDF
     # pdflatex should generate cv.pdf in output_dir
@@ -127,35 +129,34 @@ def prepare_resume_data(header_info: dict, units: list[ScoredUnit]) -> dict:
         section = unit.section
         # Lowercase section for consistency
         section_key = section.lower() if section else "other"
-        
+
         if section_key not in data["sections"]:
             data["sections"][section_key] = []
-        
+
         # We need to group bullets under their org/role/dates tuple
         # This is a heuristic grouping
-        
+
         # Check if we can add to the last entry
         added = False
         if data["sections"][section_key]:
             last_entry = data["sections"][section_key][-1]
             if (
-                last_entry.get("org") == unit.org
-                and last_entry.get("role") == unit.role
+                last_entry.get("org") == unit.org and last_entry.get("role") == unit.role
                 # Relax date check or verify if strict equality needed
             ):
                 last_entry["bullets"].append(unit.text)
                 added = True
-        
+
         if not added:
             # Create new entry
             entry = {
                 "org": unit.org,
                 "role": unit.role,
                 "dates": unit.dates,  # Keep as dict or string
-                "bullets": [unit.text]
+                "bullets": [unit.text],
             }
             data["sections"][section_key].append(entry)
-            
+
     # Clean up dates format if needed (atomic unit dates can be dicts or None)
     return data
 
@@ -167,7 +168,7 @@ def extract_header_info(header_units: list[dict]) -> dict:
     """
     if not header_units:
         return {}
-        
+
     info = {
         "name": "Your Name",  # Default if not found
         "email": "",
@@ -178,7 +179,7 @@ def extract_header_info(header_units: list[dict]) -> dict:
 
     # 1. Try extracted metadata from tags (New Ingestion)
     full_text_parts = []
-    
+
     for unit in header_units:
         # Accumulate text for fallback
         if unit.get("text"):
@@ -190,15 +191,19 @@ def extract_header_info(header_units: list[dict]) -> dict:
         # Check tags
         tags = unit.get("tags") or {}
         if isinstance(tags, dict):
-            if tags.get("email"): info["email"] = tags["email"]
-            if tags.get("phone"): info["phone"] = tags["phone"]
-            if tags.get("linkedin"): info["linkedin"] = tags["linkedin"]
-            if tags.get("github"): info["github"] = tags["github"]
-            
+            if tags.get("email"):
+                info["email"] = tags["email"]
+            if tags.get("phone"):
+                info["phone"] = tags["phone"]
+            if tags.get("linkedin"):
+                info["linkedin"] = tags["linkedin"]
+            if tags.get("github"):
+                info["github"] = tags["github"]
+
     # 2. Regex Fallback (Old Ingestion or LLM miss)
     full_text = "\n".join(full_text_parts)
     lines = [line.strip() for line in full_text.split("\n") if line.strip()]
-    
+
     # Extract email if missing
     if not info["email"]:
         email_pattern = r"[\w\.-]+@[\w\.-]+\.\w+"
@@ -206,7 +211,7 @@ def extract_header_info(header_units: list[dict]) -> dict:
             if match := re.search(email_pattern, line):
                 info["email"] = match.group(0)
                 break
-                
+
     # Extract phone if missing
     if not info["phone"]:
         phone_pattern = r"\(?\d{3}\)?[\s\-\.]?\d{3}[\s\-\.]?\d{4}"
@@ -214,7 +219,7 @@ def extract_header_info(header_units: list[dict]) -> dict:
             if match := re.search(phone_pattern, line):
                 info["phone"] = match.group(0).strip()
                 break
-                
+
     # Extract LinkedIn if missing
     if not info["linkedin"]:
         for line in lines:
@@ -225,7 +230,9 @@ def extract_header_info(header_units: list[dict]) -> dict:
                     clean = line.replace("|", "").strip()
                     for part in clean.split():
                         if "linkedin.com" in part:
-                            info["linkedin"] = f"https://{part}" if not part.startswith("http") else part
+                            info["linkedin"] = (
+                                f"https://{part}" if not part.startswith("http") else part
+                            )
                             break
                 break
 
@@ -239,7 +246,9 @@ def extract_header_info(header_units: list[dict]) -> dict:
                     clean = line.replace("|", "").strip()
                     for part in clean.split():
                         if "github.com" in part:
-                            info["github"] = f"https://{part}" if not part.startswith("http") else part
+                            info["github"] = (
+                                f"https://{part}" if not part.startswith("http") else part
+                            )
                             break
                 break
 

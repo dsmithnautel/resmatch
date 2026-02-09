@@ -26,17 +26,19 @@ def map_to_rendercv_model(units: list[ScoredUnit], header_info: dict[str, str]) 
 
     cv_header = {
         "name": header_info.get("name", "Your Name"),
-        "location": "City, State", 
+        "location": "City, State",
         "email": header_info.get("email") or "contact@example.com",  # Fallback for validation
-        "phone": phone_val if phone_val and phone_val != "" else "+1 000-000-0000"  # Fallback for validation
+        "phone": phone_val
+        if phone_val and phone_val != ""
+        else "+1 000-000-0000",  # Fallback for validation
     }
     # Add optional top-level links
     if header_info.get("linkedin"):
         cv_header["linkedin"] = header_info["linkedin"]
-    
+
     if header_info.get("github"):
         cv_header["github"] = header_info["github"]
-    
+
     # 2. Group Sections
     # We group units by section, then by entry (Company/Project)
     grouped_sections: dict[str, list[ScoredUnit]] = defaultdict(list)
@@ -48,7 +50,7 @@ def map_to_rendercv_model(units: list[ScoredUnit], header_info: dict[str, str]) 
         grouped_sections[sec].append(unit)
 
     # 3. Build Section Content
-    sections_data = {}
+    sections_data: dict[str, Any] = {}
 
     # -- Education --
     if "education" in grouped_sections:
@@ -84,7 +86,7 @@ def map_to_rendercv_model(units: list[ScoredUnit], header_info: dict[str, str]) 
             "theme": "sb2nov"
             # Note: font and font_size are not valid in RenderCV 2.x design schema
             # Theme controls all typography settings
-        }
+        },
     }
 
     return model
@@ -149,8 +151,8 @@ def _build_projects(units: list[ScoredUnit]) -> list[dict[str, Any]]:
 
         # Extract tools from tags
         tools = []
-        if bullets[0].tags and getattr(bullets[0].tags, "skills", None):
-            tools = bullets[0].tags.skills[:6]
+        if bullets[0].tags and isinstance(bullets[0].tags, dict):
+            tools = bullets[0].tags.get("skills", [])[:6]
 
         entry = {
             "name": real_name,
@@ -182,7 +184,7 @@ def _build_skills(units: list[ScoredUnit]) -> list[str]:
             skills_list.append(f"**{category}**: {details}")
 
     # Remove exact duplicates and sort
-    return sorted(list(set(skills_list)))
+    return sorted(set(skills_list))
 
 
 def _format_dates(unit: ScoredUnit) -> str:

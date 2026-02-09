@@ -48,12 +48,13 @@ async def compile_resume(request: CompileRequest):
         from app.services.jd_parser import parse_job_description
 
         parsed_jd = await parse_job_description(text=request.jd_text)
-        
-        # RATE LIMIT GUARD: 
+
+        # RATE LIMIT GUARD:
         # On-the-fly parsing calls the LLM. Tailoring immediately follows and also calls the LLM.
         # This rapid sequence triggers "burst" rate limits (tokens/minute) on Free Tier.
         # We pause here to let the token bucket refill.
         import asyncio
+
         print("Guard: Pausing 5s to recover rate limit quota...")
         await asyncio.sleep(5.0)
     else:
@@ -63,6 +64,7 @@ async def compile_resume(request: CompileRequest):
     # We now tailor (rewrite) instead of just scoring.
     # We acts on ALL units and keep them all.
     import time
+
     try:
         print("XXX_METRICS_XXX: Starting Tailoring...")
         start_tailor = time.time()
@@ -76,6 +78,7 @@ async def compile_resume(request: CompileRequest):
         # Tailoring (LLM Call #2) just finished. Rendering (LLM Call #3) is next.
         # Pause to refill token bucket.
         import asyncio
+
         print("Guard: Pausing 5s before rendering...")
         await asyncio.sleep(5.0)
     except Exception as e:

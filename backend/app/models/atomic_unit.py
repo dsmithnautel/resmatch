@@ -55,7 +55,7 @@ class Tags(BaseModel):
     skills: list[str] = Field(default_factory=list)
     domains: list[str] = Field(default_factory=list)
     seniority: str | None = None
-    
+
     # Contact info (for header units)
     email: str | None = None
     phone: str | None = None

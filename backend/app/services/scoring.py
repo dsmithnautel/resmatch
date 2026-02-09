@@ -42,7 +42,7 @@ Return a JSON array with one object per bullet:
 [
   {{
     "id": "bullet_id",
-    "original_text": "...", 
+    "original_text": "...",
     "tailored_text": "The reworded version of the bullet...",
     "score": 8.5,
     "changes_made": "Brief explanation of how it was reworded..."
@@ -119,12 +119,12 @@ async def tailor_units_against_jd(
 
                 tailored_results.append(
                     ScoredUnit(
-                        unit_id=unit_id,
+                        unit_id=str(unit_id or ""),
                         text=final_text,
                         section=u.get("section", "experience"),
                         org=u.get("org"),
                         role=u.get("role"),
-                        dates=dates_data, 
+                        dates=dates_data,
                         tags=tags_data,
                         llm_score=float(result.get("score", 5.0)),
                         matched_requirements=[],
@@ -138,7 +138,7 @@ async def tailor_units_against_jd(
             for u in tailorable:
                 tailored_results.append(
                     ScoredUnit(
-                        unit_id=u.get("id"),
+                        unit_id=str(u.get("id", "")),
                         text=u.get("text", ""),  # Fallback to original
                         section=u.get("section", "experience"),
                         org=u.get("org"),
@@ -155,7 +155,7 @@ async def tailor_units_against_jd(
     for u in passthrough_units:
         tailored_results.append(
             ScoredUnit(
-                unit_id=u.get("id"),
+                unit_id=str(u.get("id", "")),
                 text=u.get("text", ""),
                 section=u.get("section", u.get("section", "skills")),  # Fallback section
                 org=u.get("org"),

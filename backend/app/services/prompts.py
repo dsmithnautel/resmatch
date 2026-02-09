@@ -91,7 +91,7 @@ JAKES_TEMPLATE = r"""
 %----------HEADING----------
 \begin{center}
     \textbf{\Huge \scshape Jake Ryan} \\ \vspace{1pt}
-    \small 123-456-7890 $|$ \href{mailto:x@x.com}{\underline{jake@su.edu}} $|$ 
+    \small 123-456-7890 $|$ \href{mailto:x@x.com}{\underline{jake@su.edu}} $|$
     \href{https://linkedin.com/in/...}{\underline{linkedin.com/in/jake}} $|$
     \href{https://github.com/...}{\underline{github.com/jake}}
 \end{center}
@@ -121,7 +121,7 @@ JAKES_TEMPLATE = r"""
         \resumeItem{Developed a full-stack web application using Flask, React, PostgreSQL and Docker to analyze GitHub data}
         \resumeItem{Explored ways to visualize GitHub collaboration in a classroom setting}
       \resumeItemListEnd
-      
+
 % -----------Multiple Positions Heading-----------
 % Example of how to add multiple positions to a job:
 %    \resumeSubSubheading
@@ -226,7 +226,7 @@ Return only the complete LaTeX code, starting with \\documentclass and ending wi
 Ensure all LaTeX commands are properly escaped and the document is compilable.
 
 IMPORTANT: Omit non-Unicode characters from the LaTeX output.
-IMPORTANT: Escape all characters that are not allowed in LaTeX. These include: \ {{ }} $ % ^ ~ _ # & |. You can escape them by adding a backslash before the character.
+IMPORTANT: Escape all characters that are not allowed in LaTeX. These include: \\ {{ }} $ % ^ ~ _ # & |. You can escape them by adding a backslash before the character.
 IMPORTANT: If certain information is not present in the resume, omit those fields from the LaTeX output. For example, if a project has no technologies used, omit the technologies used section. If a project has no dates, omit the dates section. Do NOT write "None" or "N/A" in the LaTeX output.
 IMPORTANT: Do not include any additional text or comments in the LaTeX output. Do not include any ```latex or ``` in the LaTeX output.
 IMPORTANT: Do not add unnecessary or additional formatting beyond what is already in the template.

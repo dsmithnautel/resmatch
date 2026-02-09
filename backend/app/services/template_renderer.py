@@ -10,20 +10,12 @@ from app.models import ScoredUnit
 
 def load_template() -> str:
     """Load Jake's Resume LaTeX template."""
-    template_path = os.path.join(
-        os.path.dirname(__file__),
-        "..",
-        "templates",
-        "jakes_resume.tex"
-    )
+    template_path = os.path.join(os.path.dirname(__file__), "..", "templates", "jakes_resume.tex")
     with open(template_path, encoding="utf-8") as f:
         return f.read()
 
 
-def populate_template(
-    selected_units: list[ScoredUnit],
-    header_info: dict | None = None
-) -> str:
+def populate_template(selected_units: list[ScoredUnit], header_info: dict | None = None) -> str:
     """
     Fill Jake's template with selected atomic units.
 
@@ -53,7 +45,9 @@ def populate_template(
         github = header_info.get("github", github)
         # Extract display names from URLs
         if "linkedin.com" in linkedin:
-            linkedin_display = linkedin.split("linkedin.com/")[-1] if "/" in linkedin else linkedin_display
+            linkedin_display = (
+                linkedin.split("linkedin.com/")[-1] if "/" in linkedin else linkedin_display
+            )
         if "github.com" in github:
             github_display = github.split("github.com/")[-1] if "/" in github else github_display
 
@@ -100,10 +94,10 @@ def build_education_section(units: list[ScoredUnit]) -> str:
 
         # Format dates (if available)
         dates = ""
-        unit_dates = getattr(unit, 'dates', None)
+        unit_dates = getattr(unit, "dates", None)
         if unit_dates:
-            start = getattr(unit_dates, 'start', '') or ""
-            end = getattr(unit_dates, 'end', '') or ""
+            start = getattr(unit_dates, "start", "") or ""
+            end = getattr(unit_dates, "end", "") or ""
             dates = f"{start} -- {end}"
 
         latex += f"""    \\resumeSubheading
@@ -133,10 +127,10 @@ def build_experience_section(units: list[ScoredUnit]) -> str:
 
         # Get dates from first bullet (if available)
         dates = ""
-        unit_dates = getattr(bullets[0], 'dates', None)
+        unit_dates = getattr(bullets[0], "dates", None)
         if unit_dates:
-            start = getattr(unit_dates, 'start', '') or ""
-            end = getattr(unit_dates, 'end', '') or "Present"
+            start = getattr(unit_dates, "start", "") or ""
+            end = getattr(unit_dates, "end", "") or "Present"
             dates = f"{start} -- {end}"
 
         latex += f"""
@@ -173,18 +167,17 @@ def build_projects_section(units: list[ScoredUnit]) -> str:
 
         # Extract tech stack from tags (if available)
         tech_stack = "Technologies"
-        unit_tags = getattr(bullets[0], 'tags', None)
-        if unit_tags:
-            skills = getattr(unit_tags, 'skills', [])
+        if bullets[0].tags and isinstance(bullets[0].tags, dict):
+            skills = bullets[0].tags.get("skills", [])
             if skills:
                 tech_stack = ", ".join(skills[:5])
 
         # Get dates (if available)
         dates = ""
-        unit_dates = getattr(bullets[0], 'dates', None)
+        unit_dates = getattr(bullets[0], "dates", None)
         if unit_dates:
-            start = getattr(unit_dates, 'start', '') or ""
-            end = getattr(unit_dates, 'end', '') or "Present"
+            start = getattr(unit_dates, "start", "") or ""
+            end = getattr(unit_dates, "end", "") or "Present"
             dates = f"{start} -- {end}"
 
         latex += f"""      \\resumeProjectHeading
@@ -210,11 +203,11 @@ def build_skills_section(units: list[ScoredUnit]) -> str:
      \\textbf{Developer Tools}{: Git, Docker, AWS}"""
 
     # Aggregate all skills from tags (if available)
-    all_skills = []
+    all_skills: list[str] = []
     for unit in units:
-        unit_tags = getattr(unit, 'tags', None)
+        unit_tags = getattr(unit, "tags", None)
         if unit_tags:
-            skills = getattr(unit_tags, 'skills', [])
+            skills = getattr(unit_tags, "skills", [])
             if skills:
                 all_skills.extend(skills)
 
@@ -227,9 +220,63 @@ def build_skills_section(units: list[ScoredUnit]) -> str:
             unique_skills.append(skill)
 
     # Categorize skills (simple heuristic)
-    languages = [s for s in unique_skills if s in ["Python", "Java", "C++", "C", "JavaScript", "TypeScript", "SQL", "Go", "Rust", "Ruby", "PHP", "Swift", "Kotlin", "R"]]
-    frameworks = [s for s in unique_skills if s in ["React", "Node.js", "Flask", "Django", "FastAPI", "Spring", "Express", "Vue", "Angular", "Next.js", "Rails"]]
-    tools = [s for s in unique_skills if s in ["Git", "Docker", "Kubernetes", "AWS", "GCP", "Azure", "MongoDB", "PostgreSQL", "Redis", "Jenkins", "CI/CD"]]
+    languages = [
+        s
+        for s in unique_skills
+        if s
+        in [
+            "Python",
+            "Java",
+            "C++",
+            "C",
+            "JavaScript",
+            "TypeScript",
+            "SQL",
+            "Go",
+            "Rust",
+            "Ruby",
+            "PHP",
+            "Swift",
+            "Kotlin",
+            "R",
+        ]
+    ]
+    frameworks = [
+        s
+        for s in unique_skills
+        if s
+        in [
+            "React",
+            "Node.js",
+            "Flask",
+            "Django",
+            "FastAPI",
+            "Spring",
+            "Express",
+            "Vue",
+            "Angular",
+            "Next.js",
+            "Rails",
+        ]
+    ]
+    tools = [
+        s
+        for s in unique_skills
+        if s
+        in [
+            "Git",
+            "Docker",
+            "Kubernetes",
+            "AWS",
+            "GCP",
+            "Azure",
+            "MongoDB",
+            "PostgreSQL",
+            "Redis",
+            "Jenkins",
+            "CI/CD",
+        ]
+    ]
 
     # Build LaTeX
     latex_parts = []
@@ -244,7 +291,11 @@ def build_skills_section(units: list[ScoredUnit]) -> str:
     if not latex_parts and unique_skills:
         latex_parts.append(f"\\textbf{{Skills}}{{: {', '.join(unique_skills[:15])}}}")
 
-    return " \\\\\n     ".join(latex_parts) if latex_parts else "\\textbf{Skills}{: Python, JavaScript, Git}"
+    return (
+        " \\\\\n     ".join(latex_parts)
+        if latex_parts
+        else "\\textbf{Skills}{: Python, JavaScript, Git}"
+    )
 
 
 def escape_latex(text: str) -> str:
@@ -253,23 +304,23 @@ def escape_latex(text: str) -> str:
         return ""
 
     replacements = {
-        '\\': r'\textbackslash{}',
-        '&': r'\&',
-        '%': r'\%',
-        '$': r'\$',
-        '#': r'\#',
-        '_': r'\_',
-        '{': r'\{',
-        '}': r'\}',
-        '~': r'\textasciitilde{}',
-        '^': r'\textasciicircum{}',
+        "\\": r"\textbackslash{}",
+        "&": r"\&",
+        "%": r"\%",
+        "$": r"\$",
+        "#": r"\#",
+        "_": r"\_",
+        "{": r"\{",
+        "}": r"\}",
+        "~": r"\textasciitilde{}",
+        "^": r"\textasciicircum{}",
     }
 
     # Process backslash first
-    result = text.replace('\\', replacements['\\'])
+    result = text.replace("\\", replacements["\\"])
     # Then process other characters
     for char, replacement in replacements.items():
-        if char != '\\':
+        if char != "\\":
             result = result.replace(char, replacement)
 
     return result
@@ -302,13 +353,14 @@ async def compile_latex_to_pdf(latex_source: str, output_path: str) -> str:
                 cwd=tmpdir,
                 capture_output=True,
                 text=True,
-                timeout=30
+                timeout=30,
             )
 
         # Check if PDF was generated
         pdf_path = os.path.join(tmpdir, "resume.pdf")
         if os.path.exists(pdf_path):
             import shutil
+
             os.makedirs(os.path.dirname(output_path), exist_ok=True)
             shutil.copy(pdf_path, output_path)
             return output_path
@@ -320,8 +372,8 @@ async def compile_latex_to_pdf(latex_source: str, output_path: str) -> str:
                 with open(log_path) as f:
                     log_content = f.read()
                     # Extract first error line
-                    for line in log_content.split('\n'):
-                        if line.startswith('!'):
+                    for line in log_content.split("\n"):
+                        if line.startswith("!"):
                             error_msg += f": {line}"
                             break
             raise RuntimeError(error_msg)
