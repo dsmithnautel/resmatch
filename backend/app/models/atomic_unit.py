@@ -1,12 +1,12 @@
 """Atomic Unit model - the fundamental building block of a resume."""
 
 from datetime import datetime
-from enum import Enum
+from enum import StrEnum
 
 from pydantic import BaseModel, Field
 
 
-class AtomicUnitType(str, Enum):
+class AtomicUnitType(StrEnum):
     """Type of atomic unit."""
 
     BULLET = "bullet"  # A bullet point (experience, involvement, etc.)
@@ -21,7 +21,7 @@ class AtomicUnitType(str, Enum):
     INTEREST = "interest"  # An interest/hobby
 
 
-class SectionType(str, Enum):
+class SectionType(StrEnum):
     """Resume section type."""
 
     EXPERIENCE = "experience"
