@@ -74,9 +74,9 @@ function CompilePageContent() {
               Selected {compileResult.selected_units.length} bullets with{" "}
               {Math.round(compileResult.coverage.coverage_score * 100)}% requirement coverage.
             </p>
-            <Link href={`/review/${compileResult.compile_id}`}>
+            <Link href={`/compare/${compileResult.compile_id}`}>
               <Button size="lg" className="gap-2">
-                Review & Export
+                View Tailored Resume
                 <ArrowRight className="w-4 h-4" />
               </Button>
             </Link>

@@ -1,14 +1,151 @@
 """Resume compilation endpoints."""
 
+import json
+import time
+import traceback
+import uuid
+from datetime import datetime
+
 from fastapi import APIRouter, HTTPException
-from fastapi.responses import FileResponse, JSONResponse
+from fastapi.responses import FileResponse, JSONResponse, Response
+from pydantic import BaseModel
 
 from app.db.mongodb import get_database
-from app.models import CompileRequest, CompileResponse, ParsedJD
+from app.models import CompileRequest, CompileResponse, CoverageStats, ParsedJD, Provenance
 from app.services.renderer import render_resume
 from app.services.scoring import tailor_units_against_jd
 
 router = APIRouter()
+
+
+# ── Preview endpoint models ──
+
+class PreviewHeader(BaseModel):
+    name: str = "Your Name"
+    email: str = ""
+    phone: str = ""
+    linkedin: str = ""
+    github: str = ""
+
+
+class PreviewUnit(BaseModel):
+    text: str
+    section: str
+    org: str | None = None
+    role: str | None = None
+    dates: dict | None = None
+
+
+class PreviewRequest(BaseModel):
+    header: PreviewHeader
+    units: list[PreviewUnit]
+
+
+@router.post("/preview")
+async def preview_resume(request: PreviewRequest):
+    """
+    Generate a PDF preview from structured resume data.
+
+    Uses LLM-based LaTeX generation (Gemini + prompts.py) + Tectonic compilation.
+    """
+    from app.services.renderer import render_from_units
+
+    header = request.header.model_dump()
+    units = [u.model_dump() for u in request.units]
+
+    try:
+        pdf_bytes, _latex = await render_from_units(header, units)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"PDF generation failed: {e}")
+
+    return Response(
+        content=pdf_bytes,
+        media_type="application/pdf",
+        headers={"Cache-Control": "no-cache"},
+    )
+
+
+class CompileLatexRequest(BaseModel):
+    latex: str
+
+
+@router.post("/compile-latex")
+async def compile_latex(request: CompileLatexRequest):
+    """
+    Compile raw LaTeX source to PDF using Tectonic.
+
+    Takes the stored LaTeX (from the compile result) and returns a PDF.
+    """
+    from app.services.tectonic import compile_pdf
+
+    try:
+        pdf_bytes = await compile_pdf(request.latex)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"LaTeX compilation failed: {e}")
+
+    return Response(
+        content=pdf_bytes,
+        media_type="application/pdf",
+        headers={"Cache-Control": "no-cache"},
+    )
+
+class RescoreBullet(BaseModel):
+    id: str
+    text: str
+
+
+class RescoreRequest(BaseModel):
+    jd_id: str
+    bullets: list[RescoreBullet]
+
+
+class RescoreResult(BaseModel):
+    id: str
+    score: float
+    reasoning: str
+
+
+@router.post("/rescore", response_model=list[RescoreResult])
+async def rescore_bullets(request: RescoreRequest):
+    """
+    Score bullets against a JD without rewriting.
+
+    Lighter than tailoring — returns only relevance scores and explanations.
+    """
+    from app.services.gemini import generate_json
+
+    db = await get_database()
+
+    jd_doc = await db.parsed_jds.find_one({"jd_id": request.jd_id})
+    if not jd_doc:
+        raise HTTPException(status_code=404, detail=f"JD {request.jd_id} not found")
+    parsed_jd = ParsedJD(**jd_doc)
+
+    bullets_json = [{"id": b.id, "text": b.text} for b in request.bullets]
+
+    prompt = f"""Score each resume bullet for relevance to this job. Do NOT rewrite — only score.
+
+JOB: {parsed_jd.role_title} at {parsed_jd.company}
+REQUIREMENTS: {', '.join(parsed_jd.must_haves)}
+KEYWORDS: {', '.join(parsed_jd.keywords)}
+
+BULLETS:
+{json.dumps(bullets_json)}
+
+Return JSON array: [{{"id":"...","score":0.0,"reasoning":"Brief explanation of score"}}]"""
+
+    try:
+        raw = await generate_json(prompt)
+        return [
+            RescoreResult(
+                id=item.get("id", ""),
+                score=float(item.get("score", 5.0)),
+                reasoning=item.get("reasoning", ""),
+            )
+            for item in raw
+        ]
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Rescoring failed: {e}")
 
 
 @router.post("/compile", response_model=CompileResponse)
@@ -19,17 +156,14 @@ async def compile_resume(request: CompileRequest):
     Pipeline:
     1. Fetch all atomic units for master_version_id
     2. Get or parse job description
-    3. Tailor each unit to JD using Gemini LLM (rewording)
-    4. Generate PDF via RenderCV
+    3. Tailor each unit to JD using Gemini LLM (1 call — rewording)
+    4. Generate PDF deterministically (no LLM)
     5. Return results with full provenance
     """
     db = await get_database()
 
-    # 1. Fetch atomic units
     units_cursor = db.atomic_units.find({"version": request.master_version_id})
-    units = []
-    async for doc in units_cursor:
-        units.append(doc)
+    units = [doc async for doc in units_cursor]
 
     if not units:
         raise HTTPException(
@@ -44,111 +178,70 @@ async def compile_resume(request: CompileRequest):
             raise HTTPException(status_code=404, detail=f"JD {request.jd_id} not found")
         parsed_jd = ParsedJD(**jd_doc)
     elif request.jd_text:
-        # Parse on the fly
         from app.services.jd_parser import parse_job_description
 
         parsed_jd = await parse_job_description(text=request.jd_text)
-
-        # RATE LIMIT GUARD:
-        # On-the-fly parsing calls the LLM. Tailoring immediately follows and also calls the LLM.
-        # This rapid sequence triggers "burst" rate limits (tokens/minute) on Free Tier.
-        # We pause here to let the token bucket refill.
-        import asyncio
-
-        print("Guard: Pausing 5s to recover rate limit quota...")
-        await asyncio.sleep(5.0)
     else:
         raise HTTPException(status_code=400, detail="Either jd_id or jd_text must be provided")
 
-    # 3. Tailor units using LLM (Rewriting)
-    # We now tailor (rewrite) instead of just scoring.
-    # We acts on ALL units and keep them all.
-    import time
-
+    # 3. Tailor units (single Gemini call)
     try:
-        print("XXX_METRICS_XXX: Starting Tailoring...")
         start_tailor = time.time()
         selected_units = await tailor_units_against_jd(units, parsed_jd)
-        tailor_duration = time.time() - start_tailor
-        print(f"XXX_METRICS_XXX: Tailoring took {tailor_duration:.2f} seconds")
-        with open("metrics.log", "a") as f:
-            f.write(f"Tailoring: {tailor_duration:.2f}s\n")
-
-        # RATE LIMIT GUARD:
-        # Tailoring (LLM Call #2) just finished. Rendering (LLM Call #3) is next.
-        # Pause to refill token bucket.
-        import asyncio
-
-        print("Guard: Pausing 5s before rendering...")
-        await asyncio.sleep(5.0)
+        print(f"Tailoring took {time.time() - start_tailor:.2f}s")
     except Exception as e:
         with open("debug_tailor.log", "w") as f:
             f.write(f"Tailoring Failed: {e}\n")
-            import traceback
-
             traceback.print_exc(file=f)
-        raise e
+        raise
 
-    from app.models import CoverageStats
-
-    # 4. Skip optimization - User wants ALL original lines preserved
-    # optimize_selection is removed to ensure no content is dropped.
-    # We construct a dummy coverage object since we aren't calculating it dynamically anymore
+    # 4. Coverage stats
     coverage = CoverageStats(
         must_haves_matched=len(parsed_jd.must_haves),
         must_haves_total=len(parsed_jd.must_haves),
-        coverage_score=1.0,  # Range is 0.0 to 1.0 (float)
+        coverage_score=1.0,
     )
 
-    # 5. Generate compile ID and provenance
-    import uuid
-    from datetime import datetime
-
+    # 5. Compile ID and provenance
     compile_id = f"cmp_{datetime.now().strftime('%Y%m%d')}_{uuid.uuid4().hex[:6]}"
 
-    provenance = []
-    for i, unit in enumerate(selected_units):
-        from app.models import Provenance
-
-        provenance.append(
-            Provenance(
-                compile_id=compile_id,
-                output_line_id=f"resume.{unit.section}.{i}",
-                atomic_unit_id=unit.unit_id,
-                matched_requirements=unit.matched_requirements,
-                llm_score=unit.llm_score,
-                llm_reasoning=unit.reasoning,
-            )
+    provenance = [
+        Provenance(
+            compile_id=compile_id,
+            output_line_id=f"resume.{unit.section}.{i}",
+            atomic_unit_id=unit.unit_id,
+            matched_requirements=unit.matched_requirements,
+            llm_score=unit.llm_score,
+            llm_reasoning=unit.reasoning,
         )
+        for i, unit in enumerate(selected_units)
+    ]
 
-    # 6. Render PDF (async, may take a moment)
+    # 6. Render PDF deterministically (no LLM call)
     pdf_url = None
+    tailored_latex = None
     try:
-        print("XXX_METRICS_XXX: Starting Rendering...")
         start_render = time.time()
-        await render_resume(compile_id, selected_units, request.master_version_id)
-        render_duration = time.time() - start_render
-        print(f"XXX_METRICS_XXX: Rendering took {render_duration:.2f} seconds")
-        with open("metrics.log", "a") as f:
-            f.write(f"Rendering: {render_duration:.2f}s\n")
+        _pdf_path, tailored_latex = await render_resume(
+            compile_id, selected_units, request.master_version_id
+        )
+        print(f"Rendering took {time.time() - start_render:.2f}s")
         pdf_url = f"/resume/{compile_id}/pdf"
     except Exception as e:
-        # PDF generation failed, but we can still return the data
-        print(f"PDF Generation Failed: {e}")
-        import traceback
-
+        print(f"PDF generation failed: {e}")
         with open("debug_error.log", "w") as f:
             f.write(f"Error: {e}\n")
             traceback.print_exc(file=f)
-        pass
 
-    # Store compile result
     result = CompileResponse(
         compile_id=compile_id,
+        master_version_id=request.master_version_id,
+        jd_id=parsed_jd.jd_id,
         selected_units=selected_units,
         coverage=coverage,
         provenance=provenance,
         pdf_url=pdf_url,
+        tailored_latex=tailored_latex,
     )
 
     await db.compiles.insert_one(result.model_dump())

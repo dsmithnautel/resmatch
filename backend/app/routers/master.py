@@ -1,12 +1,25 @@
 """Master Resume management endpoints."""
 
 from fastapi import APIRouter, File, HTTPException, UploadFile
+from fastapi.responses import FileResponse
 
 from app.db.mongodb import get_database
 from app.models import AtomicUnit, MasterResumeResponse, MasterVersion
 from app.services.ingestion import ingest_pdf
 
 router = APIRouter()
+
+
+@router.get("/{version_id}/pdf")
+async def get_original_pdf(version_id: str):
+    """Serve the originally uploaded PDF for this master version."""
+    import os
+
+    pdf_path = os.path.abspath(f"uploads/{version_id}.pdf")
+    if not os.path.exists(pdf_path):
+        raise HTTPException(status_code=404, detail="Original PDF not found")
+
+    return FileResponse(pdf_path, media_type="application/pdf", filename=f"original_{version_id}.pdf")
 
 
 @router.post("/ingest", response_model=MasterResumeResponse)

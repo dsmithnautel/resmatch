@@ -41,9 +41,11 @@ export interface ParsedJD {
 export interface ScoredUnit {
   unit_id: string;
   text: string;
+  original_text?: string;
   section: string;
   org?: string;
   role?: string;
+  dates?: { start?: string; end?: string };
   llm_score: number;
   matched_requirements: string[];
   reasoning: string;
@@ -61,6 +63,8 @@ export interface Provenance {
 
 export interface CompileResponse {
   compile_id: string;
+  master_version_id?: string;
+  jd_id?: string;
   selected_units: ScoredUnit[];
   coverage: {
     must_haves_matched: number;
@@ -69,6 +73,13 @@ export interface CompileResponse {
   };
   provenance: Provenance[];
   pdf_url?: string;
+  tailored_latex?: string;
+}
+
+export interface RescoreResult {
+  id: string;
+  score: number;
+  reasoning: string;
 }
 
 /**
@@ -160,4 +171,75 @@ export async function getCompileResult(compileId: string): Promise<CompileRespon
 
 export function getPdfUrl(compileId: string): string {
   return `${API_BASE}/resume/${compileId}/pdf`;
+}
+
+export function getOriginalPdfUrl(masterVersionId: string): string {
+  return `${API_BASE}/master/${masterVersionId}/pdf`;
+}
+
+export interface PreviewHeader {
+  name: string;
+  email: string;
+  phone: string;
+  linkedin: string;
+  github: string;
+}
+
+export interface PreviewUnit {
+  text: string;
+  section: string;
+  org?: string | null;
+  role?: string | null;
+  dates?: { start?: string; end?: string } | null;
+}
+
+export async function getPreviewPdf(
+  header: PreviewHeader,
+  units: PreviewUnit[]
+): Promise<Blob> {
+  const response = await fetch(`${API_BASE}/resume/preview`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ header, units }),
+  });
+
+  if (!response.ok) {
+    const detail = await response.text();
+    throw new Error(`Preview failed: ${detail}`);
+  }
+
+  return response.blob();
+}
+
+export async function compileLatex(latex: string): Promise<Blob> {
+  const response = await fetch(`${API_BASE}/resume/compile-latex`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ latex }),
+  });
+
+  if (!response.ok) {
+    const detail = await response.text();
+    throw new Error(`LaTeX compilation failed: ${detail}`);
+  }
+
+  return response.blob();
+}
+
+export async function rescoreBullets(
+  jdId: string,
+  bullets: { id: string; text: string }[]
+): Promise<RescoreResult[]> {
+  const response = await fetch(`${API_BASE}/resume/rescore`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ jd_id: jdId, bullets }),
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.detail || "Failed to rescore bullets");
+  }
+
+  return response.json();
 }

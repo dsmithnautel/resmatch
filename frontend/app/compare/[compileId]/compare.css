@@ -1,0 +1,415 @@
+.compare-page {
+    max-width: 100vw;
+    overflow-x: auto;
+    padding: 1rem;
+    background: #f8fafc;
+    min-height: 100vh;
+}
+
+.compare-topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding: 0 0.5rem;
+}
+
+.compare-back {
+    color: #3b82f6;
+    text-decoration: none;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.compare-back:hover {
+    text-decoration: underline;
+}
+
+.compare-actions {
+    display: flex;
+    gap: 0.75rem;
+}
+
+.compare-btn {
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.compare-btn-outline {
+    background: white;
+    border: 1px solid #d1d5db;
+    color: #374151;
+}
+
+.compare-btn-outline:hover {
+    background: #f3f4f6;
+    border-color: #9ca3af;
+}
+
+.compare-btn-primary {
+    background: #3b82f6;
+    border: 1px solid #3b82f6;
+    color: white;
+}
+
+.compare-btn-primary:hover {
+    background: #2563eb;
+}
+
+/* ── Main layout: edit pane + PDF previews ── */
+.compare-layout {
+    display: grid;
+    grid-template-columns: 360px 1fr;
+    gap: 1rem;
+    align-items: start;
+}
+
+.compare-previews {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+/* ── Edit pane ── */
+.edit-pane {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    overflow: hidden;
+    max-height: calc(100vh - 100px);
+    overflow-y: auto;
+}
+
+.edit-pane-header {
+    position: sticky;
+    top: 0;
+    background: #1e293b;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.5rem 0.75rem;
+    z-index: 10;
+}
+
+.edit-pane-label {
+    color: white;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+.rescore-btn {
+    background: #3b82f6;
+    color: white;
+    border: none;
+    padding: 0.3rem 0.6rem;
+    border-radius: 4px;
+    font-size: 0.65rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s ease;
+    white-space: nowrap;
+}
+
+.rescore-btn:hover:not(:disabled) {
+    background: #2563eb;
+}
+
+.rescore-btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+.edit-pane-content {
+    padding: 0.75rem;
+}
+
+.edit-section {
+    margin-bottom: 0.75rem;
+}
+
+.edit-section-title {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #3b82f6;
+    letter-spacing: 0.1em;
+    margin: 0 0 0.4rem 0;
+    padding-bottom: 0.2rem;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.edit-group {
+    margin-bottom: 0.5rem;
+}
+
+.edit-group-header {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+    margin-bottom: 0.25rem;
+}
+
+.edit-group-role {
+    font-weight: 600;
+    font-size: 0.8rem;
+    color: #1e293b;
+}
+
+.edit-group-org {
+    font-size: 0.75rem;
+    color: #64748b;
+    font-style: italic;
+}
+
+.edit-group-dates {
+    font-size: 0.7rem;
+    color: #94a3b8;
+    margin-left: auto;
+}
+
+.edit-bullets {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.edit-bullet {
+    margin-bottom: 0.25rem;
+}
+
+.edit-textarea {
+    width: 100%;
+    border: 1px solid #e2e8f0;
+    border-radius: 4px;
+    padding: 0.35rem 0.5rem;
+    font-size: 0.75rem;
+    font-family: inherit;
+    line-height: 1.4;
+    color: #334155;
+    resize: vertical;
+    transition: border-color 0.15s ease;
+}
+
+.edit-textarea:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+}
+
+.edit-textarea:hover {
+    border-color: #94a3b8;
+}
+
+/* ── PDF Preview ── */
+.pdf-preview-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.pdf-preview-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #64748b;
+}
+
+.pdf-preview-wrapper {
+    position: relative;
+    background: white;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.12);
+    border: 1px solid #e2e8f0;
+    border-radius: 4px;
+    min-height: 792px;
+    /* 11in * 72dpi */
+    min-width: 612px;
+    /* 8.5in * 72dpi */
+}
+
+.pdf-preview-loading {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.85);
+    z-index: 5;
+    gap: 0.5rem;
+    font-size: 0.8rem;
+    color: #64748b;
+}
+
+.pdf-preview-empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 792px;
+    color: #94a3b8;
+    font-size: 0.875rem;
+}
+
+.pdf-page-nav {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.pdf-page-btn {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 4px;
+    border: 1px solid #d1d5db;
+    background: white;
+    cursor: pointer;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: all 0.15s ease;
+}
+
+.pdf-page-btn:hover {
+    background: #f1f5f9;
+    border-color: #94a3b8;
+}
+
+.pdf-page-btn-active {
+    background: #3b82f6;
+    color: white;
+    border-color: #3b82f6;
+}
+
+.pdf-page-label {
+    font-size: 0.75rem;
+    color: #64748b;
+}
+
+/* Loading & error states */
+.compare-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 60vh;
+    gap: 1rem;
+    color: #64748b;
+}
+
+.compare-spinner {
+    width: 2rem;
+    height: 2rem;
+    border: 3px solid #e2e8f0;
+    border-top-color: #3b82f6;
+    border-radius: 50%;
+    animation: compare-spin 0.6s linear infinite;
+}
+
+@keyframes compare-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.compare-error {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 40vh;
+    gap: 0.75rem;
+    color: #ef4444;
+}
+
+/* ── Bullet score & reasoning ── */
+.bullet-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-top: 0.2rem;
+}
+
+.bullet-score {
+    display: inline-block;
+    padding: 0.1rem 0.4rem;
+    border-radius: 3px;
+    font-size: 0.65rem;
+    font-weight: 700;
+    line-height: 1.4;
+}
+
+.bullet-score-high {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.bullet-score-mid {
+    background: #dbeafe;
+    color: #1e40af;
+}
+
+.bullet-score-low {
+    background: #f1f5f9;
+    color: #64748b;
+}
+
+.bullet-stale {
+    opacity: 0.5;
+}
+
+.bullet-stale-label {
+    font-size: 0.6rem;
+    color: #f59e0b;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.bullet-reasoning-toggle {
+    background: none;
+    border: none;
+    padding: 0;
+    font-size: 0.6rem;
+    color: #3b82f6;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.bullet-reasoning-toggle:hover {
+    text-decoration: underline;
+}
+
+.bullet-reasoning {
+    margin-top: 0.2rem;
+    padding: 0.3rem 0.5rem;
+    background: #f8fafc;
+    border-left: 2px solid #3b82f6;
+    font-size: 0.65rem;
+    color: #475569;
+    line-height: 1.5;
+    border-radius: 0 3px 3px 0;
+}
+
+.compare-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Responsive */
+@media (max-width: 1400px) {
+    .compare-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .compare-previews {
+        flex-direction: column;
+        align-items: center;
+    }
+}

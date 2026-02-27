@@ -1,6 +1,7 @@
 """PDF ingestion service - extracts atomic units from master resume."""
 
 import hashlib
+import os
 from datetime import datetime
 
 import fitz  # PyMuPDF
@@ -144,6 +145,13 @@ async def ingest_pdf(pdf_content: bytes, filename: str) -> MasterResumeResponse:
     content_hash = hashlib.sha256(pdf_content).hexdigest()[:12]
     # Add timestamp to allow multiple uploads of same file for debugging
     version_id = f"master_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{content_hash}"
+
+    # Save the original PDF to disk for later retrieval
+    uploads_dir = os.path.abspath("uploads")
+    os.makedirs(uploads_dir, exist_ok=True)
+    pdf_path = os.path.join(uploads_dir, f"{version_id}.pdf")
+    with open(pdf_path, "wb") as f:
+        f.write(pdf_content)
 
     # Extract text from PDF
     doc = fitz.open(stream=pdf_content, filetype="pdf")

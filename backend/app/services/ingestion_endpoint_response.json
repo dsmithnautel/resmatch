@@ -28,6 +28,914 @@
       },
       "version": "master_20260204_140450_165e2ae3d256",
       "created_at": "2026-02-04T19:05:16.043158"
+    },
+    {
+      "id": "edu_university_001",
+      "type": "education",
+      "section": "education",
+      "org": "University of Florida",
+      "role": "Bachelor of Science in Computer Science, Minor in Statistics",
+      "dates": {
+        "start": null,
+        "end": "2026-12"
+      },
+      "text": "University of Florida\nGainesville, FL\nBachelor of Science in Computer Science, Minor in Statistics\nDecember 2026",
+      "tags": {
+        "skills": [],
+        "domains": [],
+        "seniority": null,
+        "email": null,
+        "phone": null,
+        "linkedin": null,
+        "github": null
+      },
+      "evidence": {
+        "source": "Xalan 2025 Resume.pdf",
+        "page": 1,
+        "line_hint": null
+      },
+      "version": "master_20260204_140450_165e2ae3d256",
+      "created_at": "2026-02-04T19:05:16.043321"
+    },
+    {
+      "id": "edu_unknown_002",
+      "type": "bullet",
+      "section": "education",
+      "org": null,
+      "role": null,
+      "dates": {
+        "start": null,
+        "end": null
+      },
+      "text": "GPA: 3.82/4.0",
+      "tags": {
+        "skills": [],
+        "domains": [],
+        "seniority": null,
+        "email": null,
+        "phone": null,
+        "linkedin": null,
+        "github": null
+      },
+      "evidence": {
+        "source": "Xalan 2025 Resume.pdf",
+        "page": 1,
+        "line_hint": null
+      },
+      "version": "master_20260204_140450_165e2ae3d256",
+      "created_at": "2026-02-04T19:05:16.043342"
+    },
+    {
+      "id": "edu_unknown_003",
+      "type": "bullet",
+      "section": "education",
+      "org": null,
+      "role": null,
+      "dates": {
+        "start": null,
+        "end": null
+      },
+      "text": "Relevant Coursework: Data Structures and Algorithms, Operating Systems, Computer Networking, Algorithm Abstraction\nand Analysis, Fundamentals of Machine Learning, Natural Language Processing, Intro to Probability, Regression Analysis",
+      "tags": {
+        "skills": [
+          "Data Structures and Algorithms",
+          "Operating Systems",
+          "Computer Networking",
+          "Algorithm Abstraction",
+          "Machine Learning",
+          "Natural Language Processing",
+          "Probability",
+          "Regression Analysis"
+        ],
+        "domains": [
+          "ml",
+          "data"
+        ],
+        "seniority": null,
+        "email": null,
+        "phone": null,
+        "linkedin": null,
+        "github": null
+      },
+      "evidence": {
+        "source": "Xalan 2025 Resume.pdf",
+        "page": 1,
+        "line_hint": null
+      },
+      "version": "master_20260204_140450_165e2ae3d256",
+      "created_at": "2026-02-04T19:05:16.043356"
+    },
+    {
+      "id": "ski_languages_004",
+      "type": "skill_group",
+      "section": "skills",
+      "org": "Languages",
+      "role": null,
+      "dates": {
+        "start": null,
+        "end": null
+      },
+      "text": "Languages: Java, Python, C++, JavaScript, HTML, CSS, SQL, Kotlin, MATLAB",
+      "tags": {
+        "skills": [
+          "Java",
+          "Python",
+          "C++",
+          "JavaScript",
+          "HTML",
+          "CSS",
+          "SQL",
+          "Kotlin",
+          "MATLAB"
+        ],
+        "domains": [],
+        "seniority": null,
+        "email": null,
+        "phone": null,
+        "linkedin": null,
+        "github": null
+      },
+      "evidence": {
+        "source": "Xalan 2025 Resume.pdf",
+        "page": 1,
+        "line_hint": null
+      },
+      "version": "master_20260204_140450_165e2ae3d256",
+      "created_at": "2026-02-04T19:05:16.043369"
+    },
+    {
+      "id": "ski_frameworks_005",
+      "type": "skill_group",
+      "section": "skills",
+      "org": "Frameworks and Libraries",
+      "role": null,
+      "dates": {
+        "start": null,
+        "end": null
+      },
+      "text": "Frameworks and Libraries: Spring Boot, React.js, Express.js, MongoDB, Tailwind, JUnit, PyTorch, Sklearn, Keras, Pandas,\nLangChain, LangGraph, FastAPI, Pydantic",
+      "tags": {
+        "skills": [
+          "Spring Boot",
+          "React.js",
+          "Express.js",
+          "MongoDB",
+          "Tailwind",
+          "JUnit",
+          "PyTorch",
+          "Sklearn",
+          "Keras",
+          "Pandas",
+          "LangChain",
+          "LangGraph",
+          "FastAPI",
+          "Pydantic"
+        ],
+        "domains": [
+          "ml",
+          "data",
+          "backend",
+          "frontend"
+        ],
+        "seniority": null,
+        "email": null,
+        "phone": null,
+        "linkedin": null,
+        "github": null
+      },
+      "evidence": {
+        "source": "Xalan 2025 Resume.pdf",
+        "page": 1,
+        "line_hint": null
+      },
+      "version": "master_20260204_140450_165e2ae3d256",
+      "created_at": "2026-02-04T19:05:16.043381"
+    },
+    {
+      "id": "ski_tools_006",
+      "type": "skill_group",
+      "section": "skills",
+      "org": "Tools",
+      "role": null,
+      "dates": {
+        "start": null,
+        "end": null
+      },
+      "text": "Tools: Git, Docker, REST API, GraphQL, Chroma, MCP, Jira, Linux, Postman, Blender",
+      "tags": {
+        "skills": [
+          "Git",
+          "Docker",
+          "REST API",
+          "GraphQL",
+          "Chroma",
+          "MCP",
+          "Jira",
+          "Linux",
+          "Postman",
+          "Blender"
+        ],
+        "domains": [
+          "devops"
+        ],
+        "seniority": null,
+        "email": null,
+        "phone": null,
+        "linkedin": null,
+        "github": null
+      },
+      "evidence": {
+        "source": "Xalan 2025 Resume.pdf",
+        "page": 1,
+        "line_hint": null
+      },
+      "version": "master_20260204_140450_165e2ae3d256",
+      "created_at": "2026-02-04T19:05:16.043395"
+    },
+    {
+      "id": "exp_atlassian_007",
+      "type": "bullet",
+      "section": "experience",
+      "org": "Atlassian",
+      "role": "Software Engineering Intern",
+      "dates": {
+        "start": "2025-05",
+        "end": "2025-08"
+      },
+      "text": "Developed an API within a Spring Boot microservice that automatically reorganizes Confluence page hierarchies via semantic\nalysis, reducing manual reorganization time by 50%.",
+      "tags": {
+        "skills": [
+          "Spring Boot"
+        ],
+        "domains": [
+          "backend"
+        ],
+        "seniority": "intern",
+        "email": null,
+        "phone": null,
+        "linkedin": null,
+        "github": null
+      },
+      "evidence": {
+        "source": "Xalan 2025 Resume.pdf",
+        "page": 1,
+        "line_hint": null
+      },
+      "version": "master_20260204_140450_165e2ae3d256",
+      "created_at": "2026-02-04T19:05:16.043409"
+    },
+    {
+      "id": "exp_atlassian_008",
+      "type": "bullet",
+      "section": "experience",
+      "org": "Atlassian",
+      "role": "Software Engineering Intern",
+      "dates": {
+        "start": "2025-05",
+        "end": "2025-08"
+      },
+      "text": "Experimented with integrating an AWS SageMaker semantic reranker model and later led the development of a cross-service\nLLM workflow, attaining an organizational accuracy of 98% with the LLM workflow.",
+      "tags": {
+        "skills": [
+          "AWS SageMaker"
+        ],
+        "domains": [
+          "ml"
+        ],
+        "seniority": "intern",
+        "email": null,
+        "phone": null,
+        "linkedin": null,
+        "github": null
+      },
+      "evidence": {
+        "source": "Xalan 2025 Resume.pdf",
+        "page": 1,
+        "line_hint": null
+      },
+      "version": "master_20260204_140450_165e2ae3d256",
+      "created_at": "2026-02-04T19:05:16.043814"
+    },
+    {
+      "id": "exp_atlassian_009",
+      "type": "bullet",
+      "section": "experience",
+      "org": "Atlassian",
+      "role": "Software Engineering Intern",
+      "dates": {
+        "start": "2025-05",
+        "end": "2025-08"
+      },
+      "text": "Leveraged REST and GraphQL APIs to enable high-throughput data retrieval and utilized reactive programming for scalable,\nasynchronous event processing.",
+      "tags": {
+        "skills": [
+          "REST",
+          "GraphQL"
+        ],
+        "domains": [
+          "backend"
+        ],
+        "seniority": "intern",
+        "email": null,
+        "phone": null,
+        "linkedin": null,
+        "github": null
+      },
+      "evidence": {
+        "source": "Xalan 2025 Resume.pdf",
+        "page": 1,
+        "line_hint": null
+      },
+      "version": "master_20260204_140450_165e2ae3d256",
+      "created_at": "2026-02-04T19:05:16.043882"
+    },
+    {
+      "id": "exp_atlassian_010",
+      "type": "bullet",
+      "section": "experience",
+      "org": "Atlassian",
+      "role": "Software Engineering Intern",
+      "dates": {
+        "start": "2025-05",
+        "end": "2025-08"
+      },
+      "text": "Streamlined releases and monitoring through Splunk PaaS in staging, CI/CD, and an automated Java testing suite.",
+      "tags": {
+        "skills": [
+          "Splunk",
+          "Java"
+        ],
+        "domains": [
+          "devops"
+        ],
+        "seniority": "intern",
+        "email": null,
+        "phone": null,
+        "linkedin": null,
+        "github": null
+      },
+      "evidence": {
+        "source": "Xalan 2025 Resume.pdf",
+        "page": 1,
+        "line_hint": null
+      },
+      "version": "master_20260204_140450_165e2ae3d256",
+      "created_at": "2026-02-04T19:05:16.043902"
+    },
+    {
+      "id": "exp_nexteraen_011",
+      "type": "bullet",
+      "section": "experience",
+      "org": "NextEra Energy",
+      "role": "Data Science Intern",
+      "dates": {
+        "start": "2024-05",
+        "end": "2024-08"
+      },
+      "text": "Utilized Python to perform association rule mining, SMOTE, and DBSCAN clustering on 100,000+ Salesforce and Amazon\nRedshift data points, identifying optimal bundles and their demographic relationships.",
+      "tags": {
+        "skills": [
+          "Python",
+          "Salesforce",
+          "Amazon Redshift"
+        ],
+        "domains": [
+          "data",
+          "ml"
+        ],
+        "seniority": "intern",
+        "email": null,
+        "phone": null,
+        "linkedin": null,
+        "github": null
+      },
+      "evidence": {
+        "source": "Xalan 2025 Resume.pdf",
+        "page": 1,
+        "line_hint": null
+      },
+      "version": "master_20260204_140450_165e2ae3d256",
+      "created_at": "2026-02-04T19:05:16.043918"
+    },
+    {
+      "id": "exp_nexteraen_012",
+      "type": "bullet",
+      "section": "experience",
+      "org": "NextEra Energy",
+      "role": "Data Science Intern",
+      "dates": {
+        "start": "2024-05",
+        "end": "2024-08"
+      },
+      "text": "Collaborated in an agile development team of 4 engineers and consulted with sales channels to finalize eligible association rules\nbased on channel-specific constraints.",
+      "tags": {
+        "skills": [],
+        "domains": [],
+        "seniority": "intern",
+        "email": null,
+        "phone": null,
+        "linkedin": null,
+        "github": null
+      },
+      "evidence": {
+        "source": "Xalan 2025 Resume.pdf",
+        "page": 1,
+        "line_hint": null
+      },
+      "version": "master_20260204_140450_165e2ae3d256",
+      "created_at": "2026-02-04T19:05:16.043932"
+    },
+    {
+      "id": "exp_nexteraen_013",
+      "type": "bullet",
+      "section": "experience",
+      "org": "NextEra Energy",
+      "role": "Data Science Intern",
+      "dates": {
+        "start": "2024-05",
+        "end": "2024-08"
+      },
+      "text": "Received 4th place award in the company-wide ideathon by proposing a pipeline for nuclear maintenance that uses YOLOv10 for\ninventory counting and GPTVision for quality assurance.",
+      "tags": {
+        "skills": [
+          "YOLOv10",
+          "GPTVision"
+        ],
+        "domains": [
+          "ml"
+        ],
+        "seniority": "intern",
+        "email": null,
+        "phone": null,
+        "linkedin": null,
+        "github": null
+      },
+      "evidence": {
+        "source": "Xalan 2025 Resume.pdf",
+        "page": 1,
+        "line_hint": null
+      },
+      "version": "master_20260204_140450_165e2ae3d256",
+      "created_at": "2026-02-04T19:05:16.043945"
+    },
+    {
+      "id": "pro_craven_014",
+      "type": "project",
+      "section": "projects",
+      "org": "Craven",
+      "role": null,
+      "dates": {
+        "start": null,
+        "end": null
+      },
+      "text": "Designed a swipeable recipe recommender on the MERN stack, utilizing a recipe API for personalized suggestions.",
+      "tags": {
+        "skills": [
+          "MERN"
+        ],
+        "domains": [
+          "frontend",
+          "backend",
+          "ml"
+        ],
+        "seniority": null,
+        "email": null,
+        "phone": null,
+        "linkedin": null,
+        "github": null
+      },
+      "evidence": {
+        "source": "Xalan 2025 Resume.pdf",
+        "page": 1,
+        "line_hint": null
+      },
+      "version": "master_20260204_140450_165e2ae3d256",
+      "created_at": "2026-02-04T19:05:16.045735"
+    },
+    {
+      "id": "pro_unknown_015",
+      "type": "bullet",
+      "section": "projects",
+      "org": null,
+      "role": null,
+      "dates": {
+        "start": null,
+        "end": null
+      },
+      "text": "Enabled users to manage their profiles, add liked recipes to a library, view the matches, and view recipe instructions.",
+      "tags": {
+        "skills": [],
+        "domains": [
+          "frontend"
+        ],
+        "seniority": null,
+        "email": null,
+        "phone": null,
+        "linkedin": null,
+        "github": null
+      },
+      "evidence": {
+        "source": "Xalan 2025 Resume.pdf",
+        "page": 1,
+        "line_hint": null
+      },
+      "version": "master_20260204_140450_165e2ae3d256",
+      "created_at": "2026-02-04T19:05:16.045748"
+    },
+    {
+      "id": "pro_unknown_016",
+      "type": "bullet",
+      "section": "projects",
+      "org": null,
+      "role": null,
+      "dates": {
+        "start": null,
+        "end": null
+      },
+      "text": "Leveraged MongoDB to store user profiles, cuisine preferences, and matched recipes.",
+      "tags": {
+        "skills": [
+          "MongoDB"
+        ],
+        "domains": [
+          "backend"
+        ],
+        "seniority": null,
+        "email": null,
+        "phone": null,
+        "linkedin": null,
+        "github": null
+      },
+      "evidence": {
+        "source": "Xalan 2025 Resume.pdf",
+        "page": 1,
+        "line_hint": null
+      },
+      "version": "master_20260204_140450_165e2ae3d256",
+      "created_at": "2026-02-04T19:05:16.045759"
+    },
+    {
+      "id": "pro_unknown_017",
+      "type": "bullet",
+      "section": "projects",
+      "org": null,
+      "role": null,
+      "dates": {
+        "start": null,
+        "end": null
+      },
+      "text": "Managed the backend using Express.js and Node.js, ensuring security with session-based authentication and hashing.",
+      "tags": {
+        "skills": [
+          "Express.js",
+          "Node.js"
+        ],
+        "domains": [
+          "backend"
+        ],
+        "seniority": null,
+        "email": null,
+        "phone": null,
+        "linkedin": null,
+        "github": null
+      },
+      "evidence": {
+        "source": "Xalan 2025 Resume.pdf",
+        "page": 1,
+        "line_hint": null
+      },
+      "version": "master_20260204_140450_165e2ae3d256",
+      "created_at": "2026-02-04T19:05:16.045773"
+    },
+    {
+      "id": "pro_devsight_018",
+      "type": "project",
+      "section": "projects",
+      "org": "DevSight",
+      "role": null,
+      "dates": {
+        "start": null,
+        "end": null
+      },
+      "text": "Engineered a developer performance analytics platform using FastAPI and Python, aggregating data via GitHub and Atlassian\nMCP servers (Jira, Confluence) to deliver comprehensive real-time performance scores.",
+      "tags": {
+        "skills": [
+          "FastAPI",
+          "Python",
+          "GitHub",
+          "Jira",
+          "Confluence"
+        ],
+        "domains": [
+          "data",
+          "backend"
+        ],
+        "seniority": null,
+        "email": null,
+        "phone": null,
+        "linkedin": null,
+        "github": null
+      },
+      "evidence": {
+        "source": "Xalan 2025 Resume.pdf",
+        "page": 1,
+        "line_hint": null
+      },
+      "version": "master_20260204_140450_165e2ae3d256",
+      "created_at": "2026-02-04T19:05:16.045784"
+    },
+    {
+      "id": "pro_unknown_019",
+      "type": "bullet",
+      "section": "projects",
+      "org": null,
+      "role": null,
+      "dates": {
+        "start": null,
+        "end": null
+      },
+      "text": "Developed modular LangChain agent workflows leveraging OpenAI GPT-4, custom tools, and LangChain adapters to enable\nintelligent analysis of Github pull requests, Confluence content, and Jira tasks.",
+      "tags": {
+        "skills": [
+          "LangChain",
+          "OpenAI GPT-4",
+          "GitHub",
+          "Confluence",
+          "Jira"
+        ],
+        "domains": [
+          "ml",
+          "backend"
+        ],
+        "seniority": null,
+        "email": null,
+        "phone": null,
+        "linkedin": null,
+        "github": null
+      },
+      "evidence": {
+        "source": "Xalan 2025 Resume.pdf",
+        "page": 1,
+        "line_hint": null
+      },
+      "version": "master_20260204_140450_165e2ae3d256",
+      "created_at": "2026-02-04T19:05:16.045795"
+    },
+    {
+      "id": "pro_unknown_020",
+      "type": "bullet",
+      "section": "projects",
+      "org": null,
+      "role": null,
+      "dates": {
+        "start": null,
+        "end": null
+      },
+      "text": "Implemented persistent chat history management and semantic search using a Chroma vector database and OpenAI embedding\nmodel.",
+      "tags": {
+        "skills": [
+          "Chroma",
+          "OpenAI"
+        ],
+        "domains": [
+          "ml",
+          "data"
+        ],
+        "seniority": null,
+        "email": null,
+        "phone": null,
+        "linkedin": null,
+        "github": null
+      },
+      "evidence": {
+        "source": "Xalan 2025 Resume.pdf",
+        "page": 1,
+        "line_hint": null
+      },
+      "version": "master_20260204_140450_165e2ae3d256",
+      "created_at": "2026-02-04T19:05:16.045804"
+    },
+    {
+      "id": "pro_hikeybara_021",
+      "type": "project",
+      "section": "projects",
+      "org": "HikeyBara",
+      "role": null,
+      "dates": {
+        "start": null,
+        "end": null
+      },
+      "text": "Built a mixed reality safety system for hikers using Raspberry Pi, BME688, Apple Watch, and Unity on Meta Quest 3, allowing\nreal-time tracking of environmental and physiological data in remote areas.",
+      "tags": {
+        "skills": [
+          "Raspberry Pi",
+          "BME688",
+          "Apple Watch",
+          "Unity",
+          "Meta Quest 3"
+        ],
+        "domains": [
+          "mobile",
+          "other"
+        ],
+        "seniority": null,
+        "email": null,
+        "phone": null,
+        "linkedin": null,
+        "github": null
+      },
+      "evidence": {
+        "source": "Xalan 2025 Resume.pdf",
+        "page": 1,
+        "line_hint": null
+      },
+      "version": "master_20260204_140450_165e2ae3d256",
+      "created_at": "2026-02-04T19:05:16.045816"
+    },
+    {
+      "id": "pro_unknown_022",
+      "type": "bullet",
+      "section": "projects",
+      "org": null,
+      "role": null,
+      "dates": {
+        "start": null,
+        "end": null
+      },
+      "text": "Integrated ROS, MQTT, Docker, and C# within Unity to process and visualize live sensor streams, minimizing latency in alerts\nand delivering a containerized VR/AR solution for outdoor emergency response and health monitoring.",
+      "tags": {
+        "skills": [
+          "ROS",
+          "MQTT",
+          "Docker",
+          "C#",
+          "Unity"
+        ],
+        "domains": [
+          "mobile",
+          "devops"
+        ],
+        "seniority": null,
+        "email": null,
+        "phone": null,
+        "linkedin": null,
+        "github": null
+      },
+      "evidence": {
+        "source": "Xalan 2025 Resume.pdf",
+        "page": 1,
+        "line_hint": null
+      },
+      "version": "master_20260204_140450_165e2ae3d256",
+      "created_at": "2026-02-04T19:05:16.045826"
+    },
+    {
+      "id": "lea_ninoresea_023",
+      "type": "bullet",
+      "section": "leadership",
+      "org": "Nino Research Group",
+      "role": "Undergraduate Researcher",
+      "dates": {
+        "start": "2023-05",
+        "end": "2024-08"
+      },
+      "text": "Analyzed fMRI data from 87 brains in a Nepal dataset to explore the impact of BMI on Alzheimer’s development.",
+      "tags": {
+        "skills": [],
+        "domains": [
+          "data"
+        ],
+        "seniority": null,
+        "email": null,
+        "phone": null,
+        "linkedin": null,
+        "github": null
+      },
+      "evidence": {
+        "source": "Xalan 2025 Resume.pdf",
+        "page": 1,
+        "line_hint": null
+      },
+      "version": "master_20260204_140450_165e2ae3d256",
+      "created_at": "2026-02-04T19:05:16.045837"
+    },
+    {
+      "id": "lea_ninoresea_024",
+      "type": "bullet",
+      "section": "leadership",
+      "org": "Nino Research Group",
+      "role": "Undergraduate Researcher",
+      "dates": {
+        "start": "2023-05",
+        "end": "2024-08"
+      },
+      "text": "Developed MATLAB code that displays statistically significant differences (across 21 network quantifiers) between the brains of\nnormal and overweight/obese people.",
+      "tags": {
+        "skills": [
+          "MATLAB"
+        ],
+        "domains": [
+          "data"
+        ],
+        "seniority": null,
+        "email": null,
+        "phone": null,
+        "linkedin": null,
+        "github": null
+      },
+      "evidence": {
+        "source": "Xalan 2025 Resume.pdf",
+        "page": 1,
+        "line_hint": null
+      },
+      "version": "master_20260204_140450_165e2ae3d256",
+      "created_at": "2026-02-04T19:05:16.045848"
+    },
+    {
+      "id": "lea_ninoresea_025",
+      "type": "bullet",
+      "section": "leadership",
+      "org": "Nino Research Group",
+      "role": "Undergraduate Researcher",
+      "dates": {
+        "start": "2023-05",
+        "end": "2024-08"
+      },
+      "text": "Applied a novel approach of comparing the area under the curve across 20 thresholds from 2 to 40 percent of our connectivity\nmatrices for more robust results.",
+      "tags": {
+        "skills": [],
+        "domains": [
+          "data"
+        ],
+        "seniority": null,
+        "email": null,
+        "phone": null,
+        "linkedin": null,
+        "github": null
+      },
+      "evidence": {
+        "source": "Xalan 2025 Resume.pdf",
+        "page": 1,
+        "line_hint": null
+      },
+      "version": "master_20260204_140450_165e2ae3d256",
+      "created_at": "2026-02-04T19:05:16.045858"
+    },
+    {
+      "id": "lea_colorstack_026",
+      "type": "bullet",
+      "section": "leadership",
+      "org": "ColorStackUF",
+      "role": "Community Events Coordinator",
+      "dates": {
+        "start": "2024-08",
+        "end": "present"
+      },
+      "text": "Organizing monthly social gatherings for the UF chapter (400+ following) of the national ColorStack organization.",
+      "tags": {
+        "skills": [],
+        "domains": [],
+        "seniority": null,
+        "email": null,
+        "phone": null,
+        "linkedin": null,
+        "github": null
+      },
+      "evidence": {
+        "source": "Xalan 2025 Resume.pdf",
+        "page": 1,
+        "line_hint": null
+      },
+      "version": "master_20260204_140450_165e2ae3d256",
+      "created_at": "2026-02-04T19:05:16.045868"
+    },
+    {
+      "id": "lea_colorstack_027",
+      "type": "bullet",
+      "section": "leadership",
+      "org": "ColorStackUF",
+      "role": "Community Events Coordinator",
+      "dates": {
+        "start": "2024-08",
+        "end": "present"
+      },
+      "text": "Coordinating event logistics, managing a budget of $2000, and meeting weekly with fellow executive board members to further\nthe goal of increasing Black and LatinX representation in tech.",
+      "tags": {
+        "skills": [],
+        "domains": [],
+        "seniority": null,
+        "email": null,
+        "phone": null,
+        "linkedin": null,
+        "github": null
+      },
+      "evidence": {
+        "source": "Xalan 2025 Resume.pdf",
+        "page": 1,
+        "line_hint": null
+      },
+      "version": "master_20260204_140450_165e2ae3d256",
+      "created_at": "2026-02-04T19:05:16.045878"
     }
   ],
   "counts": {

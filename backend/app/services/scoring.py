@@ -45,7 +45,7 @@ Return a JSON array with one object per bullet:
     "original_text": "...",
     "tailored_text": "The reworded version of the bullet...",
     "score": 8.5,
-    "changes_made": "Brief explanation of how it was reworded..."
+    "relevance_reasoning": "Brief explanation of why this score was given based on JD relevance"
   }},
   ...
 ]
@@ -121,6 +121,7 @@ async def tailor_units_against_jd(
                     ScoredUnit(
                         unit_id=str(unit_id or ""),
                         text=final_text,
+                        original_text=u.get("text", ""),
                         section=u.get("section", "experience"),
                         org=u.get("org"),
                         role=u.get("role"),
@@ -128,7 +129,7 @@ async def tailor_units_against_jd(
                         tags=tags_data,
                         llm_score=float(result.get("score", 5.0)),
                         matched_requirements=[],
-                        reasoning=result.get("changes_made", "Original text preserved"),
+                        reasoning=result.get("relevance_reasoning", ""),
                     )
                 )
 
@@ -140,6 +141,7 @@ async def tailor_units_against_jd(
                     ScoredUnit(
                         unit_id=str(u.get("id", "")),
                         text=u.get("text", ""),  # Fallback to original
+                        original_text=u.get("text", ""),
                         section=u.get("section", "experience"),
                         org=u.get("org"),
                         role=u.get("role"),
@@ -157,6 +159,7 @@ async def tailor_units_against_jd(
             ScoredUnit(
                 unit_id=str(u.get("id", "")),
                 text=u.get("text", ""),
+                original_text=u.get("text", ""),
                 section=u.get("section", u.get("section", "skills")),  # Fallback section
                 org=u.get("org"),
                 role=u.get("role"),

@@ -38,6 +38,7 @@ class ScoredUnit(BaseModel):
 
     unit_id: str
     text: str
+    original_text: str | None = None
     section: str
     org: str | None = None
     role: str | None = None
@@ -75,8 +76,11 @@ class CompileResponse(BaseModel):
     """Response from resume compilation."""
 
     compile_id: str
+    master_version_id: str = ""
+    jd_id: str | None = None
     selected_units: list[ScoredUnit]
     coverage: CoverageStats
     provenance: list[Provenance]
     pdf_url: str | None = None
+    tailored_latex: str | None = None
     created_at: datetime = Field(default_factory=datetime.utcnow)

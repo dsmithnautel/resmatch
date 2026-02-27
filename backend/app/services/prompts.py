@@ -13,19 +13,6 @@ JAKES_TEMPLATE = r"""
 \usepackage{verbatim}
 \usepackage{enumitem}
 \usepackage[hidelinks]{hyperref}
-\input{glyphtounicode}
-
-
-%----------FONT OPTIONS----------
-% sans-serif
-% \usepackage[sfdefault]{FiraSans}
-% \usepackage[sfdefault]{roboto}
-% \usepackage[sfdefault]{noto-sans}
-% \usepackage[default]{sourcesanspro}
-
-% serif
-% \usepackage{CormorantGaramond}
-% \usepackage{charter}
 
 
 \pagestyle{empty}
@@ -39,9 +26,6 @@ JAKES_TEMPLATE = r"""
 \titleformat{\section}{
   \vspace{-4pt}\scshape\raggedright\large
 }{}{0em}{}[\color{black}\titlerule \vspace{-5pt}]
-
-% Ensure that generate pdf is machine readable/ATS parsable
-\pdfgentounicode=1
 
 %-------------------------
 % Custom commands
@@ -232,4 +216,5 @@ IMPORTANT: Do not include any additional text or comments in the LaTeX output. D
 IMPORTANT: Do not add unnecessary or additional formatting beyond what is already in the template.
 IMPORTANT: Provide ONLY the LaTeX output, no other text or comments.
 IMPORTANT: Any given position or activity must only be listed in a single section. Avoid repetition.
+IMPORTANT: Do NOT include \\input{{glyphtounicode}}, \\pdfgentounicode=1, or any font option packages (FiraSans, roboto, noto-sans, sourcesanspro, CormorantGaramond, charter). These are not available in our compiler.
 """

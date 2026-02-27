@@ -28,19 +28,22 @@ def get_gemini_client() -> genai.Client:
     return _client
 
 
+_rate_limit_lock = asyncio.Lock()
+
 async def _rate_limit() -> None:
     """Ensure we don't exceed rate limits by spacing out requests."""
     global _last_request_time
     import time
 
-    current_time = time.time()
-    time_since_last = current_time - _last_request_time
+    async with _rate_limit_lock:
+        current_time = time.time()
+        time_since_last = current_time - _last_request_time
 
-    if time_since_last < RATE_LIMIT_DELAY:
-        wait_time = RATE_LIMIT_DELAY - time_since_last
-        await asyncio.sleep(wait_time)
+        if time_since_last < RATE_LIMIT_DELAY:
+            wait_time = RATE_LIMIT_DELAY - time_since_last
+            await asyncio.sleep(wait_time)
 
-    _last_request_time = time.time()
+        _last_request_time = time.time()
 
 
 def _extract_retry_delay(error_message: str) -> float:
@@ -72,11 +75,10 @@ IMPORTANT: Respond ONLY with valid JSON. No markdown, no explanation, just the J
 
     for attempt in range(max_retries):
         try:
-            # Apply rate limiting
             await _rate_limit()
 
-            response = client.models.generate_content(
-                model="gemini-2.0-flash",  # Using 1.5-flash for better free tier limits
+            response = await client.aio.models.generate_content(
+                model="gemini-2.0-flash",
                 contents=full_prompt,
             )
             if not response.text:
@@ -153,7 +155,7 @@ async def generate_text(prompt: str, max_retries: int = 3) -> str:
         try:
             await _rate_limit()
 
-            response = client.models.generate_content(model="gemini-2.0-flash", contents=prompt)
+            response = await client.aio.models.generate_content(model="gemini-2.0-flash", contents=prompt)
             if not response.text:
                 raise ValueError("Gemini returned an empty response.")
             return response.text
