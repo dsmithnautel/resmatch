@@ -226,6 +226,24 @@ export async function compileLatex(latex: string): Promise<Blob> {
   return response.blob();
 }
 
+export async function patchLatex(
+  latex: string,
+  patches: { old_text: string; new_text: string }[]
+): Promise<Blob> {
+  const response = await fetch(`${API_BASE}/resume/patch-latex`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ latex, patches }),
+  });
+
+  if (!response.ok) {
+    const detail = await response.text();
+    throw new Error(`Patch-latex failed: ${detail}`);
+  }
+
+  return response.blob();
+}
+
 export async function rescoreBullets(
   jdId: string,
   bullets: { id: string; text: string }[]

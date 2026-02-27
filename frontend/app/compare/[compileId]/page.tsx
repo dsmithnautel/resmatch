@@ -12,6 +12,7 @@ import {
     getCompileResult,
     getPreviewPdf,
     compileLatex,
+    patchLatex,
     getOriginalPdfUrl,
     rescoreBullets,
     ScoredUnit,
@@ -349,6 +350,11 @@ export default function ComparePage() {
     const [dirtyIds, setDirtyIds] = useState<Set<string>>(new Set());
     const [rescoring, setRescoring] = useState(false);
 
+    // Original tailored text per unit (for computing LaTeX patches)
+    const originalTextsRef = useRef<Map<string, string>>(new Map());
+    // Current working LaTeX source (patched in-place on edits)
+    const currentLatexRef = useRef<string | null>(null);
+
     // PDF preview state
     const [originalPdfUrl, setOriginalPdfUrl] = useState<string | null>(null);
     const [tailoredPdfUrl, setTailoredPdfUrl] = useState<string | null>(null);
@@ -374,6 +380,14 @@ export default function ComparePage() {
                 const result = await getCompileResult(compileId);
                 setCompileResult(result);
                 setTailoredUnits(result.selected_units);
+
+                // Store original tailored text for each unit (used for LaTeX patching)
+                const origMap = new Map<string, string>();
+                for (const u of result.selected_units) {
+                    origMap.set(u.unit_id, u.text);
+                }
+                originalTextsRef.current = origMap;
+                currentLatexRef.current = result.tailored_latex || null;
 
                 // Fetch original PDF as blob (avoids cross-origin issues with react-pdf worker)
                 if (result.master_version_id) {
@@ -475,7 +489,7 @@ export default function ComparePage() {
         [header]
     );
 
-    // Handle bullet change with debounce
+    // Handle bullet change with debounce — uses fast LaTeX patching when available
     const handleTailoredBulletChange = useCallback(
         (unitId: string, newText: string) => {
             setDirtyIds((prev) => new Set(prev).add(unitId));
@@ -485,9 +499,35 @@ export default function ComparePage() {
                 );
 
                 if (debounceRef.current) clearTimeout(debounceRef.current);
-                debounceRef.current = setTimeout(() => {
-                    generatePdf(updated, "text", setTailoredPdfUrl, setTailoredLoading);
-                }, 3000);
+                debounceRef.current = setTimeout(async () => {
+                    const latex = currentLatexRef.current;
+                    if (latex) {
+                        // Fast path: patch LaTeX string + Tectonic recompile (~130ms)
+                        const patches: { old_text: string; new_text: string }[] = [];
+                        for (const u of updated) {
+                            const orig = originalTextsRef.current.get(u.unit_id);
+                            if (orig && orig !== u.text) {
+                                patches.push({ old_text: orig, new_text: u.text });
+                            }
+                        }
+                        if (patches.length > 0) {
+                            setTailoredLoading(true);
+                            try {
+                                const blob = await patchLatex(latex, patches);
+                                setTailoredPdfUrl(URL.createObjectURL(blob));
+                            } catch (err) {
+                                console.error("Patch-latex failed, falling back to preview:", err);
+                                generatePdf(updated, "text", setTailoredPdfUrl, setTailoredLoading);
+                                return;
+                            } finally {
+                                setTailoredLoading(false);
+                            }
+                        }
+                    } else {
+                        // Slow path: LLM-based preview (no stored LaTeX)
+                        generatePdf(updated, "text", setTailoredPdfUrl, setTailoredLoading);
+                    }
+                }, 1500);
 
                 return updated;
             });

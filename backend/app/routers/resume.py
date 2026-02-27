@@ -65,6 +65,62 @@ async def preview_resume(request: PreviewRequest):
     )
 
 
+class PatchLatexPatch(BaseModel):
+    old_text: str
+    new_text: str
+
+
+class PatchLatexRequest(BaseModel):
+    latex: str
+    patches: list[PatchLatexPatch]
+
+
+def _escape_latex(text: str) -> str:
+    """Escape special LaTeX characters in user text."""
+    replacements = [
+        ("\\", "\\textbackslash{}"),
+        ("&", "\\&"),
+        ("%", "\\%"),
+        ("$", "\\$"),
+        ("#", "\\#"),
+        ("_", "\\_"),
+        ("{", "\\{"),
+        ("}", "\\}"),
+        ("~", "\\textasciitilde{}"),
+        ("^", "\\textasciicircum{}"),
+    ]
+    for old, new in replacements:
+        text = text.replace(old, new)
+    return text
+
+
+@router.post("/patch-latex")
+async def patch_latex(request: PatchLatexRequest):
+    """
+    Patch bullet text in stored LaTeX and recompile to PDF.
+
+    No LLM — just string replacement + Tectonic (~130ms).
+    """
+    from app.services.tectonic import compile_pdf
+
+    latex = request.latex
+    for patch in request.patches:
+        escaped_new = _escape_latex(patch.new_text)
+        escaped_old = _escape_latex(patch.old_text)
+        latex = latex.replace(escaped_old, escaped_new)
+
+    try:
+        pdf_bytes = await compile_pdf(latex)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"LaTeX compilation failed: {e}")
+
+    return Response(
+        content=pdf_bytes,
+        media_type="application/pdf",
+        headers={"Cache-Control": "no-cache"},
+    )
+
+
 class CompileLatexRequest(BaseModel):
     latex: str
 
