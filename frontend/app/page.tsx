@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState, useRef } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { motion, useInView, useReducedMotion } from "framer-motion";
 import {
   FileText,
@@ -18,6 +19,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Navigation } from "@/components/navigation";
+import { useAuth } from "@/components/auth-provider";
 
 // Animation variants
 const fadeInUp = {
@@ -239,8 +241,17 @@ function FeatureCard({
 }
 
 
-export default function Home() {
+function HomeContent() {
   const shouldReduceMotion = useReducedMotion();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const { user } = useAuth();
+
+  useEffect(() => {
+    const nextPath = searchParams.get("next");
+    if (!user || !nextPath || !nextPath.startsWith("/")) return;
+    router.replace(nextPath);
+  }, [user, searchParams, router]);
 
   return (
     <>
@@ -284,9 +295,11 @@ export default function Home() {
                       <ChevronRight className="w-4 h-4 ml-1" />
                     </Link>
                   </Button>
-                  <Button variant="outline" size="lg" asChild>
-                    <Link href="#how-it-works">Try a demo</Link>
-                  </Button>
+                  {!user && (
+                    <Button variant="outline" size="lg" asChild>
+                      <Link href="/sign-in?next=/vault">Sign in options</Link>
+                    </Button>
+                  )}
                 </motion.div>
 
                 {/* Trust Points */}
@@ -300,7 +313,7 @@ export default function Home() {
                   </span>
                   <span className="flex items-center gap-1.5">
                     <CheckCircle className="w-4 h-4 text-green-500" />
-                    No sign-up required
+                    Optional Google sign-in
                   </span>
                   <span className="flex items-center gap-1.5">
                     <CheckCircle className="w-4 h-4 text-green-500" />
@@ -617,7 +630,7 @@ export default function Home() {
                 </Button>
               </div>
               <p className="mt-6 text-sm text-muted-foreground">
-                No sign-up required
+                Google sign-in available (optional)
               </p>
             </AnimatedSection>
           </div>
@@ -643,7 +656,7 @@ export default function Home() {
                   How it works
                 </Link>
                 <a
-                  href="https://github.com/dsmithnautel/restailor"
+                  href="https://github.com/dsmithnautel/resmatch"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="hover:text-foreground transition-colors"
@@ -651,7 +664,7 @@ export default function Home() {
                   FAQ
                 </a>
                 <a
-                  href="https://github.com/dsmithnautel/restailor"
+                  href="https://github.com/dsmithnautel/resmatch"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="hover:text-foreground transition-colors flex items-center gap-1"
@@ -670,5 +683,15 @@ export default function Home() {
         </footer>
       </main>
     </>
+  );
+}
+
+export default function Home() {
+  return (
+    <Suspense
+      fallback={<main className="min-h-screen bg-background" aria-busy="true" />}
+    >
+      <HomeContent />
+    </Suspense>
   );
 }

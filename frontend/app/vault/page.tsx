@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import {
   ArrowRight,
@@ -14,6 +15,9 @@ import {
   HelpCircle,
   Link2,
   ChevronLeft,
+  Loader2,
+  LogIn,
+  X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -29,6 +33,7 @@ import {
   type AtomicUnit,
   type MasterResumeResponse,
 } from "@/lib/api";
+import { useAuth } from "@/components/auth-provider";
 
 // Progress steps for the pipeline
 const steps = [
@@ -77,18 +82,18 @@ function ProgressIndicator({ currentStep }: { currentStep: number }) {
             <div
               key={step.num}
               className={`flex items-center gap-1.5 text-xs transition-colors ${isActive
-                  ? "text-primary font-medium"
-                  : isCompleted
-                    ? "text-green-600"
-                    : "text-muted-foreground"
+                ? "text-primary font-medium"
+                : isCompleted
+                  ? "text-green-600"
+                  : "text-muted-foreground"
                 }`}
             >
               <div
                 className={`w-6 h-6 rounded-full flex items-center justify-center transition-colors ${isActive
-                    ? "bg-primary text-primary-foreground"
-                    : isCompleted
-                      ? "bg-green-500 text-white"
-                      : "bg-muted"
+                  ? "bg-primary text-primary-foreground"
+                  : isCompleted
+                    ? "bg-green-500 text-white"
+                    : "bg-muted"
                   }`}
               >
                 {isCompleted ? (
@@ -220,11 +225,61 @@ function BulletCard({
 }
 
 export default function VaultPage() {
+  const router = useRouter();
+  const {
+    user,
+    profile,
+    loading: authLoading,
+    profileLoading,
+    configured,
+    signInWithGoogle,
+  } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<MasterResumeResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const shouldReduceMotion = useReducedMotion();
+
+  // Sign-in UI state
+  const [signInSubmitting, setSignInSubmitting] = useState(false);
+  const [signInError, setSignInError] = useState<string | null>(null);
+  const [signInDismissed, setSignInDismissed] = useState(false);
+  const [showPostAuthOptions, setShowPostAuthOptions] = useState(false);
+  const [wasSignedOut, setWasSignedOut] = useState(false);
+
+  // Track whether the user was previously signed out so we can detect a
+  // sign-in that happened on *this* page and show the post-auth dialog.
+  useEffect(() => {
+    if (authLoading) return;
+    if (!user) {
+      setWasSignedOut(true);
+    } else if (wasSignedOut) {
+      // User just signed in on this page
+      setWasSignedOut(false);
+      setShowPostAuthOptions(true);
+    }
+  }, [authLoading, user, wasSignedOut]);
+
+  useEffect(() => {
+    if (authLoading || profileLoading) return;
+    if (user && !profile?.onboardingCompleted) {
+      router.replace("/onboarding");
+    }
+  }, [authLoading, profileLoading, user, profile, router]);
+
+  const handleGoogleSignIn = async () => {
+    setSignInError(null);
+    setSignInSubmitting(true);
+    try {
+      await signInWithGoogle();
+    } catch (err) {
+      setSignInError(
+        err instanceof Error ? err.message : "Google sign-in failed.",
+      );
+    } finally {
+      setSignInSubmitting(false);
+    }
+  };
 
   const handleFileSelect = async (file: File) => {
     // Single file callback - handled by onFilesSelect instead
@@ -290,6 +345,47 @@ export default function VaultPage() {
           </p>
         </motion.div>
 
+        {/* Post-auth options dialog */}
+        <AnimatePresence>
+          {showPostAuthOptions && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="max-w-lg mx-auto mb-8"
+            >
+              <Card className="border-primary/30 shadow-lg">
+                <CardHeader className="text-center">
+                  <div className="w-12 h-12 rounded-full bg-green-500 flex items-center justify-center mx-auto mb-2">
+                    <CheckCircle className="w-6 h-6 text-white" />
+                  </div>
+                  <CardTitle className="text-xl">Welcome back!</CardTitle>
+                  <CardDescription>
+                    You&apos;re signed in. What would you like to do?
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="flex flex-col sm:flex-row gap-3 justify-center">
+                  <Button
+                    variant="outline"
+                    className="gap-2"
+                    onClick={() => setShowPostAuthOptions(false)}
+                  >
+                    <FileText className="w-4 h-4" />
+                    Upload new resumes
+                  </Button>
+                  <Button
+                    className="gap-2"
+                    onClick={() => router.push("/compile")}
+                  >
+                    Continue with existing resumes
+                    <ArrowRight className="w-4 h-4" />
+                  </Button>
+                </CardContent>
+              </Card>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         {/* Step 1: Upload Section */}
         {!result && (
           <motion.div
@@ -312,6 +408,70 @@ export default function VaultPage() {
                 </p>
               </CardHeader>
               <CardContent>
+                {/* Sign-in prompt for unauthenticated users */}
+                <AnimatePresence>
+                  {!authLoading && !user && !signInDismissed && (
+                    <motion.div
+                      initial={shouldReduceMotion ? { opacity: 1 } : { opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, height: 0, marginBottom: 0 }}
+                      className="mb-4 p-4 rounded-lg border border-primary/20 bg-primary/[0.03]"
+                    >
+                      <div className="flex items-start justify-between mb-1">
+                        <p className="text-sm font-medium text-foreground">
+                          Sign in to save your work
+                        </p>
+                        <button
+                          onClick={() => setSignInDismissed(true)}
+                          className="text-muted-foreground hover:text-foreground transition-colors p-0.5 rounded hover:bg-muted -mt-0.5"
+                          aria-label="Dismiss sign-in prompt"
+                        >
+                          <X className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                      <p className="text-sm text-muted-foreground mb-3">
+                        Sign in with Google to save your resumes and match history across sessions.
+                      </p>
+                      <div className="flex flex-col sm:flex-row gap-2">
+                        <Button
+                          size="sm"
+                          className="gap-2"
+                          onClick={handleGoogleSignIn}
+                          disabled={!configured || authLoading || signInSubmitting}
+                        >
+                          {signInSubmitting ? (
+                            <>
+                              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                              Connecting...
+                            </>
+                          ) : (
+                            <>
+                              <LogIn className="h-3.5 w-3.5" />
+                              Continue with Google
+                            </>
+                          )}
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setSignInDismissed(true)}
+                        >
+                          Skip
+                        </Button>
+                      </div>
+                      {signInError && (
+                        <p className="text-sm text-destructive mt-2">{signInError}</p>
+                      )}
+                      {!configured && (
+                        <p className="text-sm text-destructive mt-2">
+                          Firebase is not configured. Add <code>NEXT_PUBLIC_FIREBASE_*</code> values
+                          in <code>frontend/.env.local</code>.
+                        </p>
+                      )}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
                 <FileUpload
                   onFileSelect={handleFileSelect}
                   onFilesSelect={handleFilesSelect}
