@@ -66,7 +66,19 @@ export function Navigation() {
           </span>
         </Link>
 
-        <div className="flex items-center gap-3 sm:gap-6">
+        <div className="flex items-center gap-4">
+          {/* GitHub Link */}
+          <a
+            href="https://github.com/dsmithnautel/resmatch"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-muted-foreground hover:text-foreground transition-colors"
+            aria-label="View on GitHub"
+          >
+            <Github className="h-5 w-5" />
+          </a>
+
+          {/* Primary CTA */}
           <Button asChild size="sm">
             <Link href="/vault">{user ? "Open app" : "Start free"}</Link>
           </Button>

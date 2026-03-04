@@ -25,9 +25,9 @@ ResMatch treats your resume like source code and job descriptions like build tar
 
 | Layer | Technology | Purpose |
 |-------|------------|---------|
-| Frontend | Next.js 14 | React app with App Router |
-| Styling | Tailwind CSS + shadcn/ui | Modern UI components |
-| Backend | FastAPI | Python async API |
+| Frontend | Next.js <!-- NEXTJS_VERSION_START -->16.1.6<!-- NEXTJS_VERSION_END --> | React app with App Router |
+| Styling | Tailwind CSS <!-- TAILWIND_VERSION_START -->3.4.1<!-- TAILWIND_VERSION_END --> + shadcn/ui | Modern UI components |
+| Backend | FastAPI <!-- FASTAPI_VERSION_START -->0.109.0<!-- FASTAPI_VERSION_END --> | Python async API |
 | AI | Google Gemini API | Extraction + LLM scoring |
 | Database | MongoDB Atlas | Document storage |
 | Hosting | DigitalOcean | Backend deployment |
@@ -144,21 +144,83 @@ Selected bullets are compiled via RenderCV into a professional PDF. Full provena
 
 ## Project Structure
 
+<!-- PROJECT_STRUCTURE_START -->
+```text
+.
+├── CHANGELOG.md
+├── README.md
+├── backend
+│   ├── Dockerfile
+│   ├── app
+│   │   ├── __init__.py
+│   │   ├── config.py
+│   │   ├── db
+│   │   ├── main.py
+│   │   ├── models
+│   │   ├── routers
+│   │   ├── services
+│   │   └── templates
+│   ├── coverage.xml
+│   ├── find_id.py
+│   ├── pyproject.toml
+│   ├── request_body.json
+│   ├── request_parse.json
+│   ├── requirements.txt
+│   ├── test_db_connection.py
+│   ├── test_llm_render.py
+│   ├── test_mongo.py
+│   ├── test_renderer.py
+│   └── tests
+│       ├── __init__.py
+│       ├── conftest.py
+│       ├── test_api.py
+│       ├── test_config.py
+│       ├── test_gemini.py
+│       ├── test_health.py
+│       ├── test_ingestion.py
+│       ├── test_jd_parser.py
+│       ├── test_models.py
+│       ├── test_optimizer.py
+│       ├── test_rendercv_mapper.py
+│       ├── test_renderer.py
+│       └── test_scoring.py
+├── debug_tokens.py
+├── frontend
+│   ├── app
+│   │   ├── apple-icon.png
+│   │   ├── compile
+│   │   ├── globals.css
+│   │   ├── icon.png
+│   │   ├── layout.tsx
+│   │   ├── page.tsx
+│   │   ├── review
+│   │   └── vault
+│   ├── components
+│   │   ├── file-upload.tsx
+│   │   ├── flow-diagram.tsx
+│   │   ├── navigation.tsx
+│   │   ├── stepper-tabs.tsx
+│   │   └── ui
+│   ├── lib
+│   │   ├── api.ts
+│   │   └── utils.ts
+│   ├── next-env.d.ts
+│   ├── next.config.js
+│   ├── package-lock.json
+│   ├── package.json
+│   ├── postcss.config.js
+│   ├── public
+│   │   ├── apple-touch-icon.png
+│   │   └── favicon.png
+│   ├── tailwind.config.js
+│   ├── tsconfig.json
+│   └── vercel.json
+└── package-lock.json
+
+18 directories, 52 files
 ```
-restailor/
-├── frontend/          # Next.js 14 app
-│   ├── app/           # Pages (vault, compile, review)
-│   ├── components/    # UI components
-│   └── lib/           # API client, utilities
-├── backend/           # FastAPI server
-│   ├── app/
-│   │   ├── routers/   # API endpoints
-│   │   ├── services/  # Business logic
-│   │   ├── models/    # Pydantic schemas
-│   │   └── db/        # MongoDB setup
-│   └── requirements.txt
-└── docs/              # PRD and planning
-```
+
+<!-- PROJECT_STRUCTURE_END -->
 
 ## Frequently Asked Questions (FAQ)
 

@@ -656,7 +656,7 @@ function HomeContent() {
                   How it works
                 </Link>
                 <a
-                  href="https://github.com/dsmithnautel/restailor"
+                  href="https://github.com/dsmithnautel/resmatch"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="hover:text-foreground transition-colors"
@@ -664,7 +664,7 @@ function HomeContent() {
                   FAQ
                 </a>
                 <a
-                  href="https://github.com/dsmithnautel/restailor"
+                  href="https://github.com/dsmithnautel/resmatch"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="hover:text-foreground transition-colors flex items-center gap-1"
