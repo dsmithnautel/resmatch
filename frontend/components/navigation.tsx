@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ChevronDown, Loader2, LogOut } from "lucide-react";
+import { ChevronDown, Github, Loader2, LogOut } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/components/auth-provider";
