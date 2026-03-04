@@ -1,14 +1,10 @@
----
-description: Template to use when creating a GitHub Pull Request
----
-
 ## Summary
 
 <!-- Brief description of changes -->
 
 ## Changes Made
 
-- 
+-
 
 ## Testing
 
