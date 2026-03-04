@@ -25,9 +25,9 @@ ResMatch treats your resume like source code and job descriptions like build tar
 
 | Layer | Technology | Purpose |
 |-------|------------|---------|
-| Frontend | Next.js 14 | React app with App Router |
-| Styling | Tailwind CSS + shadcn/ui | Modern UI components |
-| Backend | FastAPI | Python async API |
+| Frontend | Next.js <!-- NEXTJS_VERSION_START -->14.1.0<!-- NEXTJS_VERSION_END --> | React app with App Router |
+| Styling | Tailwind CSS <!-- TAILWIND_VERSION_START -->3.4.1<!-- TAILWIND_VERSION_END --> + shadcn/ui | Modern UI components |
+| Backend | FastAPI <!-- FASTAPI_VERSION_START -->0.109.0<!-- FASTAPI_VERSION_END --> | Python async API |
 | AI | Google Gemini API | Extraction + LLM scoring |
 | Database | MongoDB Atlas | Document storage |
 | Hosting | DigitalOcean | Backend deployment |
@@ -144,7 +144,8 @@ Selected bullets are compiled via RenderCV into a professional PDF. Full provena
 
 ## Project Structure
 
-```
+<!-- PROJECT_STRUCTURE_START -->
+```text
 restailor/
 ├── frontend/          # Next.js 14 app
 │   ├── app/           # Pages (vault, compile, review)
@@ -159,6 +160,7 @@ restailor/
 │   └── requirements.txt
 └── docs/              # PRD and planning
 ```
+<!-- PROJECT_STRUCTURE_END -->
 
 ## Frequently Asked Questions (FAQ)
 

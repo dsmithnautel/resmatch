@@ -21,7 +21,7 @@ export function Navigation() {
         <div className="flex items-center gap-4">
           {/* GitHub Link */}
           <a
-            href="https://github.com/dsmithnautel/restailor"
+            href="https://github.com/dsmithnautel/resmatch"
             target="_blank"
             rel="noopener noreferrer"
             className="text-muted-foreground hover:text-foreground transition-colors"

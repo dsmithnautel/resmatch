@@ -13,6 +13,26 @@ os.environ["MONGODB_URI"] = "mongodb://localhost:27017"
 os.environ["MONGODB_DATABASE"] = "resume_compile_test"
 
 
+@pytest.fixture(autouse=True)
+def mock_external_deps():
+    """Globally mock external dependencies to prevent CI failures."""
+    with (
+        patch("app.db.mongodb.get_database", new_callable=AsyncMock) as mock_db,
+        patch("google.genai.Client", autospec=True) as mock_genai,
+        patch("subprocess.run") as mock_run,
+        patch("shutil.which", return_value="/usr/bin/pdflatex"),
+        patch("app.services.gemini._rate_limit", new_callable=AsyncMock),
+    ):
+        # Setup default mock behavior for MongoDB
+        db_instance = AsyncMock()
+        mock_db.return_value = db_instance
+
+        # Setup default mock for subprocess
+        mock_run.return_value = MagicMock(returncode=0, stdout="Success", stderr="")
+
+        yield {"db": db_instance, "genai": mock_genai, "run": mock_run}
+
+
 @pytest.fixture
 def client():
     """Create a test client for the FastAPI app."""

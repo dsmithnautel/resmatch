@@ -1,6 +1,6 @@
 """Integration tests for the FastAPI checkpoints."""
 
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, patch
 
 import pytest
 
@@ -33,7 +33,7 @@ async def test_health_check(async_client):
 
 
 @pytest.mark.asyncio
-async def test_parse_job_url(async_client, mock_services):
+async def test_parse_job_url(async_client, mock_services, mock_external_deps):
     """Test the job parsing endpoint."""
     mock_jd_data = {
         "jd_id": "test_jd",
@@ -53,9 +53,8 @@ async def test_parse_job_url(async_client, mock_services):
     # Mock services
     mock_services["parse_job_description"].return_value = mock_jd
 
-    # Mock DB
-    mock_db = MagicMock()
-    mock_services["job_db"].return_value = mock_db
+    # Mock DB from global fixture
+    mock_db = mock_external_deps["db"]
     mock_db.parsed_jds.insert_one = AsyncMock()
 
     response = await async_client.post("/job/parse", json={"url": "https://example.com"})
@@ -65,11 +64,10 @@ async def test_parse_job_url(async_client, mock_services):
 
 
 @pytest.mark.asyncio
-async def test_compile_resume(async_client, mock_services):
+async def test_compile_resume(async_client, mock_services, mock_external_deps):
     """Test the resume compilation endpoint."""
-    # Mock DB
-    mock_db = MagicMock()
-    mock_services["resume_db"].return_value = mock_db
+    # Mock DB from global fixture
+    mock_db = mock_external_deps["db"]
 
     # Mock units cursor
     # For async for, we need an async iterator
