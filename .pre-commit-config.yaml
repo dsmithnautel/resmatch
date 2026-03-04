@@ -26,15 +26,15 @@ repos:
       - id: ruff-format
         files: ^backend/
 
-  # Frontend - ESLint & Prettier (if installed)
-  - repo: local
-    hooks:
-      - id: eslint
-        name: ESLint
-        entry: npm run lint --prefix frontend --
-        language: system
-        files: ^frontend/.*\.(ts|tsx|js|jsx)$
-        pass_filenames: false
+  # Frontend - ESLint & Prettier (disabled until eslint is configured)
+  # - repo: local
+  #   hooks:
+  #     - id: eslint
+  #       name: ESLint
+  #       entry: bash -c "cd frontend && npm run lint"
+  #       language: system
+  #       files: ^frontend/.*\.(ts|tsx|js|jsx)$
+  #       pass_filenames: false
 
   # Prevent secrets from being committed
   - repo: https://github.com/gitleaks/gitleaks
