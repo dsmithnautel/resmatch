@@ -6,7 +6,7 @@ import Link from "next/link";
 import { Download, FileText, CheckCircle, Info, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { fetchWithAuth, getCompileResult, type CompileResponse, type ScoredUnit } from "@/lib/api";
+import { getCompileResult, getPdfUrl, type CompileResponse, type ScoredUnit, type Provenance } from "@/lib/api";
 
 export default function ReviewPage() {
   const params = useParams();
@@ -14,8 +14,6 @@ export default function ReviewPage() {
 
   const [result, setResult] = useState<CompileResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
-  const [isDownloadingProvenance, setIsDownloadingProvenance] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedUnit, setSelectedUnit] = useState<ScoredUnit | null>(null);
 
@@ -35,56 +33,6 @@ export default function ReviewPage() {
       loadResult();
     }
   }, [compileId]);
-
-  const triggerDownload = (blob: Blob, filename: string) => {
-    const url = window.URL.createObjectURL(blob);
-    const anchor = document.createElement("a");
-    anchor.href = url;
-    anchor.download = filename;
-    document.body.appendChild(anchor);
-    anchor.click();
-    anchor.remove();
-    window.URL.revokeObjectURL(url);
-  };
-
-  const handleDownloadPdf = async () => {
-    if (!compileId) return;
-
-    setIsDownloadingPdf(true);
-    setError(null);
-    try {
-      const response = await fetchWithAuth(`/resume/${compileId}/pdf`);
-      if (!response.ok) {
-        throw new Error("Failed to download PDF");
-      }
-      const blob = await response.blob();
-      triggerDownload(blob, `resume_${compileId}.pdf`);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to download PDF");
-    } finally {
-      setIsDownloadingPdf(false);
-    }
-  };
-
-  const handleDownloadProvenance = async () => {
-    if (!compileId) return;
-
-    setIsDownloadingProvenance(true);
-    setError(null);
-    try {
-      const response = await fetchWithAuth(`/resume/${compileId}/provenance`);
-      if (!response.ok) {
-        throw new Error("Failed to download provenance data");
-      }
-      const json = await response.json();
-      const blob = new Blob([JSON.stringify(json, null, 2)], { type: "application/json" });
-      triggerDownload(blob, `provenance_${compileId}.json`);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to download provenance data");
-    } finally {
-      setIsDownloadingProvenance(false);
-    }
-  };
 
   if (isLoading) {
     return (
@@ -129,21 +77,17 @@ export default function ReviewPage() {
             </p>
           </div>
           <div className="flex gap-3">
-            <Button variant="outline" onClick={handleDownloadProvenance} disabled={isDownloadingProvenance}>
-              {isDownloadingProvenance ? (
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-              ) : (
+            <Button variant="outline" asChild>
+              <a href={`/api/provenance/${compileId}`} download>
                 <FileText className="w-4 h-4 mr-2" />
-              )}
-              Source Data (JSON)
+                Source Data (JSON)
+              </a>
             </Button>
-            <Button onClick={handleDownloadPdf} disabled={isDownloadingPdf}>
-              {isDownloadingPdf ? (
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-              ) : (
+            <Button asChild>
+              <a href={getPdfUrl(compileId)} download>
                 <Download className="w-4 h-4 mr-2" />
-              )}
-              Download PDF
+                Download PDF
+              </a>
             </Button>
           </div>
         </div>

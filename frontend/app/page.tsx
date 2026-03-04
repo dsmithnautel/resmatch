@@ -1,8 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Suspense, useEffect, useRef, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState, useRef } from "react";
 import { motion, useInView, useReducedMotion } from "framer-motion";
 import {
   FileText,
@@ -19,7 +18,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Navigation } from "@/components/navigation";
-import { useAuth } from "@/components/auth-provider";
 
 // Animation variants
 const fadeInUp = {
@@ -241,17 +239,8 @@ function FeatureCard({
 }
 
 
-function HomeContent() {
+export default function Home() {
   const shouldReduceMotion = useReducedMotion();
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const { user } = useAuth();
-
-  useEffect(() => {
-    const nextPath = searchParams.get("next");
-    if (!user || !nextPath || !nextPath.startsWith("/")) return;
-    router.replace(nextPath);
-  }, [user, searchParams, router]);
 
   return (
     <>
@@ -311,7 +300,7 @@ function HomeContent() {
                   </span>
                   <span className="flex items-center gap-1.5">
                     <CheckCircle className="w-4 h-4 text-green-500" />
-                    Optional Google sign-in
+                    No sign-up required
                   </span>
                   <span className="flex items-center gap-1.5">
                     <CheckCircle className="w-4 h-4 text-green-500" />
@@ -555,7 +544,7 @@ function HomeContent() {
                 </Button>
               </div>
               <p className="mt-6 text-sm text-muted-foreground">
-                Google sign-in available (optional)
+                No sign-up required
               </p>
             </AnimatedSection>
           </div>
@@ -602,15 +591,5 @@ function HomeContent() {
         </footer>
       </main>
     </>
-  );
-}
-
-export default function Home() {
-  return (
-    <Suspense
-      fallback={<main className="min-h-screen bg-background" aria-busy="true" />}
-    >
-      <HomeContent />
-    </Suspense>
   );
 }
