@@ -2,7 +2,31 @@
  * API client for ResMatch backend
  */
 
+import { getFirebaseAuth, isFirebaseConfigured } from "@/lib/firebase/client";
+
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+
+/**
+ * Fetch wrapper that attaches the Firebase auth token when available.
+ */
+export async function fetchWithAuth(
+  path: string,
+  init?: RequestInit,
+): Promise<Response> {
+  const headers: Record<string, string> = {
+    ...(init?.headers as Record<string, string>),
+  };
+
+  if (isFirebaseConfigured) {
+    const auth = getFirebaseAuth();
+    const token = await auth.currentUser?.getIdToken();
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
+    }
+  }
+
+  return fetch(`${API_BASE}${path}`, { ...init, headers });
+}
 
 /**
  * Types

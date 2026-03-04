@@ -30,7 +30,7 @@ def test_extract_header_info_empty():
 
 
 @pytest.mark.asyncio
-async def test_render_resume_success(mock_external_deps):
+async def test_render_resume_success():
     """Test successful resume rendering orchestration."""
     compile_id = "test_compile"
     master_version_id = "test_master"
@@ -40,7 +40,7 @@ async def test_render_resume_success(mock_external_deps):
         )
     ]
 
-    mock_db = mock_external_deps["db"]
+    mock_db = MagicMock()
     mock_db.atomic_units = MagicMock()
     # Mock the return value of find() to be an object that has __aiter__
     mock_cursor = AsyncMock()
@@ -49,20 +49,26 @@ async def test_render_resume_success(mock_external_deps):
 
     with (
         patch(
+            "app.services.renderer.get_database",
+            new_callable=AsyncMock,
+            return_value=mock_db,
+        ),
+        patch(
             "app.services.renderer.generate_text",
             new_callable=AsyncMock,
             return_value="LaTeX content",
         ),
         patch("app.services.renderer.os.makedirs"),
         patch("builtins.open"),
+        patch("app.services.renderer.subprocess.run") as mock_run,
         patch("app.services.renderer.os.path.exists", return_value=True),
         patch("app.services.renderer.shutil.move") as mock_move,
     ):
+        mock_run.return_value = MagicMock(stdout="Success", stderr="")
         result = await render_resume(compile_id, selected_units, master_version_id)
 
     assert "resume.pdf" in result
-    # We check if mock_external_deps["run"] was called because of the global mock
-    mock_external_deps["run"].assert_called_once()
+    mock_run.assert_called_once()
     mock_move.assert_called_once()
 
 
@@ -79,7 +85,7 @@ async def test_render_resume_failure():
     mock_db.atomic_units.find.return_value = mock_cursor
 
     with (
-        patch("app.services.renderer.get_database", return_value=mock_db),
+        patch("app.services.renderer.get_database", new_callable=AsyncMock, return_value=mock_db),
         patch(
             "app.services.renderer.generate_text",
             new_callable=AsyncMock,

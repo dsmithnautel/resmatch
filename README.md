@@ -192,17 +192,23 @@ Selected bullets are compiled via RenderCV into a professional PDF. Full provena
 │   │   ├── globals.css
 │   │   ├── icon.png
 │   │   ├── layout.tsx
+│   │   ├── onboarding
 │   │   ├── page.tsx
+│   │   ├── providers.tsx
 │   │   ├── review
+│   │   ├── sign-in
 │   │   └── vault
 │   ├── components
+│   │   ├── auth-provider.tsx
 │   │   ├── file-upload.tsx
 │   │   ├── flow-diagram.tsx
 │   │   ├── navigation.tsx
 │   │   ├── stepper-tabs.tsx
 │   │   └── ui
+│   ├── eslint.config.mjs
 │   ├── lib
 │   │   ├── api.ts
+│   │   ├── firebase
 │   │   └── utils.ts
 │   ├── next-env.d.ts
 │   ├── next.config.js
@@ -217,7 +223,7 @@ Selected bullets are compiled via RenderCV into a professional PDF. Full provena
 │   └── vercel.json
 └── package-lock.json
 
-18 directories, 52 files
+21 directories, 55 files
 ```
 
 <!-- PROJECT_STRUCTURE_END -->

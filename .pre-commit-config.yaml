@@ -26,12 +26,12 @@ repos:
       - id: ruff-format
         files: ^backend/
 
-  # Frontend - ESLint & Prettier (if installed)
+  # Frontend - ESLint
   - repo: local
     hooks:
       - id: eslint
         name: ESLint
-        entry: npm run lint --prefix frontend --
+        entry: bash -c "cd frontend && npx eslint --max-warnings 0"
         language: system
         files: ^frontend/.*\.(ts|tsx|js|jsx)$
         pass_filenames: false
