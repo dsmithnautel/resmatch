@@ -28,7 +28,7 @@ jobs:
       - name: Deploy to DigitalOcean App Platform
         run: |
           # Get app ID (replace with your actual app ID or use doctl to find it)
-          APP_ID=$(doctl apps list --format ID,Spec.Name --no-header | grep restailor | awk '{print $1}')
+          APP_ID=$(doctl apps list --format ID,Spec.Name --no-header | grep resmatch | awk '{print $1}')
 
           if [ -n "$APP_ID" ]; then
             echo "Triggering deployment for app: $APP_ID"

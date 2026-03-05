@@ -13,7 +13,7 @@ def parse_cors_origins() -> list[str]:
     default = [
         "http://localhost:3000",
         "http://localhost:3001",
-        "https://restailor.vercel.app",
+        "https://resmatch.vercel.app",
         "https://www.resmatch.app",
         "https://resmatch.app",
     ]
@@ -47,7 +47,7 @@ class Settings(BaseSettings):
 
     # MongoDB Atlas
     mongodb_uri: str = "mongodb://localhost:27017"
-    mongodb_database: str = "resume_compile"
+    mongodb_database: str = "resmatch"
 
     # Server
     host: str = "0.0.0.0"
@@ -58,7 +58,7 @@ class Settings(BaseSettings):
     environment: str = "development"  # development, staging, production
 
     # CORS
-    cors_origins: list[str] = ["http://localhost:3000", "https://restailor.vercel.app"]
+    cors_origins: list[str] = ["http://localhost:3000", "https://resmatch.vercel.app"]
 
     class Config:
         env_file = ".env"

@@ -10,7 +10,7 @@ from fastapi.testclient import TestClient
 os.environ["ENVIRONMENT"] = "test"
 os.environ["GEMINI_API_KEY"] = "test-key-for-testing"
 os.environ["MONGODB_URI"] = "mongodb://localhost:27017"
-os.environ["MONGODB_DATABASE"] = "resume_compile_test"
+os.environ["MONGODB_DATABASE"] = "resmatch_test"
 
 
 @pytest.fixture(autouse=True)

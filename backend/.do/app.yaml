@@ -1,12 +1,12 @@
 # DigitalOcean App Platform Specification
 # https://docs.digitalocean.com/products/app-platform/reference/app-spec/
 
-name: resume-compile-api
+name: resmatch-api
 
 services:
   - name: api
     github:
-      repo: your-username/restailor
+      repo: dsmithnautel/resmatch
       branch: main
       deploy_on_push: true
     source_dir: backend
@@ -25,9 +25,9 @@ services:
         type: SECRET
       - key: MONGODB_DATABASE
         scope: RUN_TIME
-        value: resume_compile
+        value: resmatch
       - key: CORS_ORIGINS
         scope: RUN_TIME
-        value: '["https://resume-compile.vercel.app","http://localhost:3000"]'
+        value: '["https://resmatch.vercel.app","https://www.resmatch.app","https://resmatch.app","http://localhost:3000"]'
     health_check:
       http_path: /health

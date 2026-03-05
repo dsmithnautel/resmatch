@@ -76,7 +76,7 @@ jobs:
       - name: Build
         run: npm run build
         env:
-          NEXT_PUBLIC_API_URL: https://restailor-8qrvl.ondigitalocean.app
+          NEXT_PUBLIC_API_URL: https://resmatch-api.ondigitalocean.app
 
   # Backend tests
   backend-tests:
