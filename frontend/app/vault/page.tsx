@@ -14,6 +14,7 @@ import {
   HelpCircle,
   Link2,
   ChevronLeft,
+  RotateCcw,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -30,6 +31,7 @@ import {
   type AtomicUnit,
   type MasterResumeResponse,
 } from "@/lib/api";
+import { toast } from "sonner";
 
 // Progress steps for the pipeline
 const steps = [
@@ -250,10 +252,15 @@ export default function VaultPage() {
           ? await uploadResume(selectedFiles[0])
           : await uploadMultipleResumes(selectedFiles);
       setResult(response);
-    } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Failed to process resume"
+      toast.success(
+        selectedFiles.length === 1
+          ? "Resume processed successfully!"
+          : "Resumes merged successfully!"
       );
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Failed to process resume";
+      setError(message);
+      toast.error(message);
     } finally {
       setIsLoading(false);
     }
@@ -326,7 +333,17 @@ export default function VaultPage() {
                 {error && (
                   <div className="mt-4 p-4 bg-destructive/10 rounded-lg flex items-center gap-2 text-destructive">
                     <AlertCircle className="w-5 h-5 flex-shrink-0" />
-                    {error}
+                    <span className="flex-1">{error}</span>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleUploadFiles}
+                      disabled={isLoading || selectedFiles.length === 0}
+                      className="gap-1 flex-shrink-0"
+                    >
+                      <RotateCcw className="w-3 h-3" />
+                      Retry
+                    </Button>
                   </div>
                 )}
               </CardContent>

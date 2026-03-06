@@ -7,6 +7,7 @@ import { ArrowRight, Loader2, Link as LinkIcon, FileText, AlertCircle } from "lu
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { parseJobDescription, compileResume, type ParsedJD, type CompileResponse } from "@/lib/api";
+import { toast } from "sonner";
 
 function CompilePageContent() {
   const searchParams = useSearchParams();
@@ -39,8 +40,11 @@ function CompilePageContent() {
         inputMode === "text" ? jdInput : undefined
       );
       setParsedJD(result);
+      toast.success("Job description parsed!");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to parse job description");
+      const message = err instanceof Error ? err.message : "Failed to parse job description";
+      setError(message);
+      toast.error(message);
     } finally {
       setIsParsingJD(false);
     }
@@ -56,7 +60,9 @@ function CompilePageContent() {
       const result = await compileResume(masterVersion, parsedJD.jd_id);
       setCompileResult(result);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to tailor resume");
+      const message = err instanceof Error ? err.message : "Failed to tailor resume";
+      setError(message);
+      toast.error(message);
     } finally {
       setIsCompiling(false);
     }

@@ -10,6 +10,7 @@ from app.models.compile import (
     Provenance,
     ScoredUnit,
 )
+from app.models.errors import ErrorResponse
 from app.models.job_description import JDParseRequest, ParsedJD
 from app.models.master_resume import MasterResumeResponse, MasterVersion, MergeStats
 
@@ -29,4 +30,5 @@ __all__ = [
     "ScoredUnit",
     "Provenance",
     "CoverageStats",
+    "ErrorResponse",
 ]

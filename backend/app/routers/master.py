@@ -8,6 +8,8 @@ from app.services.ingestion import ingest_multiple_pdfs, ingest_pdf
 
 router = APIRouter()
 
+MAX_FILE_SIZE = 10 * 1024 * 1024  # 10 MB
+
 
 @router.post("/ingest", response_model=MasterResumeResponse)
 async def ingest_master_resume(file: UploadFile = File(...)):
@@ -21,7 +23,15 @@ async def ingest_master_resume(file: UploadFile = File(...)):
         raise HTTPException(status_code=400, detail="Only PDF files are accepted")
 
     content = await file.read()
-    result = await ingest_pdf(content, file.filename)
+
+    if len(content) > MAX_FILE_SIZE:
+        raise HTTPException(status_code=413, detail="File too large. Maximum size is 10MB.")
+
+    try:
+        result = await ingest_pdf(content, file.filename)
+    except ValueError as e:
+        raise HTTPException(status_code=429, detail=str(e)) from e
+
     return result
 
 
@@ -45,33 +55,43 @@ async def ingest_multiple_resumes(files: list[UploadFile] = File(...)):
                 detail=f"Only PDF files are accepted (got: {f.filename})",
             )
         content = await f.read()
+        if len(content) > MAX_FILE_SIZE:
+            raise HTTPException(
+                status_code=413,
+                detail=f"File too large: {f.filename}. Maximum size is 10MB.",
+            )
         pdf_pairs.append((content, f.filename))
 
-    result = await ingest_multiple_pdfs(pdf_pairs)
+    try:
+        result = await ingest_multiple_pdfs(pdf_pairs)
+    except ValueError as e:
+        raise HTTPException(status_code=429, detail=str(e)) from e
+
     return result
 
 
 @router.get("/{version_id}", response_model=MasterResumeResponse)
 async def get_master_resume(version_id: str):
     """Get a master resume by version ID."""
-    db = await get_database()
+    try:
+        db = await get_database()
 
-    # Get version metadata
-    version = await db.master_versions.find_one({"master_version_id": version_id})
-    if not version:
-        raise HTTPException(status_code=404, detail=f"Master version {version_id} not found")
+        version = await db.master_versions.find_one({"master_version_id": version_id})
+        if not version:
+            raise HTTPException(status_code=404, detail=f"Master version {version_id} not found")
 
-    # Get atomic units
-    units_cursor = db.atomic_units.find({"version": version_id})
-    units = [AtomicUnit(**doc) async for doc in units_cursor]
+        units_cursor = db.atomic_units.find({"version": version_id})
+        units = [AtomicUnit(**doc) async for doc in units_cursor]
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=503, detail="Database temporarily unavailable") from e
 
-    # Count by section
     counts: dict[str, int] = {}
     for unit in units:
         section = unit.section.value
         counts[section] = counts.get(section, 0) + 1
 
-    # Initialize warnings as an empty list of strings
     warnings: list[str] = []
 
     return MasterResumeResponse(
@@ -82,21 +102,24 @@ async def get_master_resume(version_id: str):
 @router.put("/{version_id}/units/{unit_id}")
 async def update_atomic_unit(version_id: str, unit_id: str, unit: AtomicUnit):
     """Update an atomic unit (for user corrections)."""
-    db = await get_database()
+    try:
+        db = await get_database()
 
-    # Verify the unit exists
-    existing = await db.atomic_units.find_one({"id": unit_id, "version": version_id})
+        existing = await db.atomic_units.find_one({"id": unit_id, "version": version_id})
 
-    if not existing:
-        raise HTTPException(status_code=404, detail=f"Unit {unit_id} not found")
+        if not existing:
+            raise HTTPException(status_code=404, detail=f"Unit {unit_id} not found")
 
-    # Update the unit
-    result = await db.atomic_units.update_one(
-        {"id": unit_id, "version": version_id}, {"$set": unit.model_dump()}
-    )
+        result = await db.atomic_units.update_one(
+            {"id": unit_id, "version": version_id}, {"$set": unit.model_dump()}
+        )
 
-    if result.modified_count == 0:
-        raise HTTPException(status_code=500, detail="Failed to update unit")
+        if result.modified_count == 0:
+            raise HTTPException(status_code=500, detail="Failed to update unit")
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=503, detail="Database temporarily unavailable") from e
 
     return {"status": "updated", "unit_id": unit_id}
 
@@ -104,12 +127,17 @@ async def update_atomic_unit(version_id: str, unit_id: str, unit: AtomicUnit):
 @router.delete("/{version_id}/units/{unit_id}")
 async def delete_atomic_unit(version_id: str, unit_id: str):
     """Delete an atomic unit."""
-    db = await get_database()
+    try:
+        db = await get_database()
 
-    result = await db.atomic_units.delete_one({"id": unit_id, "version": version_id})
+        result = await db.atomic_units.delete_one({"id": unit_id, "version": version_id})
 
-    if result.deleted_count == 0:
-        raise HTTPException(status_code=404, detail=f"Unit {unit_id} not found")
+        if result.deleted_count == 0:
+            raise HTTPException(status_code=404, detail=f"Unit {unit_id} not found")
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=503, detail="Database temporarily unavailable") from e
 
     return {"status": "deleted", "unit_id": unit_id}
 
@@ -117,9 +145,12 @@ async def delete_atomic_unit(version_id: str, unit_id: str):
 @router.get("/", response_model=list[MasterVersion])
 async def list_master_versions():
     """List all master resume versions."""
-    db = await get_database()
+    try:
+        db = await get_database()
 
-    cursor = db.master_versions.find().sort("created_at", -1)
-    versions = [MasterVersion(**doc) async for doc in cursor]
+        cursor = db.master_versions.find().sort("created_at", -1)
+        versions = [MasterVersion(**doc) async for doc in cursor]
+    except Exception as e:
+        raise HTTPException(status_code=503, detail="Database temporarily unavailable") from e
 
     return versions

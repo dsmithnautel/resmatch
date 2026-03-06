@@ -23,13 +23,19 @@ async def compile_resume(request: CompileRequest):
     4. Generate PDF via RenderCV
     5. Return results with full provenance
     """
-    db = await get_database()
+    try:
+        db = await get_database()
+    except Exception as e:
+        raise HTTPException(status_code=503, detail="Database temporarily unavailable") from e
 
     # 1. Fetch atomic units
-    units_cursor = db.atomic_units.find({"version": request.master_version_id})
-    units = []
-    async for doc in units_cursor:
-        units.append(doc)
+    try:
+        units_cursor = db.atomic_units.find({"version": request.master_version_id})
+        units = []
+        async for doc in units_cursor:
+            units.append(doc)
+    except Exception as e:
+        raise HTTPException(status_code=503, detail="Database temporarily unavailable") from e
 
     if not units:
         raise HTTPException(
@@ -39,7 +45,10 @@ async def compile_resume(request: CompileRequest):
 
     # 2. Get job description
     if request.jd_id:
-        jd_doc = await db.parsed_jds.find_one({"jd_id": request.jd_id})
+        try:
+            jd_doc = await db.parsed_jds.find_one({"jd_id": request.jd_id})
+        except Exception as e:
+            raise HTTPException(status_code=503, detail="Database temporarily unavailable") from e
         if not jd_doc:
             raise HTTPException(status_code=404, detail=f"JD {request.jd_id} not found")
         parsed_jd = ParsedJD(**jd_doc)
@@ -47,7 +56,10 @@ async def compile_resume(request: CompileRequest):
         # Parse on the fly
         from app.services.jd_parser import parse_job_description
 
-        parsed_jd = await parse_job_description(text=request.jd_text)
+        try:
+            parsed_jd = await parse_job_description(text=request.jd_text)
+        except ValueError as e:
+            raise HTTPException(status_code=429, detail=str(e)) from e
 
         # RATE LIMIT GUARD:
         # On-the-fly parsing calls the LLM. Tailoring immediately follows and also calls the LLM.
@@ -151,7 +163,10 @@ async def compile_resume(request: CompileRequest):
         pdf_url=pdf_url,
     )
 
-    await db.compiles.insert_one(result.model_dump())
+    try:
+        await db.compiles.insert_one(result.model_dump())
+    except Exception as e:
+        raise HTTPException(status_code=503, detail="Database temporarily unavailable") from e
 
     return result
 
@@ -159,11 +174,16 @@ async def compile_resume(request: CompileRequest):
 @router.get("/{compile_id}")
 async def get_compile_result(compile_id: str):
     """Get a compilation result by ID."""
-    db = await get_database()
+    try:
+        db = await get_database()
 
-    doc = await db.compiles.find_one({"compile_id": compile_id})
-    if not doc:
-        raise HTTPException(status_code=404, detail=f"Compile {compile_id} not found")
+        doc = await db.compiles.find_one({"compile_id": compile_id})
+        if not doc:
+            raise HTTPException(status_code=404, detail=f"Compile {compile_id} not found")
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=503, detail="Database temporarily unavailable") from e
 
     return CompileResponse(**doc)
 
@@ -185,11 +205,16 @@ async def get_compile_pdf(compile_id: str):
 @router.get("/{compile_id}/provenance")
 async def get_provenance(compile_id: str):
     """Get the provenance JSON for a compilation."""
-    db = await get_database()
+    try:
+        db = await get_database()
 
-    doc = await db.compiles.find_one({"compile_id": compile_id})
-    if not doc:
-        raise HTTPException(status_code=404, detail=f"Compile {compile_id} not found")
+        doc = await db.compiles.find_one({"compile_id": compile_id})
+        if not doc:
+            raise HTTPException(status_code=404, detail=f"Compile {compile_id} not found")
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=503, detail="Database temporarily unavailable") from e
 
     return JSONResponse(content={"provenance": doc.get("provenance", [])})
 
@@ -205,11 +230,16 @@ async def narrate_resume(compile_id: str):
 
     from app.services.voice import format_resume_for_narration, generate_resume_narration
 
-    db = await get_database()
-    doc = await db.compiles.find_one({"compile_id": compile_id})
+    try:
+        db = await get_database()
+        doc = await db.compiles.find_one({"compile_id": compile_id})
 
-    if not doc:
-        raise HTTPException(status_code=404, detail=f"Compile {compile_id} not found")
+        if not doc:
+            raise HTTPException(status_code=404, detail=f"Compile {compile_id} not found")
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=503, detail="Database temporarily unavailable") from e
 
     # Format resume for narration
     selected_units = doc.get("selected_units", [])

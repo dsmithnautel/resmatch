@@ -3,10 +3,11 @@
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
-import { Download, FileText, CheckCircle, Info, Loader2 } from "lucide-react";
+import { Download, FileText, CheckCircle, Info, Loader2, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { getCompileResult, getPdfUrl, type CompileResponse, type ScoredUnit, type Provenance } from "@/lib/api";
+import { toast } from "sonner";
 
 export default function ReviewPage() {
   const params = useParams();
@@ -17,22 +18,26 @@ export default function ReviewPage() {
   const [error, setError] = useState<string | null>(null);
   const [selectedUnit, setSelectedUnit] = useState<ScoredUnit | null>(null);
 
-  useEffect(() => {
-    async function loadResult() {
-      try {
-        const data = await getCompileResult(compileId);
-        setResult(data);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to load results");
-      } finally {
-        setIsLoading(false);
-      }
+  const loadResult = async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const data = await getCompileResult(compileId);
+      setResult(data);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Failed to load results";
+      setError(message);
+      toast.error(message);
+    } finally {
+      setIsLoading(false);
     }
+  };
 
+  useEffect(() => {
     if (compileId) {
       loadResult();
     }
-  }, [compileId]);
+  }, [compileId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (isLoading) {
     return (
@@ -46,12 +51,18 @@ export default function ReviewPage() {
     return (
       <div className="container mx-auto py-8 px-4">
         <Card className="max-w-lg mx-auto">
-          <CardContent className="pt-6 text-center">
+          <CardContent className="pt-6 text-center space-y-4">
             <div className="text-red-500 text-4xl mb-4">!</div>
             <p className="text-gray-600">{error || "Result not found"}</p>
-            <Link href="/vault" className="text-blue-600 hover:underline mt-4 inline-block">
-              Start over
-            </Link>
+            <div className="flex items-center justify-center gap-3">
+              <Button variant="outline" onClick={loadResult} className="gap-2">
+                <RotateCcw className="w-4 h-4" />
+                Try Again
+              </Button>
+              <Link href="/vault" className="text-blue-600 hover:underline">
+                Start over
+              </Link>
+            </div>
           </CardContent>
         </Card>
       </div>

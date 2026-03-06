@@ -189,6 +189,8 @@ Selected bullets are compiled via RenderCV into a professional PDF. Full provena
 │   ├── app
 │   │   ├── apple-icon.png
 │   │   ├── compile
+│   │   ├── error.tsx
+│   │   ├── global-error.tsx
 │   │   ├── globals.css
 │   │   ├── icon.png
 │   │   ├── layout.tsx
@@ -217,7 +219,7 @@ Selected bullets are compiled via RenderCV into a professional PDF. Full provena
 │   └── vercel.json
 └── package-lock.json
 
-18 directories, 52 files
+18 directories, 54 files
 ```
 
 <!-- PROJECT_STRUCTURE_END -->

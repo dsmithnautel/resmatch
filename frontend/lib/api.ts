@@ -4,6 +4,44 @@
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
+export class ApiError extends Error {
+  code: string;
+  status: number;
+  retryAfter: number | null;
+
+  constructor(message: string, code: string, status: number, retryAfter: number | null = null) {
+    super(message);
+    this.name = "ApiError";
+    this.code = code;
+    this.status = status;
+    this.retryAfter = retryAfter;
+  }
+}
+
+const ERROR_MESSAGES: Record<string, string> = {
+  rate_limit: "The AI service is busy. Please wait a moment and try again.",
+  db_unavailable: "We're having trouble reaching our servers. Please try again.",
+  validation_error: "Please check your input and try again.",
+  internal_error: "An unexpected error occurred. Please try again.",
+};
+
+async function handleErrorResponse(response: Response): Promise<never> {
+  let code = "internal_error";
+  let detail = "An unexpected error occurred";
+  let retryAfter: number | null = null;
+
+  try {
+    const body = await response.json();
+    code = body.error || code;
+    detail = ERROR_MESSAGES[code] || body.detail || detail;
+    retryAfter = body.retry_after || null;
+  } catch {
+    // response wasn't JSON
+  }
+
+  throw new ApiError(detail, code, response.status, retryAfter);
+}
+
 /**
  * Types
  */
@@ -88,17 +126,25 @@ export async function uploadResume(file: File): Promise<MasterResumeResponse> {
   const formData = new FormData();
   formData.append("file", file);
 
-  const response = await fetch(`${API_BASE}/master/ingest`, {
-    method: "POST",
-    body: formData,
-  });
+  try {
+    const response = await fetch(`${API_BASE}/master/ingest`, {
+      method: "POST",
+      body: formData,
+    });
 
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.detail || "Failed to upload resume");
+    if (!response.ok) {
+      await handleErrorResponse(response);
+    }
+
+    return response.json();
+  } catch (err) {
+    if (err instanceof ApiError) throw err;
+    throw new ApiError(
+      "Unable to connect to the server. Check your internet connection.",
+      "network_error",
+      0
+    );
   }
-
-  return response.json();
 }
 
 export async function uploadMultipleResumes(
@@ -109,45 +155,70 @@ export async function uploadMultipleResumes(
     formData.append("files", file);
   }
 
-  const response = await fetch(`${API_BASE}/master/ingest-multiple`, {
-    method: "POST",
-    body: formData,
-  });
+  try {
+    const response = await fetch(`${API_BASE}/master/ingest-multiple`, {
+      method: "POST",
+      body: formData,
+    });
 
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.detail || "Failed to upload resumes");
+    if (!response.ok) {
+      await handleErrorResponse(response);
+    }
+
+    return response.json();
+  } catch (err) {
+    if (err instanceof ApiError) throw err;
+    throw new ApiError(
+      "Unable to connect to the server. Check your internet connection.",
+      "network_error",
+      0
+    );
   }
-
-  return response.json();
 }
 
 export async function getMasterResume(versionId: string): Promise<MasterResumeResponse> {
-  const response = await fetch(`${API_BASE}/master/${versionId}`);
+  try {
+    const response = await fetch(`${API_BASE}/master/${versionId}`);
 
-  if (!response.ok) {
-    throw new Error("Failed to fetch master resume");
+    if (!response.ok) {
+      await handleErrorResponse(response);
+    }
+
+    return response.json();
+  } catch (err) {
+    if (err instanceof ApiError) throw err;
+    throw new ApiError(
+      "Unable to connect to the server. Check your internet connection.",
+      "network_error",
+      0
+    );
   }
-
-  return response.json();
 }
 
 export async function parseJobDescription(
   url?: string,
   text?: string
 ): Promise<ParsedJD> {
-  const response = await fetch(`${API_BASE}/job/parse`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ url, text }),
-  });
+  try {
+    const response = await fetch(`${API_BASE}/job/parse`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ url, text }),
+    });
 
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.detail || "Failed to parse job description");
+    if (!response.ok) {
+      await handleErrorResponse(response);
+    }
+
+    return response.json();
+  } catch (err) {
+    if (err instanceof ApiError) throw err;
+    throw new ApiError(
+      "Unable to connect to the server. Check your internet connection.",
+      "network_error",
+      0
+    );
   }
-
-  return response.json();
 }
 
 export async function compileResume(
@@ -159,33 +230,50 @@ export async function compileResume(
     max_project_bullets?: number;
   }
 ): Promise<CompileResponse> {
-  const response = await fetch(`${API_BASE}/resume/compile`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      master_version_id: masterVersionId,
-      jd_id: jdId,
-      jd_text: jdText,
-      constraints,
-    }),
-  });
+  try {
+    const response = await fetch(`${API_BASE}/resume/compile`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        master_version_id: masterVersionId,
+        jd_id: jdId,
+        jd_text: jdText,
+        constraints,
+      }),
+    });
 
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.detail || "Failed to compile resume");
+    if (!response.ok) {
+      await handleErrorResponse(response);
+    }
+
+    return response.json();
+  } catch (err) {
+    if (err instanceof ApiError) throw err;
+    throw new ApiError(
+      "Unable to connect to the server. Check your internet connection.",
+      "network_error",
+      0
+    );
   }
-
-  return response.json();
 }
 
 export async function getCompileResult(compileId: string): Promise<CompileResponse> {
-  const response = await fetch(`${API_BASE}/resume/${compileId}`);
+  try {
+    const response = await fetch(`${API_BASE}/resume/${compileId}`);
 
-  if (!response.ok) {
-    throw new Error("Failed to fetch compile result");
+    if (!response.ok) {
+      await handleErrorResponse(response);
+    }
+
+    return response.json();
+  } catch (err) {
+    if (err instanceof ApiError) throw err;
+    throw new ApiError(
+      "Unable to connect to the server. Check your internet connection.",
+      "network_error",
+      0
+    );
   }
-
-  return response.json();
 }
 
 export function getPdfUrl(compileId: string): string {

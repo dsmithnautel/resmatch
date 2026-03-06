@@ -1,8 +1,13 @@
 """MongoDB Atlas connection and database operations."""
 
+import logging
+
 from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
+from pymongo.errors import ConnectionFailure, ServerSelectionTimeoutError
 
 from app.config import get_settings
+
+logger = logging.getLogger(__name__)
 
 _client: AsyncIOMotorClient | None = None
 _db: AsyncIOMotorDatabase | None = None
@@ -14,23 +19,30 @@ async def get_database() -> AsyncIOMotorDatabase:
 
     if _db is None:
         settings = get_settings()
-        # Fix for macOS SSL certificate verification
         mongodb_uri = settings.mongodb_uri
 
-        # Add SSL parameters to URI if not present
         if "tlsAllowInvalidCertificates" not in mongodb_uri:
             separator = "&" if "?" in mongodb_uri else "?"
             mongodb_uri = f"{mongodb_uri}{separator}tlsAllowInvalidCertificates=true"
 
-        _client = AsyncIOMotorClient(
-            mongodb_uri,
-            tlsAllowInvalidCertificates=True,  # Required for macOS Python 3.13
-            serverSelectionTimeoutMS=5000,  # Faster timeout for debugging
-        )
-        _db = _client[settings.mongodb_database]
-
-        # Ensure indexes
-        await _ensure_indexes(_db)
+        try:
+            _client = AsyncIOMotorClient(
+                mongodb_uri,
+                tlsAllowInvalidCertificates=True,
+                serverSelectionTimeoutMS=5000,
+            )
+            _db = _client[settings.mongodb_database]
+            await _ensure_indexes(_db)
+        except ServerSelectionTimeoutError as e:
+            logger.error("MongoDB server selection timed out: %s", e)
+            _client = None
+            _db = None
+            raise RuntimeError("Could not connect to MongoDB: server selection timed out") from e
+        except ConnectionFailure as e:
+            logger.error("MongoDB connection failed: %s", e)
+            _client = None
+            _db = None
+            raise RuntimeError("Could not connect to MongoDB: connection failed") from e
 
     return _db
 
