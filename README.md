@@ -6,8 +6,6 @@
 
 > Truth-first resume tailoring engine - compiles verified experience into job-targeted resumes with zero hallucinations.
 
-Built for **SwampHacks XI** | Using **Gemini API** (MLH), **MongoDB Atlas** (MLH), **DigitalOcean** (MLH)
-
 ## Overview
 
 ResMatch treats your resume like source code and job descriptions like build targets. It:
