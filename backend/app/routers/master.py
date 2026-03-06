@@ -4,7 +4,7 @@ from fastapi import APIRouter, File, HTTPException, UploadFile
 
 from app.db.mongodb import get_database
 from app.models import AtomicUnit, MasterResumeResponse, MasterVersion
-from app.services.ingestion import ingest_pdf
+from app.services.ingestion import ingest_multiple_pdfs, ingest_pdf
 
 router = APIRouter()
 
@@ -20,12 +20,34 @@ async def ingest_master_resume(file: UploadFile = File(...)):
     if not file.filename or not file.filename.lower().endswith(".pdf"):
         raise HTTPException(status_code=400, detail="Only PDF files are accepted")
 
-    # Read file content
     content = await file.read()
-
-    # Process with ingestion service
     result = await ingest_pdf(content, file.filename)
+    return result
 
+
+@router.post("/ingest-multiple", response_model=MasterResumeResponse)
+async def ingest_multiple_resumes(files: list[UploadFile] = File(...)):
+    """
+    Upload multiple resume PDFs and merge them into a single master resume.
+
+    Extracts atomic units from each file, deduplicates across all files
+    (removing exact and near-duplicate entries), and stores the merged
+    result as one master version.
+    """
+    if not files:
+        raise HTTPException(status_code=400, detail="At least one PDF file is required")
+
+    pdf_pairs: list[tuple[bytes, str]] = []
+    for f in files:
+        if not f.filename or not f.filename.lower().endswith(".pdf"):
+            raise HTTPException(
+                status_code=400,
+                detail=f"Only PDF files are accepted (got: {f.filename})",
+            )
+        content = await f.read()
+        pdf_pairs.append((content, f.filename))
+
+    result = await ingest_multiple_pdfs(pdf_pairs)
     return result
 
 

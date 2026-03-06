@@ -26,6 +26,7 @@ import {
 import { FileUpload } from "@/components/file-upload";
 import {
   uploadResume,
+  uploadMultipleResumes,
   type AtomicUnit,
   type MasterResumeResponse,
 } from "@/lib/api";
@@ -194,7 +195,9 @@ function BulletCard({
       <div className="flex items-center justify-between">
         <button className="inline-flex items-center gap-1.5 text-xs text-primary hover:underline">
           <Link2 className="w-3 h-3" />
-          View source (page 1, line {(index + 1) * 3 + 5})
+          {unit.evidence?.source
+            ? `Source: ${unit.evidence.source}`
+            : `View source (page 1, line ${(index + 1) * 3 + 5})`}
         </button>
 
         {unit.tags.skills.length > 0 && (
@@ -242,8 +245,10 @@ export default function VaultPage() {
     setError(null);
 
     try {
-      // Upload first file for now (or combine later)
-      const response = await uploadResume(selectedFiles[0]);
+      const response =
+        selectedFiles.length === 1
+          ? await uploadResume(selectedFiles[0])
+          : await uploadMultipleResumes(selectedFiles);
       setResult(response);
     } catch (err) {
       setError(
@@ -364,16 +369,91 @@ export default function VaultPage() {
                   </div>
                   <div>
                     <h3 className="font-semibold text-green-800 dark:text-green-200">
-                      Resume Processed Successfully
+                      {result.merge_stats
+                        ? `${result.merge_stats.files_processed} Resume${result.merge_stats.files_processed !== 1 ? "s" : ""} Merged Successfully`
+                        : "Resume Processed Successfully"}
                     </h3>
                     <p className="text-green-700 dark:text-green-300 text-sm">
                       {result.atomic_units.length} experience bullets extracted
                       and verified
+                      {result.merge_stats && result.merge_stats.duplicates_removed > 0 && (
+                        <span>
+                          {" "}&mdash; {result.merge_stats.duplicates_removed} duplicate{result.merge_stats.duplicates_removed !== 1 ? "s" : ""} removed
+                        </span>
+                      )}
                     </p>
                   </div>
                 </div>
               </CardContent>
             </Card>
+
+            {/* Merge Stats (when multiple files) */}
+            {result.merge_stats && (
+              <Card>
+                <CardHeader className="pb-4">
+                  <CardTitle className="text-lg">Merge Summary</CardTitle>
+                  <CardDescription>
+                    Breakdown of units extracted per source file
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                    <div className="text-center p-4 bg-muted/50 rounded-lg">
+                      <div className="text-2xl font-bold text-primary">
+                        {result.merge_stats.files_processed}
+                      </div>
+                      <div className="text-sm text-muted-foreground">
+                        Files Processed
+                      </div>
+                    </div>
+                    <div className="text-center p-4 bg-muted/50 rounded-lg">
+                      <div className="text-2xl font-bold text-primary">
+                        {result.merge_stats.total_units_before_dedup}
+                      </div>
+                      <div className="text-sm text-muted-foreground">
+                        Total Extracted
+                      </div>
+                    </div>
+                    <div className="text-center p-4 bg-muted/50 rounded-lg">
+                      <div className="text-2xl font-bold text-red-500">
+                        {result.merge_stats.duplicates_removed}
+                      </div>
+                      <div className="text-sm text-muted-foreground">
+                        Duplicates Removed
+                      </div>
+                    </div>
+                    <div className="text-center p-4 bg-muted/50 rounded-lg">
+                      <div className="text-2xl font-bold text-green-600">
+                        {result.merge_stats.final_unit_count}
+                      </div>
+                      <div className="text-sm text-muted-foreground">
+                        Final Unique Units
+                      </div>
+                    </div>
+                  </div>
+                  {Object.keys(result.merge_stats.per_file_counts).length > 1 && (
+                    <div className="space-y-2">
+                      <p className="text-sm font-medium text-muted-foreground">Per-file breakdown:</p>
+                      {Object.entries(result.merge_stats.per_file_counts).map(
+                        ([filename, count]) => (
+                          <div
+                            key={filename}
+                            className="flex items-center justify-between p-2 bg-muted/30 rounded text-sm"
+                          >
+                            <span className="font-medium truncate mr-4">
+                              {filename}
+                            </span>
+                            <span className="text-muted-foreground flex-shrink-0">
+                              {count} unit{count !== 1 ? "s" : ""}
+                            </span>
+                          </div>
+                        )
+                      )}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            )}
 
             {/* Warnings */}
             {result.warnings.length > 0 && (

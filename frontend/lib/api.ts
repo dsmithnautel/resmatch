@@ -20,11 +20,20 @@ export interface AtomicUnit {
   version: string;
 }
 
+export interface MergeStats {
+  files_processed: number;
+  total_units_before_dedup: number;
+  duplicates_removed: number;
+  final_unit_count: number;
+  per_file_counts: Record<string, number>;
+}
+
 export interface MasterResumeResponse {
   master_version_id: string;
   atomic_units: AtomicUnit[];
   counts: Record<string, number>;
   warnings: string[];
+  merge_stats?: MergeStats;
 }
 
 export interface ParsedJD {
@@ -87,6 +96,27 @@ export async function uploadResume(file: File): Promise<MasterResumeResponse> {
   if (!response.ok) {
     const error = await response.json();
     throw new Error(error.detail || "Failed to upload resume");
+  }
+
+  return response.json();
+}
+
+export async function uploadMultipleResumes(
+  files: File[]
+): Promise<MasterResumeResponse> {
+  const formData = new FormData();
+  for (const file of files) {
+    formData.append("files", file);
+  }
+
+  const response = await fetch(`${API_BASE}/master/ingest-multiple`, {
+    method: "POST",
+    body: formData,
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.detail || "Failed to upload resumes");
   }
 
   return response.json();

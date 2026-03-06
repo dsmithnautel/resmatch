@@ -11,7 +11,7 @@ from app.models.compile import (
     ScoredUnit,
 )
 from app.models.job_description import JDParseRequest, ParsedJD
-from app.models.master_resume import MasterResumeResponse, MasterVersion
+from app.models.master_resume import MasterResumeResponse, MasterVersion, MergeStats
 
 __all__ = [
     "AtomicUnit",
@@ -19,6 +19,7 @@ __all__ = [
     "SectionType",
     "MasterVersion",
     "MasterResumeResponse",
+    "MergeStats",
     "ParsedJD",
     "JDParseRequest",
     "CompileRequest",

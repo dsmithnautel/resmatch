@@ -60,3 +60,8 @@ coverage.xml
 # Debug / API output files
 backend/request_body.json
 backend/response.json
+
+# AI agent artifacts
+CLAUDE.md
+.agents/
+backend/ci_log.txt
