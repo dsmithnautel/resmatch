@@ -30,7 +30,7 @@ ResMatch treats your resume like source code and job descriptions like build tar
 | Layer | Technology | Purpose |
 |-------|------------|---------|
 | Frontend | Next.js <!-- NEXTJS_VERSION_START -->16.1.6<!-- NEXTJS_VERSION_END --> | React app with App Router |
-| Styling | Tailwind CSS <!-- TAILWIND_VERSION_START -->3.4.1<!-- TAILWIND_VERSION_END --> + shadcn/ui | Modern UI components |
+| Styling | Tailwind CSS <!-- TAILWIND_VERSION_START -->4.2.1<!-- TAILWIND_VERSION_END --> + shadcn/ui | Modern UI components |
 | Backend | FastAPI <!-- FASTAPI_VERSION_START -->0.109.0<!-- FASTAPI_VERSION_END --> | Python async API |
 | AI | Google Gemini API | Extraction + LLM tailoring |
 | Database | MongoDB Atlas | Document storage |
