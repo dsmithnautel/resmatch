@@ -14,7 +14,7 @@ motor>=3.3.0
 
 # PDF Processing
 pymupdf>=1.23.0
-rendercv>=1.10
+rendercv>=2.8
 
 # Web Scraping
 httpx>=0.26.0
